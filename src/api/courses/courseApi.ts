@@ -42,3 +42,13 @@ export const getCourseById = async (id: string | undefined) => {
     const {data} = await apiClient.get("/course/get/" + id);
     return data;
 };
+
+export const getContinueLearning = async () => {
+    const { data } = await apiClient.get("/student-course/me/continue-learning");
+    return data;
+};
+
+export const getLearningStats = async () => {
+    const { data } = await apiClient.get("/student-course/me/learning-stats");
+    return data;
+};

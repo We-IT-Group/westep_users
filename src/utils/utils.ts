@@ -59,3 +59,18 @@ export function formatUzPhone(number:string) {
 
     return `+${country} ${code} ${part1} ${part2} ${part3}`;
 }
+
+export function formatCourseDuration(totalSeconds?: number | null) {
+    if (!totalSeconds) return null;
+    
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    
+    if (minutes >= 60) {
+        const hours = Math.floor(minutes / 60);
+        const remainingMinutes = minutes % 60;
+        return remainingMinutes > 0 ? `${hours} soat ${remainingMinutes} min` : `${hours} soat`;
+    }
+    
+    return seconds > 0 ? `${minutes} min ${seconds} sek` : `${minutes} min`;
+}

@@ -7,6 +7,7 @@ import {
     logout,
     register,
     sendOtpCode,
+    uploadAvatar,
     updateProfile,
     UpdateProfileBody,
     verifyCode
@@ -14,6 +15,7 @@ import {
 import {useNavigate} from "react-router-dom";
 import {getItem} from "../../utils/utils.ts";
 import {useToast} from "../../hooks/useToast.tsx";
+import type { User } from "../../types/types.ts";
 
 export const useUser = () =>
     useQuery({
@@ -152,6 +154,49 @@ export const useUpdateProfile = () => {
         onSuccess: async () => {
             await qc.invalidateQueries({queryKey: ["currentUser"]});
             toast.success("Profil yangilandi");
+        },
+        onError: (error) => {
+            toast.error(error.message);
+        },
+    });
+};
+
+export const useUploadAvatar = () => {
+    const qc = useQueryClient();
+    const toast = useToast();
+
+    return useMutation({
+        mutationFn: (file: File) => uploadAvatar(file),
+        onSuccess: async (response) => {
+            qc.setQueryData(["currentUser"], (previous: User | undefined) => {
+                if (!previous) return previous;
+
+                const avatarPath =
+                    typeof response === "string"
+                        ? response
+                        : response?.avatarUrl ||
+                          response?.avatar ||
+                          response?.attachmentUrl ||
+                          response?.profileImageUrl ||
+                          response?.imageUrl ||
+                          response?.url ||
+                          previous.avatarUrl ||
+                          previous.avatar ||
+                          previous.attachmentUrl ||
+                          previous.profileImageUrl ||
+                          previous.imageUrl;
+
+                return {
+                    ...previous,
+                    avatarUrl: avatarPath,
+                    avatar: avatarPath,
+                    attachmentUrl: avatarPath,
+                    profileImageUrl: avatarPath,
+                    imageUrl: avatarPath,
+                };
+            });
+            await qc.invalidateQueries({queryKey: ["currentUser"]});
+            toast.success("Profil rasmi yangilandi");
         },
         onError: (error) => {
             toast.error(error.message);

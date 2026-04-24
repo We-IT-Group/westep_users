@@ -1,15 +1,17 @@
-import {useFormik} from "formik";
+import { useFormik } from "formik";
 import * as Yup from "yup";
-import {useOtpPhoneNumber} from "../../../api/auth/useAuth.ts";
+import { useOtpPhoneNumber } from "../../../api/auth/useAuth.ts";
 import InputField from "../../../ui/InputField.tsx";
 import CommonButton from "../../../ui/CommonButton.tsx";
 import AuthText from "../../../ui/AuthText.tsx";
+import PasswordRequirements from "../../../ui/PasswordRequirements.tsx";
+import AuthBrand from "../AuthBrand.tsx";
 
 
 export default function NewPassword() {
 
     const form = JSON.parse(sessionStorage.getItem('form') as string);
-    const {mutate, isPending} = useOtpPhoneNumber('REGISTER')
+    const { mutate, isPending } = useOtpPhoneNumber('REGISTER')
 
     const formik = useFormik({
         initialValues: {
@@ -28,15 +30,17 @@ export default function NewPassword() {
                 .oneOf([Yup.ref("password")], "Parollar bir xil bo‘lishi kerak!"),
         }),
         onSubmit: (values) => {
+            console.log(values)
             sessionStorage.setItem('form', JSON.stringify({
-                ...form,password: values.password,
+                ...form, password: values.password,
             }));
-            mutate({phoneNumber: form.phoneNumber, type: 'REGISTER'})
+            mutate({ phoneNumber: form.phoneNumber, type: 'REGISTER' })
         },
     });
 
     return (
         <>
+            <AuthBrand />
             <section className="flex items-center justify-center w-full">
                 <div className="w-full max-w-lg animate-fadeIn">
                     <form
@@ -47,12 +51,13 @@ export default function NewPassword() {
                         }}
                         className="bg-transparent"
                     >
-                        <AuthText  title="Parol yaratish"/>
+                        <AuthText title="Parol yaratish" />
                         <div className="grid grid-cols-1 mt-2 gap-3">
                             <InputField
                                 name="password" label="" placeholder={'Yangi parol'} type="password"
                                 key='passwords' formik={formik}
                             />
+                            <PasswordRequirements password={formik.values.password} />
                             <InputField
                                 name="confirmPassword" label="" placeholder={'Parol tasdig’i'} type="password"
                                 key='password' formik={formik}

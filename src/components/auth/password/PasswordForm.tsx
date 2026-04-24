@@ -1,18 +1,19 @@
-import {useLogin} from "../../../api/auth/useAuth.ts";
+import { useLogin } from "../../../api/auth/useAuth.ts";
 import 'react-phone-number-input/style.css';
-import {useFormik} from "formik";
+import { useFormik } from "formik";
 import * as Yup from "yup";
-import {Link, useLocation} from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import InputField from "../../../ui/InputField.tsx";
 import CommonButton from "../../../ui/CommonButton.tsx";
 import AuthText from "../../../ui/AuthText.tsx";
+import PasswordRequirements from "../../../ui/PasswordRequirements.tsx";
 
 
 export default function PasswordForm() {
 
     const location = useLocation();
     const phone = location.state?.phoneNumber;
-    const {mutateAsync, isPending} = useLogin();
+    const { mutateAsync, isPending } = useLogin();
 
 
     const formik = useFormik({
@@ -22,16 +23,23 @@ export default function PasswordForm() {
         validationSchema: Yup.object().shape({
             password: Yup.string()
                 .required("Parolni kiriting!")
-                .matches(/[A-Z]/, "Kamida bitta katta harf bo‘lishi kerak")
+                // .matches(/[A-Z]/, "Kamida bitta katta harf bo‘lishi kerak")
                 .matches(/[a-z]/, "Kamida bitta kichik harf bo‘lishi kerak")
                 .matches(/\d/, "Kamida bitta raqam bo‘lishi kerak")
                 .min(6, "Parol kamida 6 ta belgidan iborat bo‘lishi kerak!"),
         }),
-        onSubmit: async (values) => {
-            await mutateAsync({
-                phoneNumber: phone,
-                password: values.password
-            })
+        onSubmit: async (values, { setFieldError, setFieldTouched }) => {
+            try {
+                await mutateAsync({
+                    phoneNumber: phone,
+                    password: values.password
+                });
+            } catch (error) {
+                const message =
+                    error instanceof Error ? error.message : "Parol noto'g'ri kiritildi!";
+                setFieldTouched("password", true, false);
+                setFieldError("password", message);
+            }
         },
     });
 
@@ -47,7 +55,7 @@ export default function PasswordForm() {
                         }}
                         className="bg-transparent"
                     >
-                        <AuthText title={'Kirish'}/>
+                        <AuthText title={'Kirish'} />
                         <div className="grid grid-cols-1 mt-2">
                             <InputField
                                 placeholder="Parolni kiriting!"
@@ -55,6 +63,7 @@ export default function PasswordForm() {
                                 type="password"
                                 name="password"
                             />
+                            <PasswordRequirements password={formik.values.password} />
                         </div>
 
                         <div className="mt-8 w-full">

@@ -23,6 +23,10 @@ export const useGetLessonsProgress = ({studentCourseId, lessonId, ended}: {
         },
         retry: false,
         enabled: !!lessonId,
+        staleTime: Infinity,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 
 export const useGetLessonsProgressList = (studentCourseId: string | undefined) =>
@@ -37,14 +41,20 @@ export const useGetLessonsProgressList = (studentCourseId: string | undefined) =
         },
         retry: false,
         enabled: !!studentCourseId,
+        staleTime: Infinity,
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 
 export const useStartLessonProgress = () => {
     const qc = useQueryClient();
     return useMutation({
         mutationFn: addLessonProgressStart,
-        onSuccess: async () => {
+        onSuccess: async (data, variables) => {
+            qc.setQueryData(["lessonProgress", variables.lessonId, false], data);
             qc.invalidateQueries({queryKey: ["lessonsProgressList"]});
+            qc.invalidateQueries({queryKey: ["continue-learning"]});
         },
         onError: (error) => {
             alert(error);
@@ -53,9 +63,16 @@ export const useStartLessonProgress = () => {
 };
 
 export const useUpdateLessonProgress = () => {
+    const qc = useQueryClient();
     return useMutation({
         mutationFn: updateLessonProgress,
-        onSuccess: async () => {
+        onSuccess: async (data, variables) => {
+            qc.setQueryData(["lessonProgress", variables.lessonId, false], data);
+
+            if (data?.completed) {
+                qc.invalidateQueries({queryKey: ["continue-learning"]});
+                qc.invalidateQueries({queryKey: ["lessonsProgressList"]});
+            }
         },
         onError: (error) => {
             alert(error);

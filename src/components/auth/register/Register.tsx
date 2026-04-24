@@ -7,6 +7,7 @@ import PhoneNumberInput from "../../../ui/PhoneNumberInput.tsx";
 import AuthDatePicker from "../../../ui/AuthDatePicker.tsx";
 import AuthText from "../../../ui/AuthText.tsx";
 import CommonButton from "../../../ui/CommonButton.tsx";
+import AuthBrand from "../AuthBrand.tsx";
 
 
 export default function Register() {
@@ -85,6 +86,7 @@ export default function Register() {
     console.log(formik.values);
     return (
         <>
+            <AuthBrand />
             <section className="flex items-center justify-center w-full">
                 <div className="w-full max-w-lg animate-fadeIn">
                     <form

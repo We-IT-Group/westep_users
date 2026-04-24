@@ -1,7 +1,7 @@
-import {useOtpPhoneNumber} from "../../../api/auth/useAuth.ts";
-import {useFormik} from "formik";
+import { useOtpPhoneNumber } from "../../../api/auth/useAuth.ts";
+import { useFormik } from "formik";
 import * as Yup from "yup";
-import {useLocation} from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import InputField from "../../../ui/InputField.tsx";
 import CommonButton from "../../../ui/CommonButton.tsx";
 import AuthText from "../../../ui/AuthText.tsx";
@@ -9,7 +9,7 @@ import AuthText from "../../../ui/AuthText.tsx";
 
 export default function ResetPassword() {
 
-    const {mutate, isPending} = useOtpPhoneNumber('RESET_PASSWORD')
+    const { mutate, isPending } = useOtpPhoneNumber('RESET_PASSWORD')
     const form = JSON.parse(sessionStorage.getItem('form') as string);
 
     const location = useLocation();
@@ -34,9 +34,9 @@ export default function ResetPassword() {
         }),
         onSubmit: async (values) => {
             sessionStorage.setItem('form', JSON.stringify({
-                ...form,password: values.password,
+                ...form, password: values.password,
             }));
-            mutate({phoneNumber: form.phoneNumber, type: 'RESET_PASSWORD'});
+            mutate({ phoneNumber: form.phoneNumber, type: 'RESET_PASSWORD' });
         },
     });
 
@@ -52,7 +52,7 @@ export default function ResetPassword() {
                         }}
                         className="bg-transparent"
                     >
-                        <AuthText  title="Yangi Parol o'rnatish"/>
+                        <AuthText title="Yangi Parol o'rnatish" />
                         <div className="grid grid-cols-1 mt-2 gap-3">
                             <InputField
                                 name="password" label="" placeholder={'Yangi parol'} type="password"

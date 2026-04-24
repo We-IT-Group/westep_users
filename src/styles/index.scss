@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -53,6 +55,31 @@ html, body, #root {
   overflow-x: hidden; /* gorizontal scrollbarni oldini oladi */
 }
 
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+a,
+button,
+input,
+textarea,
+select,
+label,
+li,
+div {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+}
+
 /* 2. Barcha elementlarning box-sizing ni to'g'rilang */
 * {
   box-sizing: border-box;
@@ -71,6 +98,13 @@ iframe,
 canvas,
 svg {
   max-width: 100%;
+}
+
+.lesson-video-player .vds-time-slider,
+.lesson-video-player [data-part="time-slider"] {
+  display: flex !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
 //.debug-container {

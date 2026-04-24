@@ -1,5 +1,5 @@
 import {
-    MediaPlayer, MediaPlayerInstance, MediaProvider, Poster, useStore
+    MediaPlayer, MediaPlayerInstance, MediaProvider, Poster
 } from '@vidstack/react';
 import {DefaultVideoLayout} from '@vidstack/react/player/layouts/default';
 import {
@@ -21,6 +21,7 @@ import {useUpdateLessonProgress} from "../../api/lessonProgress/useLessonProgres
 import {useParams} from "react-router-dom";
 
 const None = () => null;
+const PROGRESS_INTERVAL_MS = 10000;
 
 const customIcons: Partial<DefaultLayoutIcons> = {
     AirPlayButton: {
@@ -101,18 +102,29 @@ const customIcons: Partial<DefaultLayoutIcons> = {
 };
 
 
-const VideoPlayer = ({videoUrl, setEnded, startTime}: {
+const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
     videoUrl: string,
     setEnded: (end: boolean) => void,
     startTime: number
+    onProgressChange?: (progress: { currentSecond?: number; completed?: boolean } | null) => void
 }) => {
+    const { mutateAsync } = useUpdateLessonProgress();
+    const params = useParams();
+    const splatSegments = (params["*"] || "").split("/").filter(Boolean);
+    const currentLessonId = splatSegments[1];
 
-
-    const {mutate} = useUpdateLessonProgress()
-    const params = useParams()
-
-    const playerRef = useRef<MediaPlayerInstance>(null),
-        {currentTime, ended, started, paused, duration} = useStore(MediaPlayerInstance, playerRef);
+    const playerRef = useRef<MediaPlayerInstance>(null);
+    const segmentStartSecondRef = useRef<number | null>(null);
+    const lastObservedSecondRef = useRef<number | null>(null);
+    const lastSavedSecondRef = useRef<number | null>(null);
+    const restoreTimeoutsRef = useRef<number[]>([]);
+    const progressTimerRef = useRef<number | null>(null);
+    const lastRestoredStartTimeRef = useRef<number | null>(null);
+    const isRestoringPositionRef = useRef(false);
+    const isFlushingSegmentRef = useRef(false);
+    const hasPlaybackInteractionRef = useRef(false);
+    const isSeekingRef = useRef(false);
+    const hasEndedRef = useRef(false);
 
     const getYoutubeThumbnail = (srcLink: string) => {
         let videoId = "";
@@ -129,60 +141,330 @@ const VideoPlayer = ({videoUrl, setEnded, startTime}: {
         return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : "";
     };
 
+    const thumbnail = getYoutubeThumbnail(videoUrl);
 
-    const thumbnail = getYoutubeThumbnail(videoUrl)
+    const getRoundedCurrentSecond = useCallback(() => {
+        return Math.max(
+            0,
+            Math.round(playerRef.current?.currentTime ?? lastObservedSecondRef.current ?? 0),
+        );
+    }, []);
 
-    const saveProgress = useCallback((seconds: number) => {
-        if (params.id && params.lessonId) {
-            mutate({
-                studentCourseId: params.id,
-                currentSecond: Math.round(seconds),
-                lessonId: params.lessonId
-            });
+    const resetTrackingPoint = useCallback((second: number) => {
+        const normalizedSecond = Math.max(0, Math.round(second));
+        segmentStartSecondRef.current = normalizedSecond;
+        lastObservedSecondRef.current = normalizedSecond;
+    }, []);
+
+    const stopProgressTimer = useCallback(() => {
+        if (progressTimerRef.current !== null) {
+            window.clearInterval(progressTimerRef.current);
+            progressTimerRef.current = null;
         }
-    }, [mutate, params.id, params.lessonId]);
+    }, []);
+
+    const saveCurrentPosition = useCallback(
+        async (position?: number) => {
+            if (!params.id || !currentLessonId) return;
+            if (isFlushingSegmentRef.current) return;
+
+            const currentSecond = Math.max(
+                0,
+                Math.round(position ?? getRoundedCurrentSecond()),
+            );
+
+            if (lastSavedSecondRef.current === currentSecond) {
+                resetTrackingPoint(currentSecond);
+                return;
+            }
+
+            isFlushingSegmentRef.current = true;
+
+            try {
+                const response = await mutateAsync({
+                    studentCourseId: params.id,
+                    lessonId: currentLessonId,
+                    currentSecond,
+                });
+                lastSavedSecondRef.current = currentSecond;
+                onProgressChange?.(response || null);
+                setEnded(Boolean(response?.completed));
+            } finally {
+                isFlushingSegmentRef.current = false;
+                resetTrackingPoint(currentSecond);
+            }
+        },
+        [
+            currentLessonId,
+            getRoundedCurrentSecond,
+            mutateAsync,
+            onProgressChange,
+            params.id,
+            resetTrackingPoint,
+            setEnded,
+        ],
+    );
+
+    const flushTrackedSegment = useCallback(
+        async (trackedToSecond?: number) => {
+            if (!params.id || !currentLessonId) return;
+            if (isFlushingSegmentRef.current) return;
+
+            const watchedFromSecond = segmentStartSecondRef.current;
+            const watchedToSecond = Math.max(
+                0,
+                Math.round(trackedToSecond ?? lastObservedSecondRef.current ?? getRoundedCurrentSecond()),
+            );
+
+            if (
+                typeof watchedFromSecond !== "number" ||
+                watchedToSecond <= watchedFromSecond
+            ) {
+                await saveCurrentPosition(watchedToSecond);
+                return;
+            }
+
+            isFlushingSegmentRef.current = true;
+
+            try {
+                const response = await mutateAsync({
+                    studentCourseId: params.id,
+                    lessonId: currentLessonId,
+                    currentSecond: watchedToSecond,
+                    watchedFromSecond,
+                    watchedToSecond,
+                });
+                lastSavedSecondRef.current = watchedToSecond;
+                onProgressChange?.(response || null);
+                setEnded(Boolean(response?.completed));
+            } finally {
+                isFlushingSegmentRef.current = false;
+                resetTrackingPoint(watchedToSecond);
+            }
+        },
+        [
+            currentLessonId,
+            getRoundedCurrentSecond,
+            mutateAsync,
+            onProgressChange,
+            params.id,
+            saveCurrentPosition,
+            resetTrackingPoint,
+            setEnded,
+        ],
+    );
+
+    const startProgressTimer = useCallback(() => {
+        stopProgressTimer();
+
+        progressTimerRef.current = window.setInterval(() => {
+            const currentSecond = getRoundedCurrentSecond();
+            const watchedFromSecond = segmentStartSecondRef.current;
+
+            if (
+                typeof watchedFromSecond === "number" &&
+                currentSecond > watchedFromSecond
+            ) {
+                void flushTrackedSegment(currentSecond);
+            }
+        }, PROGRESS_INTERVAL_MS);
+    }, [flushTrackedSegment, getRoundedCurrentSecond, stopProgressTimer]);
 
     useEffect(() => {
-        if (playerRef.current && startTime > 0) {
-            playerRef.current.currentTime = startTime;
-        }
-    }, [videoUrl]);
+        const normalizedStartTime = Math.max(0, Math.round(startTime || 0));
 
+        restoreTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
+        restoreTimeoutsRef.current = [];
+        stopProgressTimer();
+        lastRestoredStartTimeRef.current = null;
+        hasPlaybackInteractionRef.current = false;
+        lastSavedSecondRef.current = null;
+        isSeekingRef.current = false;
+        isRestoringPositionRef.current = false;
+        hasEndedRef.current = false;
+
+        resetTrackingPoint(normalizedStartTime);
+
+        return () => {
+            restoreTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
+            restoreTimeoutsRef.current = [];
+            stopProgressTimer();
+        };
+    }, [resetTrackingPoint, stopProgressTimer, videoUrl]);
 
     useEffect(() => {
-        const progressPercent = (currentTime / duration) * 100;
-        const isNinetyPercent = progressPercent >= 90;
-        if (ended) {
-            saveProgress(currentTime);
-            setEnded(true);
-        } else if (isNinetyPercent) {
-            saveProgress(duration);
-            setEnded(true);
+        const normalizedStartTime = Math.max(0, Math.round(startTime || 0));
+
+        if (!playerRef.current) return;
+        if (hasPlaybackInteractionRef.current) return;
+        if (lastRestoredStartTimeRef.current === normalizedStartTime) return;
+
+        lastRestoredStartTimeRef.current = normalizedStartTime;
+        resetTrackingPoint(normalizedStartTime);
+
+        if (normalizedStartTime <= 0) return;
+
+        isRestoringPositionRef.current = true;
+        playerRef.current.currentTime = normalizedStartTime;
+
+        restoreTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
+        restoreTimeoutsRef.current = [120, 400, 900].map((delay) =>
+            window.setTimeout(() => {
+                if (!playerRef.current) return;
+                isRestoringPositionRef.current = true;
+                playerRef.current.currentTime = normalizedStartTime;
+            }, delay),
+        );
+    }, [resetTrackingPoint, startTime, videoUrl]);
+
+    useEffect(() => {
+        setEnded(false);
+    }, [setEnded, videoUrl]);
+
+    const handleTimeUpdate = useCallback(() => {
+        const roundedCurrentTime = getRoundedCurrentSecond();
+
+        if (isRestoringPositionRef.current) {
+            isRestoringPositionRef.current = false;
+            resetTrackingPoint(roundedCurrentTime);
+            return;
+        }
+
+        if (lastObservedSecondRef.current === null) {
+            resetTrackingPoint(roundedCurrentTime);
+            return;
+        }
+
+        hasPlaybackInteractionRef.current = true;
+        lastObservedSecondRef.current = roundedCurrentTime;
+    }, [getRoundedCurrentSecond, resetTrackingPoint]);
+
+    const handlePlay = useCallback(() => {
+        if (isRestoringPositionRef.current) return;
+        isSeekingRef.current = false;
+        hasEndedRef.current = false;
+        hasPlaybackInteractionRef.current = true;
+        const currentSecond = getRoundedCurrentSecond();
+        resetTrackingPoint(currentSecond);
+        startProgressTimer();
+    }, [getRoundedCurrentSecond, resetTrackingPoint, startProgressTimer]);
+
+    const handlePause = useCallback(() => {
+        if (isRestoringPositionRef.current) return;
+        if (isSeekingRef.current) return;
+        if (hasEndedRef.current) return;
+        hasPlaybackInteractionRef.current = true;
+        stopProgressTimer();
+        const currentSecond = getRoundedCurrentSecond();
+        const watchedFromSecond = segmentStartSecondRef.current;
+
+        if (typeof watchedFromSecond === "number" && currentSecond > watchedFromSecond) {
+            void flushTrackedSegment(currentSecond);
+            return;
+        }
+
+        void saveCurrentPosition(currentSecond);
+    }, [flushTrackedSegment, getRoundedCurrentSecond, saveCurrentPosition, stopProgressTimer]);
+
+    const handleSeeking = useCallback(() => {
+        if (isRestoringPositionRef.current) return;
+        isSeekingRef.current = true;
+        hasPlaybackInteractionRef.current = true;
+        stopProgressTimer();
+        const previousSecond = lastObservedSecondRef.current ?? getRoundedCurrentSecond();
+        const watchedFromSecond = segmentStartSecondRef.current;
+
+        if (typeof watchedFromSecond === "number" && previousSecond > watchedFromSecond) {
+            void flushTrackedSegment(previousSecond);
+            return;
+        }
+
+        void saveCurrentPosition(previousSecond);
+    }, [flushTrackedSegment, getRoundedCurrentSecond, saveCurrentPosition, stopProgressTimer]);
+
+    const handleSeeked = useCallback(() => {
+        const currentSecond = getRoundedCurrentSecond();
+
+        if (isRestoringPositionRef.current) {
+            isRestoringPositionRef.current = false;
+            resetTrackingPoint(currentSecond);
+            return;
+        }
+
+        isSeekingRef.current = false;
+        hasPlaybackInteractionRef.current = true;
+        resetTrackingPoint(currentSecond);
+        void saveCurrentPosition(currentSecond);
+
+        if (!playerRef.current?.paused && !hasEndedRef.current) {
+            startProgressTimer();
+        }
+    }, [getRoundedCurrentSecond, resetTrackingPoint, saveCurrentPosition, startProgressTimer]);
+
+    const handleEnded = useCallback(() => {
+        if (isRestoringPositionRef.current) return;
+        hasEndedRef.current = true;
+        hasPlaybackInteractionRef.current = true;
+        stopProgressTimer();
+        const currentSecond = getRoundedCurrentSecond();
+        const watchedFromSecond = segmentStartSecondRef.current;
+
+        if (typeof watchedFromSecond === "number" && currentSecond > watchedFromSecond) {
+            void flushTrackedSegment(currentSecond);
         } else {
-            setEnded(false);
+            void saveCurrentPosition(currentSecond);
         }
-    }, [ended, currentTime, duration]);
+
+        setEnded(true);
+    }, [flushTrackedSegment, getRoundedCurrentSecond, saveCurrentPosition, setEnded, stopProgressTimer]);
 
     useEffect(() => {
-        if (started && !paused && !ended) {
-            const interval = setInterval(() => {
-                saveProgress(playerRef.current?.currentTime || 0);
-            }, 10000);
+        const handlePageHide = () => {
+            stopProgressTimer();
+            const currentSecond = getRoundedCurrentSecond();
+            const watchedFromSecond = segmentStartSecondRef.current;
 
-            return () => clearInterval(interval);
-        }
-    }, [started, paused, ended, saveProgress]);
+            if (typeof watchedFromSecond === "number" && currentSecond > watchedFromSecond) {
+                void flushTrackedSegment(currentSecond);
+                return;
+            }
 
-    useEffect(() => {
-        if (paused && started && !ended) {
-            saveProgress(currentTime);
-        }
-    }, [paused]);
+            void saveCurrentPosition(currentSecond);
+        };
+
+        window.addEventListener("pagehide", handlePageHide);
+        window.addEventListener("beforeunload", handlePageHide);
+
+        return () => {
+            window.removeEventListener("pagehide", handlePageHide);
+            window.removeEventListener("beforeunload", handlePageHide);
+            stopProgressTimer();
+            const currentSecond = getRoundedCurrentSecond();
+            const watchedFromSecond = segmentStartSecondRef.current;
+
+            if (typeof watchedFromSecond === "number" && currentSecond > watchedFromSecond) {
+                void flushTrackedSegment(currentSecond);
+                return;
+            }
+
+            void saveCurrentPosition(currentSecond);
+        };
+    }, [flushTrackedSegment, getRoundedCurrentSecond, saveCurrentPosition, stopProgressTimer]);
 
 
     return (
         <MediaPlayer ref={playerRef} key={videoUrl}
-                     title="Lesson Video" src={videoUrl} poster={thumbnail} className="vds-player">
+                     title="Lesson Video"
+                     src={videoUrl}
+                     poster={thumbnail}
+                     className="vds-player lesson-video-player"
+                     onTimeUpdate={handleTimeUpdate}
+                     onPlay={handlePlay}
+                     onPause={handlePause}
+                     onSeeking={handleSeeking}
+                     onSeeked={handleSeeked}
+                     onEnded={handleEnded}
+                     >
             <MediaProvider>
                 <Poster className="vds-poster"/>
                 <SeekButton className="vds-button" seconds={10}>

@@ -40,3 +40,22 @@ export const getFileById = async (id: string | undefined) => {
         throw new Error(message);
     }
 };
+
+export const getFileByUrl = async (url: string | undefined) => {
+    try {
+        if (!url) throw new Error("File url is missing");
+
+        const normalizedUrl = url.startsWith("http") ? url : url.startsWith("/api")
+            ? url.replace(/^\/api/, "")
+            : url;
+
+        const {data} = await apiClient.get(normalizedUrl, {
+            responseType: "blob",
+        });
+        return data;
+    } catch (error) {
+        const err = error as AxiosError<{ message: string }>;
+        const message = err.response?.data?.message || "Faylni yuklashda xatolik";
+        throw new Error(message);
+    }
+};

@@ -9,6 +9,7 @@ import {useGetLessonsProgress, useStartLessonProgress} from "../../api/lessonPro
 import {useEffect, useState} from "react";
 import {Lesson} from "../../types/types.ts";
 import {useMobile} from "../../hooks/useMobile.ts";
+import { DiscussionSection } from "./discussion/DiscussionSection";
 
 function LessonActions() {
 
@@ -55,6 +56,12 @@ function LessonActions() {
                             <LessonRating/>
                             <hr className="bg-blue-100 my-6 h-px border-0 hidden lg:block"/>
                             <LessonActionsBottom/>
+
+                            {/* Public Discussion Section */}
+                            {params.lessonId && (
+                                <DiscussionSection lessonId={params.lessonId} />
+                            )}
+
                             <div className={'sticky bottom-0 left-0 w-full flex justify-end py-3 bg-white'}>
                                 <button
                                     onClick={() => {

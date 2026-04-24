@@ -1,4 +1,5 @@
 export default {
+    darkMode: 'class',
     content: [
         "./index.html",
         "./src/**/*.{js,ts,jsx,tsx}",
@@ -19,6 +20,7 @@ export default {
                 '2xl': '1600px',
             },
             fontFamily: {
+                sans: ['Inter', 'sans-serif'],
                 outfit: ['Outfit', 'sans-serif'],
             },
             fontSize: {

@@ -44,13 +44,37 @@ export const addLessonProgressStart = async ({studentCourseId, lessonId}: {
 };
 
 
-export const updateLessonProgress = async ({studentCourseId, lessonId, currentSecond}: {
+export const updateLessonProgress = async ({
+    studentCourseId,
+    lessonId,
+    currentSecond,
+    watchedFromSecond,
+    watchedToSecond,
+}: {
     studentCourseId: string | undefined,
     lessonId: string | undefined,
     currentSecond: number
+    watchedFromSecond?: number
+    watchedToSecond?: number
 }) => {
     try {
-        const {data} = await apiClient.put("/lesson-progress/student-courses/" + studentCourseId + "/lessons/" + lessonId + "/progress", {currentSecond: Math.round(currentSecond)});
+        const body: {
+            currentSecond: number;
+            watchedFromSecond?: number;
+            watchedToSecond?: number;
+        } = {
+            currentSecond: Math.round(currentSecond),
+        };
+
+        if (typeof watchedFromSecond === "number" && typeof watchedToSecond === "number") {
+            body.watchedFromSecond = Math.round(watchedFromSecond);
+            body.watchedToSecond = Math.round(watchedToSecond);
+        }
+
+        const {data} = await apiClient.put(
+            "/lesson-progress/student-courses/" + studentCourseId + "/lessons/" + lessonId + "/progress",
+            body,
+        );
         return data;
     } catch (error) {
         const err = error as AxiosError<{ message: string }>;

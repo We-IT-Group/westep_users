@@ -1,5 +1,5 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
-import {getAllCourses, getAllStudentCoursesById, getCourseById, setStudentCourse} from "./courseApi.ts";
+import {getAllCourses, getAllStudentCoursesById, getContinueLearning, getCourseById, getLearningStats, setStudentCourse} from "./courseApi.ts";
 import {getItem} from "../../utils/utils.ts";
 import {useNavigate} from "react-router-dom";
 import {usePaymeCreate} from "../payme/usePayme.ts";
@@ -31,8 +31,8 @@ export const useSetStudentCourseById = () => {
     const navigate = useNavigate();
     return useMutation({
         mutationFn: setStudentCourse,
-        onSuccess: async (id) => {
-            navigate(`/course/${id}`);
+        onSuccess: async (id, variables) => {
+            navigate(`/courses/${variables.courseId}/${id}`);
         },
         onError: (error) => {
             alert(error);
@@ -66,4 +66,24 @@ export const useGetStudentCourseById = (id: string | undefined) =>
         retry: false,
     });
 
+export const useGetContinueLearning = () =>
+    useQuery({
+        queryKey: ["continue-learning"],
+        queryFn: async () => {
+            const token = getItem<string>('accessToken');
+            if (!token) throw new Error("No token");
+            return await getContinueLearning();
+        },
+        retry: false,
+    });
 
+export const useGetLearningStats = () =>
+    useQuery({
+        queryKey: ["learning-stats"],
+        queryFn: async () => {
+            const token = getItem<string>('accessToken');
+            if (!token) throw new Error("No token");
+            return await getLearningStats();
+        },
+        retry: false,
+    });

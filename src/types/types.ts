@@ -5,11 +5,17 @@ export interface Common {
 
 
 export interface User {
+    id?: string,
     firstname: string,
     lastname: string,
     birthDate: string,
     gender: string,
     roleName?: string,
+    avatar?: string | null,
+    avatarUrl?: string | null,
+    attachmentUrl?: string | null,
+    profileImageUrl?: string | null,
+    imageUrl?: string | null,
     password: string,
     phone: string
     phoneNumber: string
@@ -23,6 +29,9 @@ export interface Course extends Common {
     businessId: string
     attachmentUrl: string | null
     price: number
+    lessonsCount?: number
+    totalDuration?: number
+    modules?: CourseDetailModule[]
 }
 
 export interface StudentCourse extends Common {
@@ -31,6 +40,9 @@ export interface StudentCourse extends Common {
     studentId: boolean,
     attachmentUrl: string,
     percent: number,
+    progressPercentage?: number,
+    totalLessons?: number,
+    completedLessons?: number,
 }
 
 export interface Module extends Common {
@@ -51,4 +63,20 @@ export interface Lesson extends Common {
     videoUrl?: string,
     progress?: boolean,
     completed?: boolean,
+}
+
+export interface CourseDetailLesson {
+    lessonId: string,
+    lessonName: string,
+    duration: number,
+}
+
+export interface CourseDetailModule {
+    moduleId: string,
+    moduleName: string,
+    lessonsCount: number,
+    totalDuration: number,
+    price: number,
+    isPurchased?: boolean,
+    lessons: CourseDetailLesson[],
 }
