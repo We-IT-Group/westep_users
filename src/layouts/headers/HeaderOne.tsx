@@ -1,5 +1,6 @@
 import UserDropDown from "./UserDropDown.tsx";
-import logo from "../../assets/westep_dark_logo.png";
+import darkLogo from "../../assets/westep_dark_logo.png";
+import lightLogo from "../../assets/westep_ligth-logo.png";
 import {Link} from "react-router-dom";
 
 
@@ -12,7 +13,8 @@ export default function HeaderOne() {
                     <div className="w-1/6 lg:w-1/4 flex">
                         <div className="flex items-center justify-center">
                             <Link to={'/'}>
-                                <img src={logo} alt="Logo" className="w-[120px]"/>
+                                <img src={darkLogo} alt="Westep" className="w-[120px] dark:hidden"/>
+                                <img src={lightLogo} alt="Westep" className="hidden w-[120px] dark:block"/>
                             </Link>
                         </div>
                     </div>

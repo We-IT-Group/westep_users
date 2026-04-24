@@ -2,9 +2,9 @@ import {useCheckPhoneNumber} from "../../../api/auth/useAuth.ts";
 import {useFormik} from "formik";
 import * as Yup from "yup";
 import PhoneNumberInput from "../../../ui/PhoneNumberInput.tsx";
-import logo from "../../../assets/westep_dark_logo.png";
 import CommonButton from "../../../ui/CommonButton.tsx";
 import AuthText from "../../../ui/AuthText.tsx";
+import westepLogo from "../../../assets/westep_dark_logo.png";
 
 
 export default function LoginForm() {
@@ -29,8 +29,8 @@ export default function LoginForm() {
 
     return (
         <>
-            <div className='flex justify-center'>
-                <img src={logo} width={220} alt="logo"/>
+            <div className='mb-4 flex justify-center'>
+                <img src={westepLogo} width={220} alt="Westep"/>
             </div>
             <section className="flex items-center justify-center w-full">
                 <div className="w-full max-w-lg animate-fadeIn">
