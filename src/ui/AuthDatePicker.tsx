@@ -23,6 +23,7 @@ export default function AuthDatePicker({
                                            label,
                                            defaultDate,
                                            placeholder,
+                                           value,
                                        }: PropsType) {
     useEffect(() => {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -32,7 +33,9 @@ export default function AuthDatePicker({
             static: false,
             monthSelectorType: "static",
             dateFormat: "Y-m-d",
-            defaultDate,
+            altInput: true,
+            altFormat: "d.m.Y",
+            defaultDate: value || defaultDate,
             onChange,
             disableMobile: true,
             allowInput: !isMobile, // Mobilda faqat kalendar ochilsin
@@ -44,7 +47,7 @@ export default function AuthDatePicker({
                 flatPickr.destroy();
             }
         };
-    }, [mode, onChange, id, defaultDate]);
+    }, [mode, onChange, id, defaultDate, value]);
 
     return (
         <div>

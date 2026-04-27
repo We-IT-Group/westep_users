@@ -2,8 +2,9 @@ import axios from "axios";
 import { getItem, removeItem, setItem } from "../utils/utils.ts";
 
 const envBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+const defaultBaseUrl = "/api";
 
-export const baseUrl = envBaseUrl || "https://westep.uz/api";
+export const baseUrl = envBaseUrl || defaultBaseUrl;
 export const baseUrlImage = baseUrl.replace(/\/api$/, "");
 
 const apiClient = axios.create({

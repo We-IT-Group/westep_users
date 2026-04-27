@@ -1,7 +1,7 @@
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import {useFormik} from "formik";
 import * as Yup from "yup";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import InputField from "../../../ui/InputField.tsx";
 import PhoneNumberInput from "../../../ui/PhoneNumberInput.tsx";
 import AuthDatePicker from "../../../ui/AuthDatePicker.tsx";
@@ -16,7 +16,6 @@ export default function Register() {
     const navigate = useNavigate();
     const phoneNumber = location.state?.phoneNumber;
 
-    const [isYoung, setIsYoung] = useState<boolean>(false);
     const [isPending, setIsPending] = useState<boolean>(false);
 
 
@@ -32,21 +31,21 @@ export default function Register() {
             firstName: Yup.string().required('Ism kiriting!'),
             lastName: Yup.string().required('Familiyani kiriting!'),
             birthday: Yup.string().required("Tu'gilgan sanani tanlang!"),
-            parentPhone: Yup.string().when([], {
-                is: () => !isYoung,
-                then: (schema) =>
-                    schema
-                        .required("Telefon raqamni kiriting!").test(
+            parentPhone: Yup.string().when("birthday", ([birthday], schema) => {
+                if (!birthday || isOlderThan20(birthday)) {
+                    return schema.notRequired();
+                }
+
+                return schema
+                    .required("Telefon raqamni kiriting!").test(
                         "is-valid-uz-number",
                         "Telefon raqami xato kiritildi!",
                         (value) => {
                             if (!value) return false;
-                            // raqamdan faqat sonlarni ajratamiz
                             const digits = value.replace(/\D/g, "");
-                            // faqat 998 bilan boshlanadigan va jami 12 ta raqam bo‘lishi kerak
                             return digits.startsWith("998") && digits.length === 12;
                         }
-                    ), otherwise: (schema) => schema.notRequired(),
+                    );
             })
         }),
         onSubmit: (values) => {
@@ -77,11 +76,9 @@ export default function Register() {
         return age >= 20;
     }
 
-    useEffect(() => {
-        if (formik.values.birthday) {
-            setIsYoung(isOlderThan20(formik.values.birthday));
-        }
-    }, [formik.values.birthday]);
+    const needsParentPhone = Boolean(
+        formik.values.birthday && !isOlderThan20(formik.values.birthday)
+    );
 
     console.log(formik.values);
     return (
@@ -113,7 +110,8 @@ export default function Register() {
                                                 const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
                                                     .toISOString()
                                                     .split("T")[0];
-                                                formik.setFieldValue('birthday', localDate);
+                                                formik.setFieldValue('birthday', localDate, true);
+                                                formik.setFieldTouched('birthday', true, false);
                                             }}/>
                             {formik.errors.birthday && formik.touched.birthday ? (
                                 <p className="text-start flex text-red-600 m-0 ps-4">
@@ -121,7 +119,7 @@ export default function Register() {
                                 </p>
                             ) : null}
 
-                            {!isYoung && formik.values.birthday && (
+                            {needsParentPhone && (
                                 <div className="mb-2 flex flex-col gap-4">
                                     {/* FEMALE */}
                                     <label
