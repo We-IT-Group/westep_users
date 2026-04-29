@@ -2,7 +2,7 @@ import {useMutation, useQuery} from "@tanstack/react-query";
 import {getAllCourses, getAllStudentCoursesById, getContinueLearning, getCourseById, getLearningStats, setStudentCourse} from "./courseApi.ts";
 import {getItem} from "../../utils/utils.ts";
 import {useNavigate} from "react-router-dom";
-import {usePaymeCreate} from "../payme/usePayme.ts";
+import {useCreatePaymentCheckout} from "../payme/usePayme.ts";
 
 export const useGetCourses = () =>
     useQuery({
@@ -41,10 +41,16 @@ export const useSetStudentCourseById = () => {
 };
 
 export const useSetStudentCourseByIdForPayment = () => {
-    const {mutate} = usePaymeCreate()
+    const navigate = useNavigate();
+    const {mutate} = useCreatePaymentCheckout()
     return useMutation({
         mutationFn: setStudentCourse,
-        onSuccess: async (id) => {
+        onSuccess: async (id, variables) => {
+            if (/^[0-9a-fA-F-]{36}$/.test(id)) {
+                navigate(`/courses/${variables.courseId}/${id}`);
+                return;
+            }
+
             mutate(id);
         },
         onError: (error) => {

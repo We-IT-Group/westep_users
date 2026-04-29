@@ -194,7 +194,10 @@ function Index() {
     const [startedLessonProgress, setStartedLessonProgress] = useState<{ currentSecond?: number; completed?: boolean } | null>(null);
     const currentLessonCompleted = Boolean(startedLessonProgress?.completed);
 
-    const modules = useMemo(() => course?.modules ?? [], [course?.modules]);
+    const modules = useMemo(
+        () => (course?.modules ?? []).filter((module) => module.lessons?.length),
+        [course?.modules],
+    );
     const unlockedModuleIds = useMemo(
         () => new Set((studentModules as Module[]).map((module) => module.id)),
         [studentModules],
@@ -289,19 +292,19 @@ function Index() {
             modules: modules.map((module: CourseDetailModule) => ({
                 id: module.moduleId,
                 title: module.moduleName,
-                isPurchased: unlockedModuleIds.has(module.moduleId),
-                lessons: module.lessons.map((lesson) => ({
-                    id: lesson.lessonId,
+                    isPurchased: module.purchased ?? module.isPurchased ?? unlockedModuleIds.has(module.moduleId),
+                    lessons: module.lessons.map((lesson) => ({
+                        id: lesson.lessonId,
                     title:
                         lesson.lessonId === currentLessonId && lessonDetail?.name
                             ? lessonDetail.name
                             : lesson.lessonName,
                     duration: formatLessonDuration(lesson.duration),
-                    rating:
+                        rating:
                         lesson.lessonId === currentLessonId
                             ? lessonRatingSummary?.averageRating || 0
                             : undefined,
-                    completed: Array.isArray(lessonProgressList)
+                        completed: Array.isArray(lessonProgressList)
                         ? lesson.lessonId === currentLessonId
                             ? currentLessonCompleted
                             : lessonProgressList.some(
@@ -310,9 +313,19 @@ function Index() {
                                       item.completed === true,
                               )
                         : false,
-                    type: "video" as const,
+                    type: lesson.type || "LESSON",
+                    watchedPercentage: Array.isArray(lessonProgressList)
+                        ? lessonProgressList.find(
+                              (item: { lessonId: string; watchedPercentage?: number }) =>
+                                  item.lessonId === lesson.lessonId,
+                          )?.watchedPercentage
+                        : undefined,
                     videoUrl:
-                        lesson.lessonId === currentLessonId ? lessonDetail?.vedioUrl || "" : "",
+                        lesson.type === "PRACTICE"
+                            ? ""
+                            : lesson.lessonId === currentLessonId
+                              ? lessonDetail?.vedioUrl || ""
+                              : "",
                     description:
                         lesson.lessonId === currentLessonId
                             ? lessonDetail?.description
@@ -481,6 +494,16 @@ function Index() {
 
         setStartedLessonProgress(null);
 
+        const currentLesson = modules
+            .flatMap((module) => module.lessons)
+            .find((lesson) => lesson.lessonId === currentLessonId);
+
+        if (currentLesson?.type === "PRACTICE") {
+            return () => {
+                isMounted = false;
+            };
+        }
+
         startLessonProgress({
             studentCourseId: params.id,
             lessonId: currentLessonId,
@@ -495,7 +518,7 @@ function Index() {
         return () => {
             isMounted = false;
         };
-    }, [currentLessonId, params.id, startLessonProgress]);
+    }, [currentLessonId, modules, params.id, startLessonProgress]);
 
     if (isCoursePending || isModulesPending || isProgressPending) {
         return (
@@ -553,17 +576,21 @@ function Index() {
                 })
             }
             onNavigateToPurchase={(courseId) => navigate(`/roadmap/${courseId}`)}
-            renderVideoPlayer={({ lessonId }) => (
-                <div className="relative group overflow-hidden rounded-2xl shadow-2xl sm:rounded-[36px]">
-                    <LessonVedio
-                        key={lessonId}
-                        startTime={startedLessonProgress?.currentSecond ?? 0}
-                        onProgressChange={(progress) => setStartedLessonProgress(progress || null)}
-                        videoUrl={lessonDetail?.vedioUrl || ""}
-                        setEnded={() => {}}
-                    />
-                </div>
-            )}
+            renderVideoPlayer={({ lesson, lessonId }) => {
+                if (lesson?.type === "PRACTICE") return null;
+
+                return (
+                    <div className="relative group overflow-hidden rounded-2xl shadow-2xl sm:rounded-[36px]">
+                        <LessonVedio
+                            key={lessonId}
+                            startTime={startedLessonProgress?.currentSecond ?? 0}
+                            onProgressChange={(progress) => setStartedLessonProgress(progress || null)}
+                            videoUrl={lessonDetail?.vedioUrl || ""}
+                            setEnded={() => {}}
+                        />
+                    </div>
+                );
+            }}
         />
     );
 }

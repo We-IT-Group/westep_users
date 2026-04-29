@@ -22,6 +22,10 @@ function formatPrice(price?: number) {
     return `${price.toLocaleString("uz-UZ")} so'm`;
 }
 
+function courseCategory(course: any) {
+    return [course.primaryCategory?.name, course.subcategory?.name].filter(Boolean).join(" / ");
+}
+
 interface Category {
     id: string;
     label: string;
@@ -47,8 +51,9 @@ export default function AllCoursesPage() {
 
     const filteredCourses = useMemo(() => {
         let filtered = (allCourses as any[]).filter(course => {
-            const matchesSearch = course.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                                 (course.description && course.description.toLowerCase().includes(searchQuery.toLowerCase()));
+            const description = course.description || course.shortDescription || "";
+            const matchesSearch = course.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                 description.toLowerCase().includes(searchQuery.toLowerCase());
             const matchesCategory = activeCategory === "all" || 
                                    (activeCategory === "premium" && course.price > 0) || 
                                    (activeCategory === "free" && course.price === 0);
@@ -229,10 +234,23 @@ export default function AllCoursesPage() {
                                                     <div className="absolute left-4 top-4 rounded-xl bg-white/90 px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-blue-600 backdrop-blur-md dark:bg-slate-900/90">
                                                         {course.price > 0 ? "Premium" : "Bepul"}
                                                     </div>
+                                                    {course.languageName && (
+                                                        <div className="absolute right-4 top-4 rounded-xl bg-slate-950/80 px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-white backdrop-blur-md">
+                                                            {course.languageName}
+                                                        </div>
+                                                    )}
                                                 </div>
 
                                                 <div className="flex flex-1 flex-col justify-between space-y-6 p-6">
                                                     <div className="space-y-4">
+                                                        <div className="flex flex-wrap items-center gap-2 text-[9px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
+                                                            {courseCategory(course) && <span>{courseCategory(course)}</span>}
+                                                            {(course.createdByFullName || course.teacherFullName) && (
+                                                                <span className="text-slate-400">
+                                                                    {course.createdByFullName || course.teacherFullName}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                         <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-slate-400">
                                                             <div className="flex items-center gap-1.5">
                                                                 <BookOpen className="h-3.5 w-3.5 text-blue-600" />
@@ -247,6 +265,9 @@ export default function AllCoursesPage() {
                                                         <h4 className="line-clamp-2 text-xl font-black uppercase italic leading-tight tracking-tighter text-slate-900 transition-all duration-500 group-hover:text-blue-600 dark:text-white">
                                                             {course.name}
                                                         </h4>
+                                                        <p className="line-clamp-3 text-sm font-medium leading-relaxed text-slate-500 dark:text-slate-400">
+                                                            {course.description || course.shortDescription || "Kurs tavsifi mavjud emas."}
+                                                        </p>
                                                     </div>
 
                                                     <div className="space-y-4 pt-4">

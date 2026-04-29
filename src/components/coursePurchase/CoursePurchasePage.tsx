@@ -29,6 +29,7 @@ export type CoursePurchasePageProps = {
       hasBulkDiscount: boolean;
     };
   }) => void;
+  isSubmitting?: boolean;
 };
 
 export function CoursePurchasePage({
@@ -41,6 +42,7 @@ export function CoursePurchasePage({
   modulePrice = MODULE_PRICE,
   bulkDiscount = BULK_DISCOUNT,
   onSubmit,
+  isSubmitting = false,
 }: CoursePurchasePageProps) {
   const purchaseableModules = useMemo(() => courseModules.filter(m => !m.isPurchased), [courseModules]);
   const [selectedModules, setSelectedModules] = useState<string[]>(purchaseableModules.map(m => m.id));
@@ -68,7 +70,10 @@ export function CoursePurchasePage({
 
   const { totalPrice, originalPrice, hasBulkDiscount } = useMemo(() => {
     const count = selectedModules.length;
-    const base = count * modulePrice;
+    const base = selectedModules.reduce((sum, moduleId) => {
+      const module = purchaseableModules.find(item => item.id === moduleId);
+      return sum + (module?.price ?? modulePrice);
+    }, 0);
     const allNewSelected = count === purchaseableModules.length && count > 0;
 
     if (allNewSelected && purchaseableModules.length > 1) {
@@ -196,17 +201,17 @@ export function CoursePurchasePage({
                 <motion.button
                   whileHover={selectedModules.length > 0 ? { scale: 1.01, y: -2 } : {}}
                   whileTap={selectedModules.length > 0 ? { scale: 0.99 } : {}}
-                  disabled={selectedModules.length === 0}
+                  disabled={selectedModules.length === 0 || isSubmitting}
                   onClick={handleSubmit}
-                  className={`w-full group py-6 rounded-[28px] transition-all flex items-center justify-center gap-4 px-8 ${selectedModules.length > 0
+                  className={`w-full group py-6 rounded-[28px] transition-all flex items-center justify-center gap-4 px-8 ${selectedModules.length > 0 && !isSubmitting
                       ? 'bg-blue-600 text-white shadow-[0_24px_48px_-12px_rgba(37,99,235,0.35)] hover:bg-blue-700'
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed border border-slate-200 dark:border-slate-700'
                     }`}
                 >
                   <span className="text-[13px] font-bold uppercase tracking-[0.25em]">
-                    {selectedModules.length > 0 ? 'Sotib olish' : 'Modul tanlang'}
+                    {isSubmitting ? "To'lov yaratilmoqda..." : selectedModules.length > 0 ? 'Sotib olish' : 'Modul tanlang'}
                   </span>
-                  {selectedModules.length > 0 && (
+                  {selectedModules.length > 0 && !isSubmitting && (
                     <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center group-hover:translate-x-1.5 transition-transform duration-300">
                       <ChevronRight className="w-4 h-4 text-white" />
                     </div>

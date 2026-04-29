@@ -1,4 +1,4 @@
-export type LessonType = "video" | "reading" | "quiz";
+export type LessonType = "LESSON" | "PRACTICE";
 export type CoursePlayerTab = "discussion" | "materials" | "reviews";
 
 export interface CoursePlayerLesson {
@@ -8,6 +8,8 @@ export interface CoursePlayerLesson {
     rating?: number;
     completed: boolean;
     type: LessonType;
+    watchCompletionPercent?: number;
+    watchedPercentage?: number;
     videoUrl?: string;
     description?: string;
     locked?: boolean;

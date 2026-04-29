@@ -18,7 +18,7 @@ export default function CoursePurchase() {
     const { data: courseData, isLoading: isCourseLoading } = useGetCourseById(courseId);
     
     // Purchase mutation
-    const { mutate: setStudentCourse } = useSetStudentCourseByIdForPayment();
+    const { mutate: setStudentCourse, isPending: isPurchasePending } = useSetStudentCourseByIdForPayment();
 
     if (isCourseLoading || isUserLoading) {
         return (
@@ -55,7 +55,7 @@ export default function CoursePurchase() {
     const mappedCourse: CoursePurchaseCourse = {
         id: courseData.id,
         title: courseData.name,
-        category: "Development", // Could be mapped if backend provides
+        category: [courseData.primaryCategory?.name, courseData.subcategory?.name].filter(Boolean).join(" / ") || courseData.languageName || "Kurs",
         price: courseData.price
     };
 
@@ -63,7 +63,8 @@ export default function CoursePurchase() {
     const mappedModules: CoursePurchaseModule[] = (courseData.modules || []).map((mod: any) => ({
         id: mod.moduleId,
         title: mod.moduleName,
-        isPurchased: mod.isPurchased,
+        price: mod.price,
+        isPurchased: mod.purchased ?? mod.isPurchased,
         lessons: (mod.lessons || []).map((lesson: any) => ({
             id: lesson.lessonId,
             title: lesson.lessonName,
@@ -71,25 +72,11 @@ export default function CoursePurchase() {
         }))
     }));
 
-    // Payment providers
     const paymentProviders: PaymentProvider[] = [
         {
-            id: "payme",
-            name: "Payme",
-            color: "from-[#00BAFF] to-[#0088CC]",
-            logo: "https://cdn.payme.uz/logo/payme_color.svg"
-        },
-        {
-            id: "click",
-            name: "Click",
-            color: "from-[#00A3FF] to-[#0077CC]",
-            logo: "https://click.uz/static/img/logo.png"
-        },
-        {
-            id: "uzum",
-            name: "Uzum",
-            color: "from-[#7000FF] to-[#5500CC]",
-            logo: "https://uzum.uz/static/img/logo.png"
+            id: "backend",
+            name: "Avto",
+            color: "from-blue-600 to-slate-900",
         }
     ];
 
@@ -117,8 +104,9 @@ export default function CoursePurchase() {
             withHeader={true}
             HeaderComponent={Header}
             onSubmit={handleSubmitPurchase}
-            modulePrice={courseData.price || 598000} // Dynamic price if available
+            modulePrice={courseData.price || 598000}
             bulkDiscount={0.2}
+            isSubmitting={isPurchasePending}
         />
     );
 }

@@ -24,11 +24,29 @@ export interface User {
 export interface Course extends Common {
     name: string,
     description: string,
+    shortDescription?: string,
+    fullDescription?: string,
     isPublished: boolean,
+    active?: boolean,
     publishedAt: string,
     businessId: string
     attachmentUrl: string | null
+    trailerVideoUrl?: string | null
+    purchased?: boolean
+    studentsCount?: number
+    free?: boolean
     price: number
+    level?: string | null
+    languageId?: string | null
+    languageName?: string | null
+    languageCode?: string | null
+    language?: string | null
+    createdBy?: string | null
+    createdByFullName?: string | null
+    teacherId?: string | null
+    teacherFullName?: string | null
+    primaryCategory?: { id?: string; name?: string } | null
+    subcategory?: { id?: string; name?: string } | null
     lessonsCount?: number
     totalDuration?: number
     modules?: CourseDetailModule[]
@@ -68,15 +86,21 @@ export interface Lesson extends Common {
 export interface CourseDetailLesson {
     lessonId: string,
     lessonName: string,
+    type?: "LESSON" | "PRACTICE",
     duration: number,
+    hasVideo?: boolean,
+    hasQuiz?: boolean,
+    hasHomework?: boolean,
+    hasResources?: boolean,
 }
 
 export interface CourseDetailModule {
     moduleId: string,
     moduleName: string,
+    purchased?: boolean,
+    isPurchased?: boolean,
     lessonsCount: number,
     totalDuration: number,
     price: number,
-    isPurchased?: boolean,
     lessons: CourseDetailLesson[],
 }

@@ -7,6 +7,7 @@ export interface CoursePurchaseLesson {
 export interface CoursePurchaseModule {
     id: string;
     title: string;
+    price?: number;
     isPurchased?: boolean;
     lessons: CoursePurchaseLesson[];
 }

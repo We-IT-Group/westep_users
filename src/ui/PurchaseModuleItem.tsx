@@ -65,7 +65,7 @@ export const PurchaseModuleItem: React.FC<PurchaseModuleItemProps> = ({
                 <Badge variant="emerald">Sotib olingan</Badge>
               ) : (
                 <span className={`text-[16px] font-bold ${isSelected ? 'text-blue-600' : 'text-slate-400 opacity-60'}`}>
-                  <PriceDisplay price={modulePrice} />
+                  <PriceDisplay price={module.price ?? modulePrice} />
                 </span>
               )}
               <button 

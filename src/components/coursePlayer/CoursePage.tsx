@@ -82,7 +82,7 @@ function LessonStatusIcon({
                     : "bg-slate-50 text-blue-600 dark:bg-slate-800 dark:text-blue-400"
             }`}
         >
-            {type === "video" ? (
+            {type === "LESSON" ? (
                 <Play className="h-3.5 w-3.5 fill-current" />
             ) : (
                 <FileText className="h-3.5 w-3.5" />
@@ -623,7 +623,6 @@ function CurriculumSidebar({
     onToggleModule,
     onSelectLesson,
     onNavigateToPurchase,
-    onQuizOpen,
 }: {
     courseId: string;
     courseModules: CoursePlayerData["modules"];
@@ -633,10 +632,6 @@ function CurriculumSidebar({
     onToggleModule: (id: string) => void;
     onSelectLesson: (lesson: CoursePlayerLesson) => void;
     onNavigateToPurchase?: (courseId: string) => void;
-    onQuizOpen?: (
-        quizId: string,
-        meta?: { questionCount?: number; durationMinutes?: number },
-    ) => void;
 }) {
     return (
         <aside className="flex w-full shrink-0 flex-col border-t border-slate-100 bg-white dark:border-slate-800 dark:bg-slate-950 lg:w-[420px] lg:border-l lg:border-t-0">
@@ -702,10 +697,6 @@ function CurriculumSidebar({
                                                 type="button"
                                                 onClick={() => {
                                                     if (isLocked) return;
-                                                    if (lesson.type === "quiz") {
-                                                        onQuizOpen?.(lesson.id);
-                                                        return;
-                                                    }
                                                     onSelectLesson(lesson);
                                                     if (window.innerWidth < 1024) {
                                                         window.scrollTo({
@@ -782,6 +773,7 @@ export function CoursePage({
 
     const lessonQuiz = data.materials.find(m => m.type === "quiz");
     const hasVideo = !!currentLesson?.videoUrl;
+    const isPractice = currentLesson?.type === "PRACTICE";
 
     function handleSelectLesson(lesson: CoursePlayerLesson) {
         setSelectedLesson(lesson.id);
@@ -815,43 +807,57 @@ export function CoursePage({
                 <div className="min-w-0 flex-1 bg-[#F8FAFC] dark:bg-slate-900/10">
                     <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 pb-20 sm:px-8 sm:py-10 sm:pb-32">
                         
-                        {!hasVideo && lessonQuiz ? (
+                        {isPractice ? (
                             <div className="bg-gradient-to-br from-amber-50 to-white dark:from-amber-900/10 dark:to-slate-900 border border-amber-100 dark:border-amber-900/30 rounded-[32px] p-8 sm:p-12 shadow-xl shadow-amber-500/5 text-center space-y-6">
                                 <div className="w-20 h-20 bg-amber-500 rounded-3xl mx-auto flex items-center justify-center rotate-3 shadow-lg shadow-amber-500/30">
                                     <HelpCircle className="w-10 h-10 text-white" />
                                 </div>
                                 <div className="space-y-2">
                                     <h2 className="text-2xl sm:text-3xl font-black uppercase italic tracking-tight text-slate-900 dark:text-white">
-                                        Test Darsi: {lessonQuiz.title}
+                                        Amaliy dars: {currentLesson?.title}
                                     </h2>
                                     <p className="text-sm font-bold uppercase italic tracking-widest text-slate-400">
-                                        Ushbu dars bilimingizni tekshirish uchun mo'ljallangan.
+                                        Bu darsda video yo'q. Test va vazifalarni resurslar bo'limidan bajaring.
                                     </p>
                                 </div>
-                                <button 
-                                    onClick={() =>
-                                        onQuizOpen?.(lessonQuiz.id, {
-                                            questionCount: lessonQuiz.questionCount,
-                                            durationMinutes: lessonQuiz.durationMinutes,
-                                        })
-                                    }
-                                    className="px-10 py-5 bg-amber-500 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-amber-500/20 hover:bg-amber-600 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                                >
-                                    Testni boshlash
-                                </button>
+                                {lessonQuiz && (
+                                    <button
+                                        onClick={() =>
+                                            onQuizOpen?.(lessonQuiz.id, {
+                                                questionCount: lessonQuiz.questionCount,
+                                                durationMinutes: lessonQuiz.durationMinutes,
+                                            })
+                                        }
+                                        className="px-10 py-5 bg-amber-500 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-amber-500/20 hover:bg-amber-600 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                    >
+                                        Testni boshlash
+                                    </button>
+                                )}
                             </div>
-                        ) : renderVideoPlayer ? (
-                            renderVideoPlayer({
-                                lesson: currentLesson,
-                                lessonId: selectedLesson,
-                                poster: data.poster,
-                            })
+                        ) : hasVideo ? (
+                            renderVideoPlayer ? (
+                                renderVideoPlayer({
+                                    lesson: currentLesson,
+                                    lessonId: selectedLesson,
+                                    poster: data.poster,
+                                })
+                            ) : (
+                                <VideoPlayer
+                                    videoUrl={currentLesson?.videoUrl}
+                                    lessonId={selectedLesson}
+                                    poster={data.poster}
+                                />
+                            )
                         ) : (
-                            <VideoPlayer
-                                videoUrl={currentLesson?.videoUrl}
-                                lessonId={selectedLesson}
-                                poster={data.poster}
-                            />
+                            <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[32px] p-8 sm:p-12 text-center space-y-3">
+                                <Video className="mx-auto h-12 w-12 text-slate-300" />
+                                <h2 className="text-xl font-black uppercase italic text-slate-900 dark:text-white">
+                                    Video topilmadi
+                                </h2>
+                                <p className="text-sm font-bold text-slate-400">
+                                    Bu LESSON turi uchun video backenddan kelmadi.
+                                </p>
+                            </div>
                         )}
 
                         <LessonHeader
@@ -920,7 +926,6 @@ export function CoursePage({
                     }
                     onSelectLesson={handleSelectLesson}
                     onNavigateToPurchase={onNavigateToPurchase}
-                    onQuizOpen={onQuizOpen}
                 />
             </div>
         </div>

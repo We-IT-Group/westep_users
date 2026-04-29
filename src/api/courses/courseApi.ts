@@ -1,10 +1,17 @@
 import apiClient from "../apiClient.ts";
 import {AxiosError} from "axios";
+import type {Course} from "../../types/types.ts";
+
+type CourseDiscoverResponse = {
+    courses?: Course[];
+};
 
 export const getAllCourses = async () => {
     try {
-        const {data} = await apiClient.get("/course/get");
-        return data;
+        const {data} = await apiClient.get<CourseDiscoverResponse>("/course/discover", {
+            params: {size: 50},
+        });
+        return data.courses || [];
     } catch (error) {
         const err = error as AxiosError<{ message: string }>;
         const message = err.response?.data?.message;
@@ -39,7 +46,7 @@ export const setStudentCourse = async (body: { studentId: string, courseId: stri
 };
 
 export const getCourseById = async (id: string | undefined) => {
-    const {data} = await apiClient.get("/course/get/" + id);
+    const {data} = await apiClient.get("/course/discover/" + id);
     return data;
 };
 

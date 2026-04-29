@@ -1,16 +1,22 @@
 import {useMutation} from "@tanstack/react-query";
-import {paymeCreate} from "./paymeApi.ts";
+import {createPaymentCheckout} from "./paymeApi.ts";
 
 
-export const usePaymeCreate = () => {
+export const useCreatePaymentCheckout = () => {
     return useMutation({
-        mutationFn: paymeCreate,
+        mutationFn: createPaymentCheckout,
         onSuccess: async (data) => {
-            console.log(data);
-            window.open(data, "_blank")
+            if (data.checkoutUrl) {
+                window.location.href = data.checkoutUrl;
+                return;
+            }
+
+            alert("To'lov havolasi topilmadi");
         },
         onError: (error) => {
             alert(error);
         },
     });
 };
+
+export const usePaymeCreate = useCreatePaymentCheckout;
