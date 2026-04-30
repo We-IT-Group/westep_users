@@ -5,9 +5,8 @@ import {
     Sun,
 } from "lucide-react";
 import { useUser } from "../../api/auth/useAuth.ts";
-import westepDarkLogo from "../../assets/westep_dark_logo.png";
-import westepLightLogo from "../../assets/westep_ligth-logo.png";
 import { NotificationDropdown } from "../../components/notification/NotificationDropdown";
+import WestepLogo from "../../ui/WestepLogo.tsx";
 export function Header() {
     const location = useLocation();
     const { data: user } = useUser();
@@ -44,16 +43,7 @@ export function Header() {
             <div className="mx-auto flex h-full max-w-[1920px] items-center justify-between gap-4 px-4 sm:px-8">
                 <div className="flex items-center gap-4 lg:gap-16">
                     <Link to="/" className="group flex shrink-0 items-center">
-                        <img
-                            src={westepDarkLogo}
-                            alt="Westep"
-                            className="h-11 w-auto object-contain dark:hidden sm:h-12"
-                        />
-                        <img
-                            src={westepLightLogo}
-                            alt="Westep"
-                            className="hidden h-11 w-auto object-contain dark:block sm:h-12"
-                        />
+                        <WestepLogo className="h-11 w-auto object-contain sm:h-12" />
                     </Link>
 
                     <nav className="hidden items-center gap-1.5 rounded-2xl border border-slate-100 bg-slate-50 p-1 dark:border-white/10 dark:bg-slate-900/50 lg:flex transition-colors">

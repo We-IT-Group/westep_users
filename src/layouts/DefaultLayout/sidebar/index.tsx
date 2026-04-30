@@ -1,8 +1,7 @@
 import {NavLink} from 'react-router-dom';
-import darkLogo from "../../../assets/westep_dark_logo.png"
-import lightLogo from "../../../assets/westep_ligth-logo.png"
 import {Home, Lesson, ShoppingCart, BookMark} from "../../../assets/icon";
 import {useSidebar} from "../../SidebarContext.tsx";
+import WestepLogo from "../../../ui/WestepLogo.tsx";
 
 
 export const links = [
@@ -21,19 +20,10 @@ const Sidebar = () => {
         >
             <div className={'d-none d-md-flex align-items-center justify-content-center'} style={{height: '100px'}}>
                 <div className="d-flex px-4 justify-content-center align-items-center">
-                    <img
-                        src={darkLogo}
-                        alt="Westep"
-                        width={150}
-                        className="dark:hidden"
-                        style={{objectFit: 'contain'}}
-                    />
-                    <img
-                        src={lightLogo}
-                        alt="Westep"
-                        width={150}
-                        className="hidden dark:block"
-                        style={{objectFit: 'contain'}}
+                    <WestepLogo
+                        className="w-[150px]"
+                        lightModeClassName="object-contain"
+                        darkModeClassName="object-contain"
                     />
                 </div>
             </div>
