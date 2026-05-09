@@ -35,13 +35,13 @@ export function DiscussionReply({
     const initials = reply.author.fullName.slice(0, 2).toUpperCase();
 
     return (
-        <div className="flex gap-4 sm:gap-6 relative group/reply transition-all duration-300">
+        <div className="flex gap-3 sm:gap-4 relative group/reply transition-all duration-300">
             {/* Minimalist thread line connector */}
-            <div className="absolute -left-6 sm:-left-7 top-0 bottom-0 w-[1.5px] bg-slate-100 dark:bg-slate-800/60 rounded-full" />
+            <div className="absolute -left-5 sm:-left-6 top-0 bottom-0 w-[1.5px] bg-slate-100 dark:bg-slate-800/60 rounded-full" />
             
             {/* Avatar Column */}
             <div className="flex flex-col items-center">
-                <div className={`w-9 h-9 sm:w-11 sm:h-11 shrink-0 rounded-full flex items-center justify-center font-black text-[10px] sm:text-[12px] shadow-sm tracking-tighter border ${
+                <div className={`w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-full flex items-center justify-center font-black text-[10px] sm:text-[11px] shadow-sm tracking-tighter border ${
                     isTeacher 
                         ? "bg-gradient-to-br from-blue-600 to-indigo-700 border-blue-500 text-white" 
                         : "bg-white border-slate-100 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200"
@@ -51,9 +51,9 @@ export function DiscussionReply({
             </div>
 
             {/* Content Column */}
-            <div className="flex-1 min-w-0 pb-2">
-                {/* Header: Name + Time */}
-                <div className="flex items-center flex-wrap gap-2 sm:gap-3 mb-1.5 px-1">
+                <div className="flex-1 min-w-0 pb-1">
+                    {/* Header: Name + Time */}
+                    <div className="flex items-center flex-wrap gap-2 sm:gap-2.5 mb-1 px-1">
                     <span className={`font-black text-[13px] sm:text-[14px] tracking-tight ${
                         isTeacher ? "text-blue-600 dark:text-blue-400" : "text-slate-900 dark:text-white"
                     }`}>
@@ -72,7 +72,7 @@ export function DiscussionReply({
                 {/* Content Area */}
                 <div className="relative">
                     {isEditing ? (
-                        <div className="bg-white dark:bg-slate-900 rounded-[20px] p-2 border border-slate-200 dark:border-slate-800 shadow-xl">
+                        <div className="bg-white dark:bg-slate-900 rounded-[18px] p-2 border border-slate-200 dark:border-slate-800 shadow-xl">
                             <DiscussionForm 
                                 initialValue={reply.content}
                                 onSubmit={handleEditSubmit}
@@ -81,9 +81,9 @@ export function DiscussionReply({
                             />
                         </div>
                     ) : (
-                        <div className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/60 rounded-[20px] sm:rounded-[24px] p-4 sm:p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.02)] transition-all group-hover/reply:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.04)] group-hover/reply:border-slate-200 dark:group-hover/reply:border-slate-700">
+                        <div className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/60 rounded-[18px] sm:rounded-[22px] px-3.5 py-3 sm:px-4 sm:py-3.5 shadow-[0_4px_18px_-4px_rgba(0,0,0,0.02)] transition-all group-hover/reply:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.04)] group-hover/reply:border-slate-200 dark:group-hover/reply:border-slate-700">
                             {replyToPreview ? (
-                                <div className="mb-3 rounded-2xl border-l-4 border-blue-500 bg-blue-50/70 px-3 py-2 dark:bg-blue-950/20">
+                                <div className="mb-2.5 rounded-[16px] border-l-[3px] border-blue-500 bg-blue-50/70 px-3 py-2 dark:bg-blue-950/20">
                                     <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-600 dark:text-blue-400">
                                         {replyToPreview.authorName}
                                     </p>
@@ -92,7 +92,7 @@ export function DiscussionReply({
                                     </p>
                                 </div>
                             ) : null}
-                            <p className="font-bold text-[13px] sm:text-[14px] text-slate-600 dark:text-slate-300 leading-[1.6] whitespace-pre-wrap break-words">
+                            <p className="font-bold text-[13px] sm:text-[14px] text-slate-600 dark:text-slate-300 leading-[1.55] whitespace-pre-wrap break-words">
                                 {reply.content}
                             </p>
                         </div>
@@ -100,10 +100,10 @@ export function DiscussionReply({
 
                     {/* Quick Actions (Floating or bottom) */}
                     {!reply.deleted && !isEditing && (
-                        <div className="flex items-center gap-2 mt-2 ml-2">
+                        <div className="flex items-center gap-2 mt-1.5 ml-1">
                             <button
                                 onClick={() => onReply(reply.id)}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all active:scale-95"
+                                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all active:scale-95"
                             >
                                 <MessageSquareReply className="w-3.5 h-3.5" />
                                 <span className="text-[9px] font-black uppercase tracking-widest">Javob</span>
@@ -111,7 +111,7 @@ export function DiscussionReply({
                             {isOwner && (
                                 <button
                                     onClick={() => setIsEditing(true)}
-                                    className="p-2 rounded-xl text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all active:scale-95"
+                                    className="p-1.5 rounded-xl text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all active:scale-95"
                                 >
                                     <Edit3 className="w-3.5 h-3.5" />
                                 </button>

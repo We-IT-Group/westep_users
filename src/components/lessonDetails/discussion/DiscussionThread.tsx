@@ -45,33 +45,33 @@ export function DiscussionThread({
     return (
         <div className="flex flex-col group/thread transition-all duration-300">
             {/* Root Thread Item */}
-            <div className="flex gap-4 sm:gap-6">
+            <div className="flex gap-3 sm:gap-4">
                 {/* Avatar Column */}
                 <div className="flex flex-col items-center">
-                    <div className={`w-11 h-11 sm:w-14 sm:h-14 shrink-0 rounded-full flex items-center justify-center font-black text-xs sm:text-[15px] shadow-md tracking-tighter border transition-transform group-hover/thread:scale-105 ${
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-full flex items-center justify-center font-black text-[11px] sm:text-[13px] shadow-md tracking-tighter border transition-transform group-hover/thread:scale-105 ${
                         isTeacher 
                             ? "bg-gradient-to-br from-blue-600 to-indigo-700 border-blue-500 text-white" 
                             : "bg-white border-slate-100 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200"
                     }`}>
-                        {isTeacher ? <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6" /> : initials}
+                        {isTeacher ? <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5" /> : initials}
                     </div>
                     {/* Visual thread line if replies or replying */}
                     {(thread.replies?.length > 0 || isReplying) && (
-                        <div className="w-[1.5px] flex-1 bg-slate-100 dark:bg-slate-800/60 my-2 rounded-full" />
+                        <div className="w-[1.5px] flex-1 bg-slate-100 dark:bg-slate-800/60 my-1.5 rounded-full" />
                     )}
                 </div>
 
                 {/* Content Column */}
-                <div className="flex-1 min-w-0 pb-4">
+                <div className="flex-1 min-w-0 pb-2">
                     {/* Header: Name + Time */}
-                    <div className="flex items-center flex-wrap gap-2 sm:gap-3 mb-2 px-1">
-                        <span className={`font-black text-[15px] sm:text-[16px] tracking-tight ${
+                    <div className="flex items-center flex-wrap gap-2 sm:gap-2.5 mb-1.5 px-1">
+                        <span className={`font-black text-[14px] sm:text-[15px] tracking-tight ${
                             isTeacher ? "text-blue-600 dark:text-blue-400" : "text-slate-900 dark:text-white"
                         }`}>
                             {thread.author.fullName}
                         </span>
                         {isTeacher && (
-                            <span className="bg-blue-600 text-white px-2.5 py-1 rounded-full text-[9px] uppercase font-black tracking-widest shadow-lg shadow-blue-500/20">
+                            <span className="bg-blue-600 text-white px-2 py-0.5 rounded-full text-[8px] uppercase font-black tracking-widest shadow-md shadow-blue-500/20">
                                 Ustoz
                             </span>
                         )}
@@ -92,8 +92,8 @@ export function DiscussionThread({
                                 />
                             </div>
                         ) : (
-                            <div className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/60 rounded-[24px] sm:rounded-[32px] p-5 sm:p-7 shadow-[0_4px_30px_-4px_rgba(0,0,0,0.03)] transition-all group-hover/thread:shadow-[0_10px_40px_-4px_rgba(0,0,0,0.06)] group-hover/thread:border-slate-200 dark:group-hover/thread:border-slate-700">
-                                <p className="font-bold text-[14px] sm:text-[15px] text-slate-600 dark:text-slate-300 leading-[1.6] whitespace-pre-wrap break-words">
+                            <div className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/60 rounded-[20px] sm:rounded-[24px] px-4 py-3.5 sm:px-5 sm:py-4.5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] transition-all group-hover/thread:shadow-[0_8px_28px_-4px_rgba(0,0,0,0.05)] group-hover/thread:border-slate-200 dark:group-hover/thread:border-slate-700">
+                                <p className="font-bold text-[14px] sm:text-[15px] text-slate-600 dark:text-slate-300 leading-[1.55] whitespace-pre-wrap break-words">
                                     {thread.content}
                                 </p>
                             </div>
@@ -101,7 +101,7 @@ export function DiscussionThread({
 
                         {/* Actions under bubble */}
                         {!isEditing && (
-                            <div className="flex items-center gap-3 mt-2.5 ml-3">
+                            <div className="flex items-center gap-2 mt-2 ml-1.5">
                                 <button
                                     onClick={() => {
                                         setReplyTarget({
@@ -111,7 +111,7 @@ export function DiscussionThread({
                                         });
                                         setIsReplying((prev) => !prev);
                                     }}
-                                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl transition-all active:scale-95 ${
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all active:scale-95 ${
                                         isReplying 
                                             ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' 
                                             : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'
@@ -123,7 +123,7 @@ export function DiscussionThread({
                                 {isOwner && (
                                     <button
                                         onClick={() => setIsEditing(true)}
-                                        className="p-2 rounded-xl text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all active:scale-95"
+                                        className="p-1.5 rounded-xl text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all active:scale-95"
                                     >
                                         <Edit3 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                     </button>
@@ -135,10 +135,10 @@ export function DiscussionThread({
             </div>
 
             {/* Replies & Reply Form Container - Optimized Indentation for Mobile */}
-            <div className="ml-5 pl-5 sm:ml-7 sm:pl-7 border-l-0 flex flex-col gap-5 mt-1 border-transparent">
+            <div className="ml-4 pl-4 sm:ml-6 sm:pl-6 border-l-0 flex flex-col gap-3 mt-1 border-transparent">
                 {/* Reply Form */}
                 {isReplying && (
-                    <div className="animate-in slide-in-from-top-2 fade-in duration-300 mb-2">
+                    <div className="animate-in slide-in-from-top-2 fade-in duration-300 mb-1">
                         <DiscussionForm 
                             placeholder={`${replyTarget?.authorName || thread.author.fullName} ga javob yozish...`}
                             onSubmit={handleReplySubmit}
@@ -164,7 +164,7 @@ export function DiscussionThread({
                 )}
 
                 {/* Replies Iterable */}
-                <div className="flex flex-col gap-4 sm:gap-6">
+                <div className="flex flex-col gap-3 sm:gap-4">
                     {thread.replies && thread.replies.length > 0 && thread.replies.map((reply) => {
                         const parentReply = thread.replies.find((item) => item.id === reply.parentId);
                         const replyToPreview =

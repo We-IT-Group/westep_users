@@ -44,9 +44,9 @@ export function DiscussionForm({
 
     return (
         <form onSubmit={handleSubmit} className="relative group/form">
-            <div className="relative overflow-hidden rounded-[24px] border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 transition-all focus-within:border-blue-500/50 focus-within:ring-4 focus-within:ring-blue-500/5 shadow-sm group-hover/form:border-slate-300 dark:group-hover/form:border-slate-700">
+            <div className="relative overflow-hidden rounded-[22px] border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 transition-all focus-within:border-blue-500/50 focus-within:ring-4 focus-within:ring-blue-500/5 shadow-sm group-hover/form:border-slate-300 dark:group-hover/form:border-slate-700">
                 {replyPreview ? (
-                    <div className="mx-4 mt-4 rounded-[18px] border border-blue-100 bg-white px-4 py-3 shadow-sm dark:border-blue-900/40 dark:bg-slate-800/70">
+                    <div className="mx-3.5 mt-3.5 rounded-2xl border border-blue-100 bg-white px-3.5 py-2.5 shadow-sm dark:border-blue-900/40 dark:bg-slate-800/70">
                         <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0 flex-1">
                                 <div className="mb-1 flex items-center gap-2">
@@ -78,10 +78,10 @@ export function DiscussionForm({
                     disabled={isSubmitting}
                     // eslint-disable-next-line jsx-a11y/no-autofocus
                     autoFocus={autoFocus}
-                    className="w-full resize-none min-h-[100px] p-5 text-[14px] font-medium text-slate-900 dark:text-white bg-transparent border-0 focus:ring-0 placeholder:text-slate-400 dark:placeholder:text-slate-600 disabled:opacity-50 scrollbar-hide"
+                    className="w-full resize-none min-h-[88px] p-4 text-[14px] font-medium text-slate-900 dark:text-white bg-transparent border-0 focus:ring-0 placeholder:text-slate-400 dark:placeholder:text-slate-600 disabled:opacity-50 scrollbar-hide"
                 />
                 
-                <div className="flex items-center justify-between px-5 pb-4 bg-transparent">
+                <div className="flex items-center justify-between px-4 pb-3.5 bg-transparent">
                     <div className="flex items-center gap-1.5">
                         <div className={`h-1.5 w-1.5 rounded-full ${content.length > 1800 ? 'bg-amber-500' : 'bg-blue-500'} opacity-50`} />
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-400/80">
@@ -95,7 +95,7 @@ export function DiscussionForm({
                                 type="button"
                                 onClick={onCancel}
                                 disabled={isSubmitting}
-                                className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 shadow-sm transition-all active:scale-95 disabled:opacity-50"
+                                className="px-3.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 shadow-sm transition-all active:scale-95 disabled:opacity-50"
                             >
                                 Bekor qilish
                             </button>
@@ -103,7 +103,7 @@ export function DiscussionForm({
                         <button
                             type="submit"
                             disabled={isSubmitting || !content.trim()}
-                            className="flex items-center gap-2.5 px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-[0.1em] text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all disabled:opacity-50 disabled:grayscale disabled:scale-95 shadow-lg shadow-blue-500/20"
+                            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-[0.1em] text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all disabled:opacity-50 disabled:grayscale disabled:scale-95 shadow-lg shadow-blue-500/20"
                         >
                             {isSubmitting ? (
                                 <Loader2 className="w-3.5 h-3.5 animate-spin" />

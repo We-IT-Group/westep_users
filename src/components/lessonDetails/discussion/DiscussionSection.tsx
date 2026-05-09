@@ -47,18 +47,18 @@ export function DiscussionSection({ lessonId }: DiscussionSectionProps) {
     }
 
     return (
-        <section className="mt-16 mb-24 max-w-5xl px-4 sm:px-6 lg:px-8 mx-auto">
+        <section className="mt-12 mb-16 max-w-4xl px-4 sm:px-5 lg:px-6 mx-auto">
             {/* Premium Header */}
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12 pb-8 border-b border-slate-100 dark:border-slate-800/60">
-                <div className="flex items-center gap-5">
-                    <div className="w-14 h-14 rounded-[20px] bg-blue-600 shadow-xl shadow-blue-500/20 flex items-center justify-center rotate-3 transition-transform hover:rotate-0">
-                        <MessageSquare className="w-7 h-7 text-white" />
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 pb-5 border-b border-slate-100 dark:border-slate-800/60">
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-blue-600 shadow-lg shadow-blue-500/20 flex items-center justify-center rotate-2 transition-transform hover:rotate-0">
+                        <MessageSquare className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                        <h2 className="text-2xl sm:text-3xl font-black italic uppercase tracking-tight text-slate-900 dark:text-white leading-none">
+                        <h2 className="text-xl sm:text-2xl font-black italic uppercase tracking-tight text-slate-900 dark:text-white leading-none">
                             Muloqot
                         </h2>
-                        <div className="flex items-center gap-2 mt-2">
+                        <div className="flex items-center gap-2 mt-1.5">
                             <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
                             <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
                                 {totalThreads} ta fikr bildirilgan
@@ -69,10 +69,10 @@ export function DiscussionSection({ lessonId }: DiscussionSectionProps) {
             </div>
 
             {/* Create new thread area - Integrated Design */}
-            <div className="mb-16 relative">
+            <div className="mb-10 relative">
                 <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/10 to-indigo-600/10 rounded-[40px] blur-xl opacity-50 dark:opacity-20" />
-                <div className="relative bg-white dark:bg-slate-900/50 p-6 sm:p-10 rounded-[32px] sm:rounded-[40px] border border-white dark:border-slate-800 shadow-2xl shadow-slate-200/50 dark:shadow-none">
-                    <div className="flex items-center gap-3 mb-6 ml-1">
+                <div className="relative bg-white dark:bg-slate-900/50 p-4 sm:p-6 rounded-[28px] sm:rounded-[32px] border border-white dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none">
+                    <div className="flex items-center gap-3 mb-4 ml-1">
                         <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
                             <MessageSquare className="w-4 h-4 text-blue-600" />
                         </div>
@@ -89,7 +89,7 @@ export function DiscussionSection({ lessonId }: DiscussionSectionProps) {
 
             {/* Loading state or Threads list */}
             {isLoading ? (
-                <div className="flex flex-col items-center justify-center py-24 gap-6">
+                <div className="flex flex-col items-center justify-center py-20 gap-5">
                     <div className="relative">
                         <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -99,14 +99,14 @@ export function DiscussionSection({ lessonId }: DiscussionSectionProps) {
                     <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300 dark:text-slate-600">Xabarlar yuklanmoqda</span>
                 </div>
             ) : threads.length === 0 ? (
-                <div className="text-center py-24 bg-slate-50/50 dark:bg-slate-900/10 rounded-[40px] border border-dashed border-slate-200 dark:border-slate-800 transition-all hover:bg-slate-50 dark:hover:bg-slate-900/20">
+                <div className="text-center py-20 bg-slate-50/50 dark:bg-slate-900/10 rounded-[32px] border border-dashed border-slate-200 dark:border-slate-800 transition-all hover:bg-slate-50 dark:hover:bg-slate-900/20">
                     <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-3xl shadow-sm mx-auto flex items-center justify-center mb-6">
                         <MessageSquare className="w-8 h-8 text-slate-300 dark:text-slate-600" />
                     </div>
                     <p className="text-xs font-black uppercase tracking-widest text-slate-400">Hozircha hech qanday fikr bildirilmagan</p>
                 </div>
             ) : (
-                <div className="space-y-12">
+                <div className="space-y-7">
                     {threads.map((thread) => (
                         <DiscussionThread
                             key={thread.id}
