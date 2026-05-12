@@ -1,5 +1,5 @@
 export type LessonType = "LESSON" | "PRACTICE";
-export type CoursePlayerTab = "discussion" | "materials" | "reviews";
+export type CoursePlayerTab = "discussion" | "materials" | "homework" | "reviews";
 
 export interface CoursePlayerLesson {
     id: string;
