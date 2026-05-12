@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { NotificationItem as NotificationTypeItem, useMarkNotificationAsRead } from "../../api/notification/useNotification";
-import { getNotificationHeadline, getNotificationMessage } from "../../api/notification/notificationPresentation";
+import { buildNotificationLink, getNotificationHeadline, getNotificationMessage, getNotificationRoleLabel, isDiscussionReplyNotification } from "../../api/notification/notificationPresentation";
 
 interface NotificationItemProps {
     notification: NotificationTypeItem;
@@ -27,51 +27,9 @@ export function NotificationItemComponent({ notification, onCloseDropdown }: Not
         if (!notification.isRead) {
             markAsRead(notification.id);
         }
-
-        // Navigation logic based on type and payload data
-        const { type, data } = notification;
-
-        switch (type) {
-            case "TEACHER_REPLIED":
-                if (data?.courseId && data?.lessonId) {
-                    navigate(`/courses/${data.courseId}/${data.lessonId}?discussion=${data.discussionId}`);
-                }
-                break;
-            case "HOMEWORK_GRADED":
-            case "HOMEWORK_REVISION_REQUESTED":
-                if (data?.courseId && data?.lessonId) {
-                    navigate(`/courses/${data.courseId}/${data.lessonId}/homework`);
-                }
-                break;
-            case "MODULE_COMPLETED":
-                if (data?.courseId && data?.studentCourseId && data?.moduleId) {
-                    navigate(`/courses/${data.courseId}/${data.studentCourseId}/${data.moduleId}`);
-                }
-                break;
-            case "COURSE_PURCHASED":
-                if (data?.courseId && data?.studentCourseId) {
-                    navigate(`/courses/${data.courseId}/${data.studentCourseId}`);
-                } else if (data?.courseId) {
-                    navigate(`/course-purchase/${data.courseId}`);
-                }
-                break;
-            case "ADMIN_BROADCAST":
-                if (data?.courseId) {
-                    navigate(`/course-purchase/${data.courseId}`);
-                }
-                break;
-            case "NEW_LESSON_UNLOCKED":
-                if (data?.courseId && data?.moduleId && data?.lessonId) {
-                     navigate(`/courses/${data.courseId}/modules/${data.moduleId}/lessons/${data.lessonId}`);
-                }
-                break;
-            case "CERTIFICATE_GENERATED":
-                if (data?.certificateId) {
-                    navigate(`/certificates/${data.certificateId}`);
-                }
-                break;
-            default:
-                break; // Do nothing if unmapped
+        const link = buildNotificationLink(notification);
+        if (link) {
+            navigate(link);
         }
 
         onCloseDropdown();
@@ -105,6 +63,8 @@ export function NotificationItemComponent({ notification, onCloseDropdown }: Not
     const timeAgo = moment(notification.createdAt).locale("uz-latn").fromNow();
     const headline = getNotificationHeadline(notification);
     const message = getNotificationMessage(notification);
+    const roleLabel = getNotificationRoleLabel(notification);
+    const isDiscussionReply = isDiscussionReplyNotification(notification);
 
     return (
         <button
@@ -119,10 +79,15 @@ export function NotificationItemComponent({ notification, onCloseDropdown }: Not
                 {style.icon}
             </div>
             <div className="flex-1 space-y-1 pr-6">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
                     <h4 className={`text-[13px] sm:text-sm font-black tracking-tight ${!notification.isRead ? 'text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}>
                         {headline}
                     </h4>
+                    {isDiscussionReply && roleLabel ? (
+                        <span className="shrink-0 rounded-full bg-blue-50 px-2 py-1 text-[9px] font-black uppercase tracking-[0.16em] text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
+                            {roleLabel}
+                        </span>
+                    ) : null}
                 </div>
                 <p className={`line-clamp-2 text-xs font-bold leading-relaxed ${!notification.isRead ? 'text-slate-600 dark:text-slate-400' : 'text-slate-500 dark:text-slate-500'}`}>
                     {message}

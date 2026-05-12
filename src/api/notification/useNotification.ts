@@ -12,7 +12,22 @@ export type NotificationType =
   | "NEW_LESSON_UNLOCKED"
   | "CERTIFICATE_GENERATED";
 
-export type NotificationItem = {
+export interface DiscussionReplyNotificationData {
+  courseId: string;
+  studentCourseId: string;
+  moduleId: string;
+  lessonId: string;
+  discussionId: string;
+  commentId: string;
+  replyId: string;
+  replierName: string;
+  replierRole: string;
+  replyContent: string;
+}
+
+export type NotificationData = DiscussionReplyNotificationData | Record<string, unknown> | null;
+
+export type NotificationResponse<TData extends NotificationData = NotificationData> = {
   id: string;
   type: NotificationType;
   title: string;
@@ -20,8 +35,10 @@ export type NotificationItem = {
   isRead: boolean;
   readAt: string | null;
   createdAt: string;
-  data: Record<string, any>;
+  data: TData;
 };
+
+export type NotificationItem<TData extends NotificationData = NotificationData> = NotificationResponse<TData>;
 
 export type NotificationListResponse = {
   page: number;

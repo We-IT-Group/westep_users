@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
+  AlertCircle,
   Bell,
   BookOpen,
   CheckCheck,
@@ -15,13 +16,12 @@ import {
   X,
 } from "lucide-react";
 import {
-  NotificationItem,
   NotificationType,
   useGetNotifications,
   useMarkAllNotificationsAsRead,
   useMarkNotificationAsRead,
 } from "../api/notification/useNotification.ts";
-import { getNotificationHeadline, getNotificationMessage } from "../api/notification/notificationPresentation.ts";
+import { buildNotificationLink, getNotificationHeadline, getNotificationMessage, getNotificationRoleLabel, isDiscussionReplyNotification } from "../api/notification/notificationPresentation.ts";
 
 const formatDateTime = (value: string) => {
   const date = new Date(value);
@@ -76,48 +76,10 @@ const getNotificationVisual = (type: NotificationType) => {
   }
 };
 
-const navigateByNotification = (navigate: ReturnType<typeof useNavigate>, notification: NotificationItem) => {
-  const { type, data } = notification;
-
-  switch (type) {
-    case "TEACHER_REPLIED":
-      if (data?.courseId && data?.studentCourseId && data?.moduleId && data?.lessonId) {
-        navigate(`/courses/${data.courseId}/${data.studentCourseId}/${data.moduleId}/${data.lessonId}/questions`);
-      }
-      break;
-    case "HOMEWORK_GRADED":
-    case "HOMEWORK_REVISION_REQUESTED":
-      if (data?.courseId && data?.studentCourseId && data?.moduleId && data?.lessonId) {
-        navigate(`/courses/${data.courseId}/${data.studentCourseId}/${data.moduleId}/${data.lessonId}/questions`);
-      }
-      break;
-    case "MODULE_COMPLETED":
-      if (data?.courseId) navigate(`/roadmap/${data.courseId}`);
-      break;
-    case "COURSE_PURCHASED":
-      if (data?.courseId && data?.studentCourseId) {
-        navigate(`/courses/${data.courseId}/${data.studentCourseId}`);
-      } else if (data?.courseId) {
-        navigate(`/course-purchase/${data.courseId}`);
-      }
-      break;
-    case "ADMIN_BROADCAST":
-      if (data?.courseId) navigate(`/course-purchase/${data.courseId}`);
-      break;
-    case "NEW_LESSON_UNLOCKED":
-      if (data?.courseId && data?.studentCourseId && data?.moduleId && data?.lessonId) {
-        navigate(`/courses/${data.courseId}/${data.studentCourseId}/${data.moduleId}/${data.lessonId}/questions`);
-      }
-      break;
-    default:
-      break;
-  }
-};
-
 export default function NotificationsPage() {
   const navigate = useNavigate();
   const { notificationId } = useParams();
-  const { data, isPending } = useGetNotifications(0, 100);
+  const { data, isPending, isError } = useGetNotifications(0, 100);
   const { mutate: markAsRead } = useMarkNotificationAsRead();
   const { mutate: markAllRead, isPending: isMarkingAll } = useMarkAllNotificationsAsRead();
 
@@ -158,12 +120,22 @@ export default function NotificationsPage() {
 
   const selectedHeadline = selectedNotification ? getNotificationHeadline(selectedNotification) : "";
   const selectedMessage = selectedNotification ? getNotificationMessage(selectedNotification) : "";
+  const selectedRoleLabel = selectedNotification ? getNotificationRoleLabel(selectedNotification) : "";
+  const selectedLink = selectedNotification ? buildNotificationLink(selectedNotification) : null;
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] px-4 pb-8 pt-6 dark:bg-slate-950 sm:px-6 sm:pt-8">
       <div className="mx-auto grid max-w-[1500px] grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
         <section className="min-h-[70vh] rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
-          {!selectedNotification ? (
+          {isError ? (
+            <div className="flex h-full min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
+              <AlertCircle className="h-12 w-12 text-red-300 dark:text-red-500/70" />
+              <div className="space-y-2">
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white">Bildirishnomalarni yuklab bo'lmadi</h2>
+                <p className="text-sm font-semibold text-slate-400">Sahifani yangilab qayta urinib ko'ring.</p>
+              </div>
+            </div>
+          ) : !selectedNotification ? (
             <div className="flex h-full min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
               <Bell className="h-12 w-12 text-slate-200 dark:text-slate-700" />
               <div className="space-y-2">
@@ -182,6 +154,11 @@ export default function NotificationsPage() {
                     <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
                       {selectedHeadline}
                     </h1>
+                    {isDiscussionReplyNotification(selectedNotification) && selectedRoleLabel ? (
+                      <div className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
+                        {selectedRoleLabel}
+                      </div>
+                    ) : null}
                     <p className="text-sm font-semibold text-slate-400">
                       {formatDateTime(selectedNotification.createdAt)}
                     </p>
@@ -215,7 +192,12 @@ export default function NotificationsPage() {
 
                   <button
                     type="button"
-                    onClick={() => navigateByNotification(navigate, selectedNotification)}
+                    onClick={() => {
+                      if (selectedLink) {
+                        navigate(selectedLink);
+                      }
+                    }}
+                    disabled={!selectedLink}
                     className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-black text-white transition-colors hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-500"
                   >
                     Bog'liq sahifaga o'tish
@@ -286,6 +268,7 @@ export default function NotificationsPage() {
                 const isActive = selectedNotification?.id === notification.id;
                 const headline = getNotificationHeadline(notification);
                 const message = getNotificationMessage(notification);
+                const roleLabel = getNotificationRoleLabel(notification);
 
                 return (
                   <Link
@@ -304,9 +287,16 @@ export default function NotificationsPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-3">
-                        <h3 className="line-clamp-1 text-lg font-black text-slate-900 dark:text-white">
-                          {headline}
-                        </h3>
+                        <div className="min-w-0">
+                          <h3 className="line-clamp-1 text-lg font-black text-slate-900 dark:text-white">
+                            {headline}
+                          </h3>
+                          {isDiscussionReplyNotification(notification) && roleLabel ? (
+                            <div className="mt-1 inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
+                              {roleLabel}
+                            </div>
+                          ) : null}
+                        </div>
                         <span className="shrink-0 text-sm font-semibold text-slate-400">
                           {formatDateTime(notification.createdAt).split(", ")[1] || ""}
                         </span>
