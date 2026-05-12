@@ -15,6 +15,17 @@ interface DiscussionReplyProps {
     } | null;
 }
 
+const roleBadgeMap: Record<string, { label: string; className: string }> = {
+    TEACHER: {
+        label: "Teacher",
+        className: "bg-blue-600 text-white shadow-md shadow-blue-500/20",
+    },
+    STUDENT: {
+        label: "Student",
+        className: "bg-emerald-50 text-emerald-700 border border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-900/50",
+    },
+};
+
 export function DiscussionReply({ 
     reply, 
     currentUserId, 
@@ -24,6 +35,10 @@ export function DiscussionReply({
 }: DiscussionReplyProps) {
     const isOwner = currentUserId && reply.author.id === currentUserId;
     const isTeacher = reply.author.role === "TEACHER";
+    const roleBadge = roleBadgeMap[reply.author.role] || {
+        label: reply.author.role,
+        className: "bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700",
+    };
     
     const [isEditing, setIsEditing] = useState(false);
 
@@ -59,11 +74,9 @@ export function DiscussionReply({
                     }`}>
                         {reply.author.fullName}
                     </span>
-                    {isTeacher && (
-                        <span className="bg-blue-600 text-white px-2 py-0.5 rounded-full text-[8px] uppercase font-black tracking-widest shadow-lg shadow-blue-500/20">
-                            Ustoz
-                        </span>
-                    )}
+                    <span className={`${roleBadge.className} px-2 py-0.5 rounded-full text-[8px] uppercase font-black tracking-widest`}>
+                        {roleBadge.label}
+                    </span>
                     <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] opacity-60">
                         {moment(reply.createdAt).fromNow()}
                     </span>

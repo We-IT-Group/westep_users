@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { NotificationItem as NotificationTypeItem, useMarkNotificationAsRead } from "../../api/notification/useNotification";
+import { getNotificationHeadline, getNotificationMessage } from "../../api/notification/notificationPresentation";
 
 interface NotificationItemProps {
     notification: NotificationTypeItem;
@@ -102,6 +103,8 @@ export function NotificationItemComponent({ notification, onCloseDropdown }: Not
 
     const style = getNotificationStyle();
     const timeAgo = moment(notification.createdAt).locale("uz-latn").fromNow();
+    const headline = getNotificationHeadline(notification);
+    const message = getNotificationMessage(notification);
 
     return (
         <button
@@ -118,11 +121,11 @@ export function NotificationItemComponent({ notification, onCloseDropdown }: Not
             <div className="flex-1 space-y-1 pr-6">
                 <div className="flex items-center justify-between">
                     <h4 className={`text-[13px] sm:text-sm font-black tracking-tight ${!notification.isRead ? 'text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}>
-                        {notification.title}
+                        {headline}
                     </h4>
                 </div>
                 <p className={`line-clamp-2 text-xs font-bold leading-relaxed ${!notification.isRead ? 'text-slate-600 dark:text-slate-400' : 'text-slate-500 dark:text-slate-500'}`}>
-                    {notification.body}
+                    {message}
                 </p>
                 <div className="text-[10px] font-bold uppercase italic text-slate-400 mt-2">
                     {timeAgo}

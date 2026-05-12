@@ -21,6 +21,7 @@ import {
   useMarkAllNotificationsAsRead,
   useMarkNotificationAsRead,
 } from "../api/notification/useNotification.ts";
+import { getNotificationHeadline, getNotificationMessage } from "../api/notification/notificationPresentation.ts";
 
 const formatDateTime = (value: string) => {
   const date = new Date(value);
@@ -130,8 +131,8 @@ export default function NotificationsPage() {
       const q = search.trim().toLowerCase();
       const matchesSearch =
         !q ||
-        item.title.toLowerCase().includes(q) ||
-        item.body.toLowerCase().includes(q);
+        getNotificationHeadline(item).toLowerCase().includes(q) ||
+        getNotificationMessage(item).toLowerCase().includes(q);
       return matchesTab && matchesSearch;
     });
   }, [notifications, activeTab, search]);
@@ -155,6 +156,9 @@ export default function NotificationsPage() {
     }
   }, [selectedNotification, markAsRead]);
 
+  const selectedHeadline = selectedNotification ? getNotificationHeadline(selectedNotification) : "";
+  const selectedMessage = selectedNotification ? getNotificationMessage(selectedNotification) : "";
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] px-4 pb-8 pt-6 dark:bg-slate-950 sm:px-6 sm:pt-8">
       <div className="mx-auto grid max-w-[1500px] grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
@@ -176,7 +180,7 @@ export default function NotificationsPage() {
                   </div>
                   <div className="space-y-1">
                     <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-                      {selectedNotification.title}
+                      {selectedHeadline}
                     </h1>
                     <p className="text-sm font-semibold text-slate-400">
                       {formatDateTime(selectedNotification.createdAt)}
@@ -195,7 +199,7 @@ export default function NotificationsPage() {
 
               <div className="mt-8 space-y-6">
                 <p className="max-w-4xl text-[28px] font-semibold leading-relaxed text-slate-600 dark:text-slate-300">
-                  {selectedNotification.body}
+                  {selectedMessage}
                 </p>
 
                 <div className="flex flex-wrap gap-3 pt-4">
@@ -280,6 +284,8 @@ export default function NotificationsPage() {
               filteredNotifications.map((notification) => {
                 const visual = getNotificationVisual(notification.type);
                 const isActive = selectedNotification?.id === notification.id;
+                const headline = getNotificationHeadline(notification);
+                const message = getNotificationMessage(notification);
 
                 return (
                   <Link
@@ -299,14 +305,14 @@ export default function NotificationsPage() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-3">
                         <h3 className="line-clamp-1 text-lg font-black text-slate-900 dark:text-white">
-                          {notification.title}
+                          {headline}
                         </h3>
                         <span className="shrink-0 text-sm font-semibold text-slate-400">
                           {formatDateTime(notification.createdAt).split(", ")[1] || ""}
                         </span>
                       </div>
                       <p className="line-clamp-2 text-sm font-semibold text-slate-500 dark:text-slate-400">
-                        {notification.body}
+                        {message}
                       </p>
                     </div>
                   </Link>

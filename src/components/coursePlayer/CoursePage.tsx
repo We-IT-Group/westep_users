@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
     ClipboardList,
@@ -8,16 +8,14 @@ import {
     ExternalLink,
     FileText,
     FolderArchive,
-    Link2,
     Lock,
-    Paperclip,
     Play,
-    Plus,
     Star,
-    Trash2,
     Video,
     HelpCircle,
+    History,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import type {
     CoursePlayerData,
     CoursePlayerLesson,
@@ -26,9 +24,11 @@ import type {
 } from "./types.ts";
 import { DiscussionSection } from "../lessonDetails/discussion/DiscussionSection";
 import { ReviewSection } from "../lessonDetails/review/ReviewSection";
-import { useToast } from "../../hooks/useToast.tsx";
 import { getFileById, getFileByUrl } from "../../api/file/filesApi.ts";
-import { submitLessonHomework } from "../../api/lesson-tasks/lessonTasksApi.ts";
+import { useUser } from "../../api/auth/useAuth.ts";
+import { useGetMyHomeworkSubmissionsByLesson } from "../../api/lesson-homework/useLessonHomework.ts";
+import HomeworkSubmitForm from "../homework/HomeworkSubmitForm.tsx";
+import HomeworkSubmissionHistory from "../homework/HomeworkSubmissionHistory.tsx";
 
 type CoursePageProps = {
     data: CoursePlayerData;
@@ -142,6 +142,7 @@ function LessonHeader({
     rating,
     onPrev,
     onNext,
+    onRatingClick,
     isPrevDisabled,
     isNextDisabled,
 }: {
@@ -151,6 +152,7 @@ function LessonHeader({
     rating: number;
     onPrev: () => void;
     onNext: () => void;
+    onRatingClick: () => void;
     isPrevDisabled: boolean;
     isNextDisabled: boolean;
 }) {
@@ -165,12 +167,16 @@ function LessonHeader({
                     <span className="text-sm font-black tracking-tight text-slate-500 dark:text-slate-400 sm:text-base">
                         {duration}
                     </span>
-                    <div className="flex items-center gap-2 rounded-full border border-yellow-100 bg-yellow-50 px-4 py-2 dark:border-yellow-900/30 dark:bg-yellow-900/20">
+                    <button
+                        type="button"
+                        onClick={onRatingClick}
+                        className="flex items-center gap-2 rounded-full border border-yellow-100 bg-yellow-50 px-4 py-2 transition-all hover:scale-[1.02] hover:border-yellow-200 hover:bg-yellow-100/80 dark:border-yellow-900/30 dark:bg-yellow-900/20 dark:hover:border-yellow-800 dark:hover:bg-yellow-900/30"
+                    >
                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 sm:h-5 sm:w-5" />
                         <span className="text-sm font-black text-yellow-700 dark:text-yellow-500 sm:text-base">
                             {rating.toFixed(1)}
                         </span>
-                    </div>
+                    </button>
                 </div>
                 <h2 className="text-2xl font-black uppercase italic leading-tight tracking-tight text-slate-900 dark:text-white sm:text-4xl sm:leading-[1.1]">
                     {title}
@@ -208,17 +214,15 @@ function LessonContentTabs({
     lessonId,
     materials,
     onQuizOpen,
+    canAccessHomework,
 }: {
     activeTab: CoursePlayerTab;
     lessonId: string;
     materials: CoursePlayerMaterial[];
     onQuizOpen?: (material: CoursePlayerMaterial) => void;
+    canAccessHomework: boolean;
 }) {
-    const toast = useToast();
-    const [homeworkFiles, setHomeworkFiles] = useState<File[]>([]);
-    const [homeworkLinks, setHomeworkLinks] = useState<string[]>([""]);
-    const [homeworkComment, setHomeworkComment] = useState("");
-    const [isUploadingHomework, setIsUploadingHomework] = useState(false);
+    const navigate = useNavigate();
 
     const downloadAttachment = async (material: CoursePlayerMaterial) => {
         if (!material.attachmentId && !material.attachmentUrl) return;
@@ -258,66 +262,13 @@ function LessonContentTabs({
     };
 
     const homeworkMaterial = materials.find((item) => item.type === "homework");
-
-    const onPickHomeworkFiles = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const files = Array.from(event.target.files || []);
-        const accepted = files.filter((file) =>
-            /\.(doc|docx|xls|xlsx|ppt|pptx)$/i.test(file.name),
-        );
-        setHomeworkFiles((prev) => [...prev, ...accepted].slice(0, 3));
-        event.target.value = "";
-    };
-
-    const updateHomeworkLink = (index: number, value: string) => {
-        setHomeworkLinks((prev) => prev.map((item, itemIndex) => (itemIndex === index ? value : item)));
-    };
-
-    const addHomeworkLink = () => {
-        if (homeworkLinks.length >= 3) return;
-        setHomeworkLinks((prev) => [...prev, ""]);
-    };
-
-    const removeHomeworkLink = (index: number) => {
-        setHomeworkLinks((prev) => prev.filter((_, itemIndex) => itemIndex !== index));
-    };
-
-    const removeHomeworkFile = (index: number) => {
-        setHomeworkFiles((prev) => prev.filter((_, itemIndex) => itemIndex !== index));
-    };
-
-    const handleHomeworkSubmit = async () => {
-        const cleanedLinks = homeworkLinks.map((item) => item.trim()).filter(Boolean);
-
-        if (!homeworkFiles.length && !cleanedLinks.length) {
-            toast.warning("Hech narsa tanlanmagan", "Fayl yoki link qo'shing.");
-            return;
-        }
-
-        try {
-            setIsUploadingHomework(true);
-
-            if (!homeworkMaterial?.taskId) {
-                throw new Error("Uyga vazifa taskId topilmadi");
-            }
-
-            await submitLessonHomework(homeworkMaterial.taskId, {
-                comment: homeworkComment,
-                link: cleanedLinks[0],
-                file: homeworkFiles.length === 1 ? homeworkFiles[0] : undefined,
-                files: homeworkFiles.length > 1 ? homeworkFiles : undefined,
-            });
-
-            setHomeworkFiles([]);
-            setHomeworkLinks([""]);
-            setHomeworkComment("");
-            toast.success("Uyga vazifa yuborildi");
-        } catch (error) {
-            const message = error instanceof Error ? error.message : "Uyga vazifani yuborishda xatolik";
-            toast.error("Uyga vazifani yuborishda xatolik", message);
-        } finally {
-            setIsUploadingHomework(false);
-        }
-    };
+    const {
+        data: lessonSubmissions = [],
+        isPending: isLessonSubmissionsPending,
+        error: lessonSubmissionsError,
+    } = useGetMyHomeworkSubmissionsByLesson(
+        canAccessHomework && homeworkMaterial?.taskId ? lessonId : null,
+    );
 
     const getMaterialMeta = (material: CoursePlayerMaterial) => {
         switch (material.type) {
@@ -468,7 +419,7 @@ function LessonContentTabs({
                                         )}
                                         {!hasExternalLink && !hasDownload && (
                                             <div className="flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-100 bg-slate-50 px-5 text-xs font-black uppercase tracking-[0.18em] text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500 sm:h-12 sm:rounded-2xl">
-                                                <Link2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                                                <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
                                                 Hozircha mavjud emas
                                             </div>
                                         )}
@@ -479,130 +430,90 @@ function LessonContentTabs({
                     );
                     })}
                 </div>
+            </div>
+        );
+    }
 
-                {homeworkMaterial && (
-                    <div className="rounded-[28px] border border-indigo-100 bg-white p-5 shadow-sm dark:border-indigo-900/30 dark:bg-slate-900 sm:rounded-[32px] sm:p-7">
-                        <div className="flex flex-col gap-2 border-b border-slate-100 pb-5 dark:border-slate-800">
-                            <div className="text-lg font-black uppercase italic tracking-tight text-slate-900 dark:text-white">
-                                Uyga vazifani topshirish
-                            </div>
-                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                                Word, Excel, PowerPoint fayllari va tashqi havolalarni yuborishingiz mumkin.
-                            </p>
-                        </div>
-
-                        <div className="mt-5 space-y-5">
-                            <div className="space-y-3">
-                                <label className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
-                                    Fayl yuklash
-                                </label>
-                                <label className="flex cursor-pointer items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-4 text-sm font-black text-slate-700 transition-all hover:border-blue-400 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-blue-700 dark:hover:bg-slate-800">
-                                    <Paperclip className="h-4 w-4" />
-                                    Fayl tanlash
-                                    <input
-                                        type="file"
-                                        multiple
-                                        accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx"
-                                        className="hidden"
-                                        onChange={onPickHomeworkFiles}
-                                    />
-                                </label>
-                                <p className="text-xs font-medium text-slate-400">
-                                    Maksimal 3 ta fayl yuborish mumkin.
-                                </p>
-                                {homeworkFiles.length > 0 && (
-                                    <div className="space-y-2">
-                                        {homeworkFiles.map((file, index) => (
-                                            <div
-                                                key={`${file.name}-${index}`}
-                                                className="flex items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-800/70"
-                                            >
-                                                <div className="min-w-0 truncate text-sm font-bold text-slate-700 dark:text-slate-200">
-                                                    {file.name}
-                                                </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeHomeworkFile(index)}
-                                                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between gap-3">
-                                    <label className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
-                                        Havola yuborish
-                                    </label>
-                                    <button
-                                        type="button"
-                                        onClick={addHomeworkLink}
-                                        disabled={homeworkLinks.length >= 3}
-                                        className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-[11px] font-black uppercase tracking-widest text-slate-600 transition-all hover:border-blue-200 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                                    >
-                                        <Plus className="h-3.5 w-3.5" />
-                                        Link qo'shish
-                                    </button>
-                                </div>
-                                <p className="text-xs font-medium text-slate-400">
-                                    Maksimal 3 ta link yuborish mumkin.
-                                </p>
-                                <div className="space-y-3">
-                                    {homeworkLinks.map((link, index) => (
-                                        <div key={`homework-link-${index}`} className="flex items-center gap-3">
-                                            <input
-                                                type="url"
-                                                value={link}
-                                                onChange={(event) => updateHomeworkLink(index, event.target.value)}
-                                                placeholder="https://..."
-                                                className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-800 outline-none transition-all focus:border-blue-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                                            />
-                                            {homeworkLinks.length > 1 && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeHomeworkLink(index)}
-                                                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-400 transition-colors hover:border-red-200 hover:text-red-500 dark:border-slate-700 dark:bg-slate-800"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </button>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="space-y-3">
-                                <label className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
-                                    Izoh
-                                </label>
-                                <textarea
-                                    value={homeworkComment}
-                                    onChange={(event) => setHomeworkComment(event.target.value)}
-                                    placeholder="Uyga vazifa uchun izoh qoldiring..."
-                                    className="min-h-[110px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-800 outline-none transition-all focus:border-blue-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                                />
-                            </div>
-
-                            <div className="flex flex-col gap-3 border-t border-slate-100 pt-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
-                                <p className="text-xs font-medium text-slate-400">
-                                    Fayllar va havolalarni biriktirib uyga vazifani topshiring.
-                                </p>
-                                <button
-                                    type="button"
-                                    onClick={() => void handleHomeworkSubmit()}
-                                    disabled={isUploadingHomework}
-                                    className="h-12 rounded-2xl bg-indigo-600 px-6 text-xs font-black uppercase tracking-[0.18em] text-white transition-all hover:bg-indigo-700 disabled:opacity-50"
-                                >
-                                    {isUploadingHomework ? "Yuklanmoqda..." : "Uyga vazifani yuborish"}
-                                </button>
-                            </div>
-                        </div>
+    if (activeTab === "homework") {
+        if (!canAccessHomework) {
+            return (
+                <div className="rounded-[28px] border border-dashed border-slate-300 bg-white p-10 text-center dark:border-slate-700 dark:bg-slate-900">
+                    <div className="text-lg font-black uppercase italic text-slate-900 dark:text-white">
+                        Homework bo'limi faqat student uchun
                     </div>
-                )}
+                    <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">
+                        Bu sahifa student submission, baho va feedback oqimi uchun mo'ljallangan.
+                    </p>
+                </div>
+            );
+        }
+
+        if (!homeworkMaterial?.taskId) {
+            return (
+                <div className="rounded-[28px] border border-dashed border-slate-300 bg-white p-10 text-center dark:border-slate-700 dark:bg-slate-900">
+                    <div className="text-lg font-black uppercase italic text-slate-900 dark:text-white">
+                        Homework task topilmadi
+                    </div>
+                    <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">
+                        Bu dars uchun homework backenddan hali kelmagan.
+                    </p>
+                </div>
+            );
+        }
+
+        return (
+            <div className="space-y-6">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
+                            Student homework
+                        </div>
+                        <h3 className="mt-2 text-2xl font-black uppercase italic tracking-tight text-slate-900 dark:text-white">
+                            Submission va natijalar
+                        </h3>
+                        <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">
+                            Vazifani yuboring, keyin history, score va feedbackni shu yerda ko'ring.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={() => navigate("/homework-history")}
+                        className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 text-xs font-black uppercase tracking-[0.18em] text-slate-700 transition-all hover:border-blue-200 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                    >
+                        <History className="h-4 w-4" />
+                        Barcha history
+                    </button>
+                </div>
+
+                <HomeworkSubmitForm
+                    taskId={homeworkMaterial.taskId}
+                    lessonId={lessonId}
+                />
+
+                <div className="space-y-4">
+                    <div>
+                        <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
+                            Mening yuborishlarim
+                        </div>
+                        <h4 className="mt-2 text-xl font-black uppercase italic tracking-tight text-slate-900 dark:text-white">
+                            Shu dars bo'yicha history
+                        </h4>
+                    </div>
+
+                    <HomeworkSubmissionHistory
+                        submissions={lessonSubmissions}
+                        isLoading={isLessonSubmissionsPending}
+                        errorMessage={
+                            lessonSubmissionsError instanceof Error
+                                ? lessonSubmissionsError.message
+                                : null
+                        }
+                        emptyTitle="Bu dars uchun submission topilmadi"
+                        emptyDescription="Comment, link yoki file bilan birinchi homework submissionni yuboring."
+                        showLessonName={false}
+                    />
+                </div>
             </div>
         );
     }
@@ -749,6 +660,8 @@ export function CoursePage({
     onQuizOpen,
     renderVideoPlayer,
 }: CoursePageProps) {
+    const { data: currentUser } = useUser();
+    const contentTabsRef = useRef<HTMLDivElement | null>(null);
     const allLessons = useMemo(() => data.modules.flatMap((module) => module.lessons), [data]);
     const [activeTab, setActiveTab] = useState<CoursePlayerTab>("discussion");
     const [expandedModules, setExpandedModules] = useState<string[]>(
@@ -772,8 +685,20 @@ export function CoursePage({
     const currentLessonRating = currentLesson?.rating ?? averageRating;
 
     const lessonQuiz = data.materials.find(m => m.type === "quiz");
+    const lessonHomework = data.materials.find((material) => material.type === "homework");
     const hasVideo = !!currentLesson?.videoUrl;
     const isPractice = currentLesson?.type === "PRACTICE";
+    const canAccessHomework = currentUser?.roleName === "STUDENT";
+    const availableTabs: CoursePlayerTab[] =
+        canAccessHomework && lessonHomework
+            ? ["discussion", "materials", "homework", "reviews"]
+            : ["discussion", "materials", "reviews"];
+
+    useEffect(() => {
+        if (activeTab === "homework" && (!canAccessHomework || !lessonHomework)) {
+            setActiveTab("discussion");
+        }
+    }, [activeTab, canAccessHomework, lessonHomework]);
 
     function handleSelectLesson(lesson: CoursePlayerLesson) {
         setSelectedLesson(lesson.id);
@@ -797,6 +722,17 @@ export function CoursePage({
         if (currentLessonIndex > 0) {
             handleSelectLesson(allLessons[currentLessonIndex - 1]);
         }
+    }
+
+    function handleRatingClick() {
+        setActiveTab("reviews");
+
+        window.requestAnimationFrame(() => {
+            contentTabsRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+        });
     }
 
     return (
@@ -867,6 +803,7 @@ export function CoursePage({
                             rating={currentLessonRating}
                             onPrev={handlePrevLesson}
                             onNext={handleNextLesson}
+                            onRatingClick={handleRatingClick}
                             isPrevDisabled={currentLessonIndex <= 0}
                             isNextDisabled={
                                 currentLessonIndex === allLessons.length - 1 ||
@@ -874,9 +811,9 @@ export function CoursePage({
                             }
                         />
 
-                        <div className="space-y-6 sm:space-y-10">
+                        <div ref={contentTabsRef} className="space-y-6 sm:space-y-10">
                             <div className="scrollbar-hide -mx-4 flex items-center gap-6 overflow-x-auto border-b border-slate-100 px-4 dark:border-slate-800 sm:mx-0 sm:gap-12 sm:px-0">
-                                {(["discussion", "materials", "reviews"] as const).map((tab) => (
+                                {availableTabs.map((tab) => (
                                     <button
                                         key={tab}
                                         onClick={() => setActiveTab(tab)}
@@ -887,7 +824,13 @@ export function CoursePage({
                                         }`}
                                         type="button"
                                     >
-                                        {tab === "discussion" ? "Muloqot" : tab === "materials" ? "Resurslar" : "Sharhlar"}
+                                        {tab === "discussion"
+                                            ? "Muloqot"
+                                            : tab === "materials"
+                                              ? "Resurslar"
+                                              : tab === "homework"
+                                                ? "Homework"
+                                                : "Sharhlar"}
                                         {activeTab === tab && (
                                             <motion.div
                                                 layoutId="course-player-tab"
@@ -902,6 +845,7 @@ export function CoursePage({
                                 activeTab={activeTab}
                                 lessonId={selectedLesson}
                                 materials={data.materials}
+                                canAccessHomework={canAccessHomework}
                                 onQuizOpen={(material) =>
                                     onQuizOpen?.(material.id, {
                                         questionCount: material.questionCount,
