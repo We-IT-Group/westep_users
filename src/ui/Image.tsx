@@ -1,4 +1,4 @@
-import {baseUrlImage} from "../api/apiClient.ts";
+import {resolveAssetUrl} from "../api/apiClient.ts";
 
 interface Props {
     imageUrl: string | null,
@@ -7,11 +7,7 @@ interface Props {
 
 function Image({imageUrl, className = ""}: Props) {
 
-    const resolvedImageUrl = imageUrl
-        ? imageUrl.startsWith("http://") || imageUrl.startsWith("https://")
-            ? imageUrl
-            : baseUrlImage + imageUrl
-        : null;
+    const resolvedImageUrl = imageUrl ? resolveAssetUrl(imageUrl) : null;
 
 
     return (

@@ -100,14 +100,51 @@ function VideoPlayer({
     lessonId: string;
     poster?: string;
 }) {
+    const getYoutubeEmbedUrl = (source?: string) => {
+        if (!source) return "";
+
+        try {
+            const url = new URL(source);
+            const hostname = url.hostname.replace("www.", "");
+
+            if (hostname === "youtu.be") {
+                const videoId = url.pathname.split("/").filter(Boolean)[0];
+                return videoId ? `https://www.youtube.com/embed/${videoId}` : "";
+            }
+
+            if (hostname === "youtube.com" || hostname === "m.youtube.com") {
+                if (url.pathname.startsWith("/embed/")) {
+                    return source;
+                }
+
+                if (url.pathname === "/watch") {
+                    const videoId = url.searchParams.get("v");
+                    return videoId ? `https://www.youtube.com/embed/${videoId}` : "";
+                }
+
+                if (url.pathname.startsWith("/shorts/")) {
+                    const videoId = url.pathname.split("/").filter(Boolean)[1];
+                    return videoId ? `https://www.youtube.com/embed/${videoId}` : "";
+                }
+            }
+        } catch {
+            return "";
+        }
+
+        return "";
+    };
+
+    const youtubeEmbedUrl = getYoutubeEmbedUrl(videoUrl);
+    const isYoutubeVideo = Boolean(youtubeEmbedUrl);
+
     return (
         <div className="relative group">
             <div className="aspect-video overflow-hidden rounded-2xl bg-black shadow-2xl sm:rounded-[36px]">
                 {videoUrl ? (
-                    videoUrl.includes("youtube.com/embed") ? (
+                    isYoutubeVideo ? (
                         <iframe
                             key={lessonId}
-                            src={`${videoUrl}?autoplay=1&rel=0`}
+                            src={`${youtubeEmbedUrl}?autoplay=1&rel=0&playsinline=1`}
                             className="h-full w-full border-0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
@@ -119,6 +156,8 @@ function VideoPlayer({
                             className="h-full w-full object-cover"
                             controls
                             autoPlay
+                            playsInline
+                            preload="metadata"
                             poster={poster}
                         />
                     )

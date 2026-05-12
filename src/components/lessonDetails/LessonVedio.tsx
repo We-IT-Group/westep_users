@@ -143,6 +143,11 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
 
     const thumbnail = getYoutubeThumbnail(videoUrl);
 
+    const clearRestoreTimeouts = useCallback(() => {
+        restoreTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
+        restoreTimeoutsRef.current = [];
+    }, []);
+
     const getRoundedCurrentSecond = useCallback(() => {
         return Math.max(
             0,
@@ -273,8 +278,7 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
     useEffect(() => {
         const normalizedStartTime = Math.max(0, Math.round(startTime || 0));
 
-        restoreTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
-        restoreTimeoutsRef.current = [];
+        clearRestoreTimeouts();
         stopProgressTimer();
         lastRestoredStartTimeRef.current = null;
         hasPlaybackInteractionRef.current = false;
@@ -286,11 +290,10 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
         resetTrackingPoint(normalizedStartTime);
 
         return () => {
-            restoreTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
-            restoreTimeoutsRef.current = [];
+            clearRestoreTimeouts();
             stopProgressTimer();
         };
-    }, [resetTrackingPoint, stopProgressTimer, videoUrl]);
+    }, [clearRestoreTimeouts, resetTrackingPoint, stopProgressTimer, videoUrl]);
 
     useEffect(() => {
         const normalizedStartTime = Math.max(0, Math.round(startTime || 0));
@@ -307,15 +310,16 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
         isRestoringPositionRef.current = true;
         playerRef.current.currentTime = normalizedStartTime;
 
-        restoreTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
+        clearRestoreTimeouts();
         restoreTimeoutsRef.current = [120, 400, 900].map((delay) =>
             window.setTimeout(() => {
                 if (!playerRef.current) return;
+                if (hasPlaybackInteractionRef.current) return;
                 isRestoringPositionRef.current = true;
                 playerRef.current.currentTime = normalizedStartTime;
             }, delay),
         );
-    }, [resetTrackingPoint, startTime, videoUrl]);
+    }, [clearRestoreTimeouts, resetTrackingPoint, startTime, videoUrl]);
 
     useEffect(() => {
         setEnded(false);
@@ -341,13 +345,14 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
 
     const handlePlay = useCallback(() => {
         if (isRestoringPositionRef.current) return;
+        clearRestoreTimeouts();
         isSeekingRef.current = false;
         hasEndedRef.current = false;
         hasPlaybackInteractionRef.current = true;
         const currentSecond = getRoundedCurrentSecond();
         resetTrackingPoint(currentSecond);
         startProgressTimer();
-    }, [getRoundedCurrentSecond, resetTrackingPoint, startProgressTimer]);
+    }, [clearRestoreTimeouts, getRoundedCurrentSecond, resetTrackingPoint, startProgressTimer]);
 
     const handlePause = useCallback(() => {
         if (isRestoringPositionRef.current) return;
@@ -383,6 +388,7 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
     }, [flushTrackedSegment, getRoundedCurrentSecond, saveCurrentPosition, stopProgressTimer]);
 
     const handleSeeked = useCallback(() => {
+        clearRestoreTimeouts();
         const currentSecond = getRoundedCurrentSecond();
 
         if (isRestoringPositionRef.current) {
@@ -399,7 +405,7 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
         if (!playerRef.current?.paused && !hasEndedRef.current) {
             startProgressTimer();
         }
-    }, [getRoundedCurrentSecond, resetTrackingPoint, saveCurrentPosition, startProgressTimer]);
+    }, [clearRestoreTimeouts, getRoundedCurrentSecond, resetTrackingPoint, saveCurrentPosition, startProgressTimer]);
 
     const handleEnded = useCallback(() => {
         if (isRestoringPositionRef.current) return;
@@ -457,6 +463,7 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
                      title="Lesson Video"
                      src={videoUrl}
                      poster={thumbnail}
+                     playsInline
                      className="vds-player lesson-video-player"
                      onTimeUpdate={handleTimeUpdate}
                      onPlay={handlePlay}

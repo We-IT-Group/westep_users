@@ -26,6 +26,7 @@ import {
 } from "../../api/studentProgressCourse/studentProgressCourseApi.ts";
 import type { Lesson, StudentCourse, User } from "../../types/types.ts";
 import { formatUzPhone } from "../../utils/utils.ts";
+import DeviceSessionsSection from "./DeviceSessionsSection.tsx";
 import UpdateProfileUser from "./UpdateProfileUser.tsx";
 
 const UZBEK_MONTHS = [
@@ -518,6 +519,8 @@ export function Profile() {
                     </div>
 
                 </section>
+
+                <DeviceSessionsSection />
 
                 <section className="space-y-8 sm:space-y-10">
                     <div className="flex items-center justify-between border-b border-slate-100 pb-5 dark:border-slate-800">

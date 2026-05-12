@@ -2,6 +2,7 @@ import apiClient, { baseUrl } from "../apiClient";
 import {User} from "../../types/types.ts";
 import axios, {AxiosError} from "axios";
 import {getItem, setItem} from "../../utils/utils.ts";
+import { getCurrentDeviceName, getOrCreateDeviceId } from "../../utils/device.ts";
 
 export interface UpdateProfileBody {
     phoneNumber: string;
@@ -12,18 +13,71 @@ export interface UpdateProfileBody {
     gender: "MALE" | "FEMALE";
 }
 
-export const login = async (body: { phoneNumber: string; password: string }) => {
+export interface UserDeviceSession {
+    sessionId: string;
+    deviceId: string;
+    deviceName: string;
+    platform: string;
+    browser: string;
+    ipAddress: string;
+    lastSeenAt: string;
+}
+
+export interface DeviceLimitExceededDetails {
+    maxDevices: number;
+    activeDevices: UserDeviceSession[];
+}
+
+export interface ApiErrorResponse<TDetails> {
+    timestamp: string;
+    status: number;
+    error: string;
+    message: string;
+    path: string;
+    details: TDetails;
+}
+
+export interface LoginBody {
+    phoneNumber: string;
+    password: string;
+    replaceSessionId?: string;
+}
+
+export class DeviceLimitExceededError extends Error {
+    details: DeviceLimitExceededDetails;
+
+    constructor(message: string, details: DeviceLimitExceededDetails) {
+        super(message);
+        this.name = "DeviceLimitExceededError";
+        this.details = details;
+    }
+}
+
+export function isDeviceLimitExceededError(error: unknown): error is DeviceLimitExceededError {
+    return error instanceof DeviceLimitExceededError;
+}
+
+export const login = async (body: LoginBody) => {
     try {
         const {data} = await apiClient.post("/auth/login", {}, {
             params: {
                 phone: body.phoneNumber,
                 password: body.password,
+                deviceId: getOrCreateDeviceId(),
+                deviceName: getCurrentDeviceName(),
+                replaceSessionId: body.replaceSessionId,
             }
         });
         setItem<string>("accessToken", data.accessToken)
         setItem<string>("refreshToken", data.refreshToken)
     } catch (error) {
-        const err = error as AxiosError<{ error?: string; message?: string }>;
+        const err = error as AxiosError<ApiErrorResponse<DeviceLimitExceededDetails | null>>;
+        if (err.response?.status === 409 && err.response.data?.details) {
+            throw new DeviceLimitExceededError(
+                err.response.data.message || "Maksimal qurilma limiti to'ldi",
+                err.response.data.details,
+            );
+        }
         const rawMessage =
             err.response?.data?.error ||
             err.response?.data?.message ||

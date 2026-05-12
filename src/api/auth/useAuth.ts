@@ -1,6 +1,7 @@
 import {useQuery, useMutation, useQueryClient} from "@tanstack/react-query";
 import {
     checkPhoneNumber,
+    isDeviceLimitExceededError,
     resetPassword,
     getCurrentUser,
     login,
@@ -41,7 +42,9 @@ export const useLogin = () => {
             sessionStorage.removeItem("form");
         },
         onError: (error) => {
-            console.log(error);
+            if (isDeviceLimitExceededError(error)) {
+                return;
+            }
             toast.error(error.message);
         },
     });

@@ -1,4 +1,4 @@
-import apiClient from "../apiClient.ts";
+import apiClient, { resolveAssetUrl } from "../apiClient.ts";
 import {AxiosError} from "axios";
 import {getVideoByLessonId} from "../video/vedioApi.ts";
 
@@ -19,7 +19,7 @@ export const getLessonsById = async (id: string | null) => {
         const {data} = await apiClient.get("/lesson/" + id);
         const video = await getVideoByLessonId(id);
         const newData = {
-            ...data, vedioUrl: video[0].storagePath
+            ...data, vedioUrl: resolveAssetUrl(video[0]?.storagePath)
         }
         return newData;
     } catch (error) {

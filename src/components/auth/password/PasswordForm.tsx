@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { DeviceLimitExceededDetails, isDeviceLimitExceededError } from "../../../api/auth/authApi.ts";
 import { useLogin } from "../../../api/auth/useAuth.ts";
 import 'react-phone-number-input/style.css';
 import { useFormik } from "formik";
@@ -7,6 +9,8 @@ import InputField from "../../../ui/InputField.tsx";
 import CommonButton from "../../../ui/CommonButton.tsx";
 import AuthText from "../../../ui/AuthText.tsx";
 import PasswordRequirements from "../../../ui/PasswordRequirements.tsx";
+import DeviceLimitModal from "./DeviceLimitModal.tsx";
+import { deleteMyDevice } from "../../../api/device/deviceApi.ts";
 
 
 export default function PasswordForm() {
@@ -14,7 +18,35 @@ export default function PasswordForm() {
     const location = useLocation();
     const phone = location.state?.phoneNumber;
     const { mutateAsync, isPending } = useLogin();
+    const [deviceLimitDetails, setDeviceLimitDetails] = useState<DeviceLimitExceededDetails | null>(null);
+    const [deviceActionError, setDeviceActionError] = useState("");
+    const [deletingSessionId, setDeletingSessionId] = useState<string | null>(null);
+    const [replacingSessionId, setReplacingSessionId] = useState<string | null>(null);
 
+    async function submitLogin(password: string, replaceSessionId?: string) {
+        if (!phone) {
+            throw new Error("Telefon raqami topilmadi");
+        }
+
+        try {
+            await mutateAsync({
+                phoneNumber: phone,
+                password,
+                replaceSessionId,
+            });
+            setDeviceLimitDetails(null);
+            setDeviceActionError("");
+            return true;
+        } catch (error) {
+            if (isDeviceLimitExceededError(error)) {
+                setDeviceLimitDetails(error.details);
+                setDeviceActionError("");
+                return false;
+            }
+
+            throw error;
+        }
+    }
 
     const formik = useFormik({
         initialValues: {
@@ -30,10 +62,7 @@ export default function PasswordForm() {
         }),
         onSubmit: async (values, { setFieldError, setFieldTouched }) => {
             try {
-                await mutateAsync({
-                    phoneNumber: phone,
-                    password: values.password
-                });
+                await submitLogin(values.password);
             } catch (error) {
                 const message =
                     error instanceof Error ? error.message : "Parol noto'g'ri kiritildi!";
@@ -81,6 +110,56 @@ export default function PasswordForm() {
                         className={"text-gray-800"} to="/forgot-password">Parolni unutdingizmi?</Link></p>
                 </div>
             </section>
+            {deviceLimitDetails ? (
+                <DeviceLimitModal
+                    details={deviceLimitDetails}
+                    isDeletingSessionId={deletingSessionId}
+                    isReplacingSessionId={replacingSessionId}
+                    errorMessage={deviceActionError}
+                    onClose={() => {
+                        setDeviceLimitDetails(null);
+                        setDeviceActionError("");
+                    }}
+                    onDelete={(sessionId) => {
+                        setDeletingSessionId(sessionId);
+                        setDeviceActionError("");
+
+                        deleteMyDevice(sessionId)
+                            .then(async () => {
+                                const remainingDevices = deviceLimitDetails.activeDevices.filter(
+                                    (device) => device.sessionId !== sessionId,
+                                );
+                                const nextDetails = {
+                                    ...deviceLimitDetails,
+                                    activeDevices: remainingDevices,
+                                };
+                                setDeviceLimitDetails(nextDetails);
+
+                                if (remainingDevices.length < deviceLimitDetails.maxDevices) {
+                                    await submitLogin(formik.values.password);
+                                }
+                            })
+                            .catch((error: Error) => {
+                                setDeviceActionError(error.message);
+                            })
+                            .finally(() => {
+                                setDeletingSessionId(null);
+                            });
+                    }}
+                    onReplace={(sessionId) => {
+                        setReplacingSessionId(sessionId);
+                        setDeviceActionError("");
+
+                        submitLogin(formik.values.password, sessionId)
+                            .catch((error: Error) => {
+                                setDeviceActionError(error.message);
+                            })
+                            .finally(() => {
+                                setReplacingSessionId(null);
+                            });
+                    }}
+                />
+            ) : null}
         </>
     );
 }

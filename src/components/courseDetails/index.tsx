@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useGetContinueLearning, useGetCourseById } from "../../api/courses/useCourse.ts";
 import { useGetLessonById } from "../../api/lesson/useLesson.ts";
@@ -193,6 +193,7 @@ function Index() {
     const { data: lessonTasks = [] } = useGetLessonTasks(currentLessonId);
     const [startedLessonProgress, setStartedLessonProgress] = useState<{ currentSecond?: number; completed?: boolean } | null>(null);
     const currentLessonCompleted = Boolean(startedLessonProgress?.completed);
+    const startedLessonKeyRef = useRef<string | null>(null);
 
     const modules = useMemo(
         () => (course?.modules ?? []).filter((module) => module.lessons?.length),
@@ -489,6 +490,7 @@ function Index() {
 
     useEffect(() => {
         if (!params.id || !currentLessonId) return;
+        if (isProgressPending) return;
 
         let isMounted = true;
 
@@ -504,6 +506,37 @@ function Index() {
             };
         }
 
+        const existingLessonProgress = Array.isArray(lessonProgressList)
+            ? lessonProgressList.find(
+                  (item: {
+                      lessonId: string;
+                      currentSecond?: number;
+                      completed?: boolean;
+                  }) => item.lessonId === currentLessonId,
+              )
+            : null;
+
+        if (existingLessonProgress) {
+            startedLessonKeyRef.current = `${params.id}:${currentLessonId}`;
+            setStartedLessonProgress({
+                currentSecond: existingLessonProgress.currentSecond,
+                completed: existingLessonProgress.completed,
+            });
+
+            return () => {
+                isMounted = false;
+            };
+        }
+
+        const lessonKey = `${params.id}:${currentLessonId}`;
+        if (startedLessonKeyRef.current === lessonKey) {
+            return () => {
+                isMounted = false;
+            };
+        }
+
+        startedLessonKeyRef.current = lessonKey;
+
         startLessonProgress({
             studentCourseId: params.id,
             lessonId: currentLessonId,
@@ -518,7 +551,14 @@ function Index() {
         return () => {
             isMounted = false;
         };
-    }, [currentLessonId, modules, params.id, startLessonProgress]);
+    }, [
+        currentLessonId,
+        isProgressPending,
+        lessonProgressList,
+        modules,
+        params.id,
+        startLessonProgress,
+    ]);
 
     if (isCoursePending || isModulesPending || isProgressPending) {
         return (

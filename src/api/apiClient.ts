@@ -4,8 +4,68 @@ import { getItem, removeItem, setItem } from "../utils/utils.ts";
 const envBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
 const defaultBaseUrl = "/api";
 
-export const baseUrl = envBaseUrl || defaultBaseUrl;
+function resolveBaseUrl() {
+    const configuredBaseUrl = envBaseUrl || defaultBaseUrl;
+
+    if (
+        !import.meta.env.DEV ||
+        typeof window === "undefined" ||
+        !/^https?:\/\//i.test(configuredBaseUrl)
+    ) {
+        return configuredBaseUrl;
+    }
+
+    try {
+        const parsedUrl = new URL(configuredBaseUrl);
+        const isLocalhostTarget =
+            parsedUrl.hostname === "127.0.0.1" || parsedUrl.hostname === "localhost";
+        const currentHost = window.location.hostname;
+        const isRemoteClient =
+            currentHost !== "127.0.0.1" && currentHost !== "localhost";
+
+        if (isLocalhostTarget && isRemoteClient) {
+            parsedUrl.hostname = currentHost;
+            return parsedUrl.toString().replace(/\/$/, "");
+        }
+    } catch {
+        return configuredBaseUrl;
+    }
+
+    return configuredBaseUrl;
+}
+
+export const baseUrl = resolveBaseUrl();
 export const baseUrlImage = baseUrl.replace(/\/api$/, "");
+
+export function resolveAssetUrl(path?: string | null) {
+    if (!path) return "";
+
+    if (!/^https?:\/\//i.test(path)) {
+        return `${baseUrlImage}${path}`;
+    }
+
+    if (typeof window === "undefined") {
+        return path;
+    }
+
+    try {
+        const parsedUrl = new URL(path);
+        const isLocalhostTarget =
+            parsedUrl.hostname === "127.0.0.1" || parsedUrl.hostname === "localhost";
+        const currentHost = window.location.hostname;
+        const isRemoteClient =
+            currentHost !== "127.0.0.1" && currentHost !== "localhost";
+
+        if (import.meta.env.DEV && isLocalhostTarget && isRemoteClient) {
+            parsedUrl.hostname = currentHost;
+            return parsedUrl.toString();
+        }
+    } catch {
+        return path;
+    }
+
+    return path;
+}
 
 const apiClient = axios.create({
     baseURL: baseUrl,
