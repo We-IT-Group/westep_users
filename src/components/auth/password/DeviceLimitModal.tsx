@@ -4,11 +4,10 @@ import { DeviceLimitExceededDetails, UserDeviceSession } from "../../../api/auth
 interface DeviceLimitModalProps {
     details: DeviceLimitExceededDetails;
     isDeletingSessionId?: string | null;
-    isReplacingSessionId?: string | null;
+    isPending?: boolean;
     errorMessage?: string;
     onClose: () => void;
-    onDelete: (sessionId: string) => void;
-    onReplace: (sessionId: string) => void;
+    onContinue: (sessionId: string) => void;
 }
 
 function formatLastSeen(value: string) {
@@ -37,11 +36,10 @@ function DeviceIcon({ session }: { session: UserDeviceSession }) {
 export default function DeviceLimitModal({
     details,
     isDeletingSessionId,
-    isReplacingSessionId,
+    isPending,
     errorMessage,
     onClose,
-    onDelete,
-    onReplace,
+    onContinue,
 }: DeviceLimitModalProps) {
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm">
@@ -53,7 +51,7 @@ export default function DeviceLimitModal({
                         </div>
                         <div>
                             <h2 className="text-2xl font-black uppercase italic tracking-tight text-slate-900 dark:text-white">
-                                Qurilma limiti to'ldi
+                                Qurilma limiti tugagan
                             </h2>
                             <p className="mt-2 text-sm font-semibold text-slate-500 dark:text-slate-400">
                                 Siz maksimal {details.maxDevices} ta qurilmadan kira olasiz. Davom etish uchun bittasini o'chiring.
@@ -79,7 +77,6 @@ export default function DeviceLimitModal({
                 <div className="mt-6 space-y-4">
                     {details.activeDevices.map((session) => {
                         const isDeleting = isDeletingSessionId === session.sessionId;
-                        const isReplacing = isReplacingSessionId === session.sessionId;
 
                         return (
                             <div
@@ -107,24 +104,15 @@ export default function DeviceLimitModal({
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-col gap-2 sm:min-w-[210px]">
+                                    <div className="flex flex-col gap-2 sm:min-w-[240px]">
                                         <button
                                             type="button"
-                                            onClick={() => onReplace(session.sessionId)}
-                                            disabled={isDeleting || isReplacing}
+                                            onClick={() => onContinue(session.sessionId)}
+                                            disabled={Boolean(isPending)}
                                             className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 text-xs font-black uppercase tracking-[0.18em] text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                                         >
-                                            {isReplacing ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                                            Shu qurilmada kirish
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => onDelete(session.sessionId)}
-                                            disabled={isDeleting || isReplacing}
-                                            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-xs font-black uppercase tracking-[0.18em] text-slate-600 transition-colors hover:border-red-200 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-red-800 dark:hover:text-red-400"
-                                        >
                                             {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                                            O'chirish
+                                            O'chirish va davom etish
                                         </button>
                                     </div>
                                 </div>

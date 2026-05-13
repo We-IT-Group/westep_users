@@ -1,5 +1,6 @@
 import {useQuery, useMutation, useQueryClient} from "@tanstack/react-query";
 import {
+    type DeviceLimitExceededDetails,
     checkPhoneNumber,
     isDeviceLimitExceededError,
     resetPassword,
@@ -7,6 +8,7 @@ import {
     login,
     logout,
     register,
+    revokeDeviceForLogin,
     sendOtpCode,
     uploadAvatar,
     updateProfile,
@@ -14,9 +16,11 @@ import {
     verifyCode
 } from "./authApi.ts";
 import {useNavigate} from "react-router-dom";
+import {useCallback, useState} from "react";
 import {getItem} from "../../utils/utils.ts";
 import {useToast} from "../../hooks/useToast.tsx";
 import type { User } from "../../types/types.ts";
+import { getCurrentDeviceName, getOrCreateDeviceId } from "../../utils/device.ts";
 
 export const useUser = () =>
     useQuery({
@@ -48,6 +52,113 @@ export const useLogin = () => {
             toast.error(error.message);
         },
     });
+};
+
+export const useRevokeDeviceForLogin = () => {
+    return useMutation({
+        mutationFn: revokeDeviceForLogin,
+    });
+};
+
+interface PendingLoginState {
+    phoneNumber: string;
+    password: string;
+    deviceId: string;
+    deviceName: string;
+}
+
+export const useDeviceLimitFlow = () => {
+    const { mutateAsync: loginMutateAsync, isPending: isLoginPending } = useLogin();
+    const { mutateAsync: revokeMutateAsync, isPending: isRevoking } = useRevokeDeviceForLogin();
+    const [deviceLimitDetails, setDeviceLimitDetails] = useState<DeviceLimitExceededDetails | null>(null);
+    const [deviceActionError, setDeviceActionError] = useState("");
+    const [deletingSessionId, setDeletingSessionId] = useState<string | null>(null);
+    const [pendingLoginState, setPendingLoginState] = useState<PendingLoginState | null>(null);
+
+    const clearDeviceLimitState = useCallback(() => {
+        setDeviceLimitDetails(null);
+        setDeviceActionError("");
+        setDeletingSessionId(null);
+        setPendingLoginState(null);
+    }, []);
+
+    const submitLogin = useCallback(
+        async (phoneNumber: string, password: string) => {
+            const nextPendingLoginState: PendingLoginState = {
+                phoneNumber,
+                password,
+                deviceId: getOrCreateDeviceId(),
+                deviceName: getCurrentDeviceName(),
+            };
+
+            setPendingLoginState(nextPendingLoginState);
+            setDeviceActionError("");
+
+            try {
+                await loginMutateAsync(nextPendingLoginState);
+                clearDeviceLimitState();
+                return true;
+            } catch (error) {
+                if (isDeviceLimitExceededError(error)) {
+                    setDeviceLimitDetails(error.details);
+                    return false;
+                }
+
+                throw error;
+            }
+        },
+        [clearDeviceLimitState, loginMutateAsync],
+    );
+
+    const revokeDeviceAndContinue = useCallback(
+        async (sessionId: string) => {
+            if (!pendingLoginState) {
+                throw new Error("Login ma'lumotlari topilmadi");
+            }
+
+            setDeletingSessionId(sessionId);
+            setDeviceActionError("");
+
+            try {
+                await revokeMutateAsync({
+                    sessionId,
+                    phoneNumber: pendingLoginState.phoneNumber,
+                    password: pendingLoginState.password,
+                });
+
+                await loginMutateAsync({
+                    ...pendingLoginState,
+                });
+                clearDeviceLimitState();
+            } catch (error) {
+                if (isDeviceLimitExceededError(error)) {
+                    setDeviceLimitDetails(error.details);
+                    setDeviceActionError(error.message);
+                    return;
+                }
+
+                const message =
+                    error instanceof Error
+                        ? error.message
+                        : "Qurilmani almashtirishda xatolik yuz berdi";
+                setDeviceActionError(message);
+            } finally {
+                setDeletingSessionId(null);
+            }
+        },
+        [clearDeviceLimitState, loginMutateAsync, pendingLoginState, revokeMutateAsync],
+    );
+
+    return {
+        deviceLimitDetails,
+        deviceActionError,
+        deletingSessionId,
+        isLoginPending,
+        isRevoking,
+        submitLogin,
+        revokeDeviceAndContinue,
+        closeDeviceLimitModal: clearDeviceLimitState,
+    };
 };
 
 export const useRegister = () => {

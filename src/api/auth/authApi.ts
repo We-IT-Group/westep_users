@@ -40,7 +40,24 @@ export interface ApiErrorResponse<TDetails> {
 export interface LoginBody {
     phoneNumber: string;
     password: string;
+    deviceId?: string;
+    deviceName?: string;
     replaceSessionId?: string;
+}
+
+export interface LoginResponse {
+    accessToken: string;
+    refreshToken: string;
+}
+
+export interface RevokeDeviceForLoginBody {
+    sessionId: string;
+    phoneNumber: string;
+    password: string;
+}
+
+export interface RevokeDeviceForLoginResponse {
+    message: string;
 }
 
 export class DeviceLimitExceededError extends Error {
@@ -59,17 +76,21 @@ export function isDeviceLimitExceededError(error: unknown): error is DeviceLimit
 
 export const login = async (body: LoginBody) => {
     try {
-        const {data} = await apiClient.post("/auth/login", {}, {
+        const resolvedDeviceId = body.deviceId || getOrCreateDeviceId();
+        const resolvedDeviceName = body.deviceName || getCurrentDeviceName();
+
+        const {data} = await apiClient.post<LoginResponse>("/auth/login", {}, {
             params: {
                 phone: body.phoneNumber,
                 password: body.password,
-                deviceId: getOrCreateDeviceId(),
-                deviceName: getCurrentDeviceName(),
+                deviceId: resolvedDeviceId,
+                deviceName: resolvedDeviceName,
                 replaceSessionId: body.replaceSessionId,
             }
         });
         setItem<string>("accessToken", data.accessToken)
         setItem<string>("refreshToken", data.refreshToken)
+        return data;
     } catch (error) {
         const err = error as AxiosError<ApiErrorResponse<DeviceLimitExceededDetails | null>>;
         if (err.response?.status === 409 && err.response.data?.details) {
@@ -93,6 +114,30 @@ export const login = async (body: LoginBody) => {
             err.response?.data?.error ||
             err.response?.data?.message ||
             "Kirishda xatolik yuz berdi";
+        throw new Error(message);
+    }
+};
+
+export const revokeDeviceForLogin = async (
+    body: RevokeDeviceForLoginBody,
+) => {
+    try {
+        const { data } = await apiClient.delete<RevokeDeviceForLoginResponse>(
+            `/auth/devices/${body.sessionId}`,
+            {
+                params: {
+                    phone: body.phoneNumber,
+                    password: body.password,
+                },
+            },
+        );
+        return data;
+    } catch (error) {
+        const err = error as AxiosError<ApiErrorResponse<null>>;
+        const message =
+            err.response?.data?.message ||
+            err.response?.data?.error ||
+            "Qurilmani o'chirishda xatolik";
         throw new Error(message);
     }
 };
