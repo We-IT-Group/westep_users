@@ -15,6 +15,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { baseUrlImage } from "../api/apiClient.ts";
 import { useUser } from "../api/auth/useAuth.ts";
+import { getCoursePurchaseUrl } from "../utils/coursePurchase.ts";
 import { formatCourseDuration } from "../utils/utils.ts";
 import {
     useGetCourses,
@@ -389,7 +390,7 @@ export function Dashboard() {
     }, [activeCourseProgress, learningStats, studentCourses, user]);
 
     function handleRecommendedCourse(course: RecommendedCourseCard) {
-        navigate(`/buy-course/${course.id}`);
+        navigate(getCoursePurchaseUrl(course));
     }
 
     return (

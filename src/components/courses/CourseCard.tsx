@@ -4,6 +4,7 @@ import Spinner from "../../ui/Spinner.tsx";
 import {useUser} from "../../api/auth/useAuth.ts";
 import {useSetStudentCourseById} from "../../api/courses/useCourse.ts";
 import {Link} from "react-router-dom";
+import { getCoursePurchaseUrl } from "../../utils/coursePurchase.ts";
 
 interface CourseCard {
     course: Course;
@@ -38,7 +39,7 @@ function CourseCard({course}: CourseCard) {
                     </div>
                     {
                         course.price > 0 ?
-                            <Link to={`/buy-course/${course.id}`}>
+                            <Link to={getCoursePurchaseUrl(course)}>
                                 <button
                                     className={'w-full h-[40px] mt-3 bg-blue-50 text-blue-400 border border-blue-400 rounded-full p-1 text-center'}>
                                     Sotib Olish

@@ -24,6 +24,7 @@ export interface User {
 export interface Course extends Common {
     name: string,
     description: string,
+    buyCourseUrl?: string | null,
     shortDescription?: string,
     fullDescription?: string,
     isPublished: boolean,

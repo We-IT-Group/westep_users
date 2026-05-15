@@ -12,6 +12,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useGetCourses } from "../../api/courses/useCourse.ts";
 import { baseUrlImage } from "../../api/apiClient.ts";
+import type { Course } from "../../types/types.ts";
+import { getCoursePurchaseUrl } from "../../utils/coursePurchase.ts";
 import { formatCourseDuration } from "../../utils/utils.ts";
 function imageUrl(path?: string | null) {
     return path ? `${baseUrlImage}${path}` : "";
@@ -22,7 +24,7 @@ function formatPrice(price?: number) {
     return `${price.toLocaleString("uz-UZ")} so'm`;
 }
 
-function courseCategory(course: any) {
+function courseCategory(course: Course) {
     return [course.primaryCategory?.name, course.subcategory?.name].filter(Boolean).join(" / ");
 }
 
@@ -68,8 +70,8 @@ export default function AllCoursesPage() {
         });
     }, [allCourses, searchQuery, activeCategory, sortBy]);
 
-    const handleCourseClick = (course: any) => {
-        navigate(`/buy-course/${course.id}`);
+    const handleCourseClick = (course: Course) => {
+        navigate(getCoursePurchaseUrl(course));
     };
 
     return (

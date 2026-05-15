@@ -11,6 +11,7 @@ import CoursePage from "../coursePlayer/CoursePage.tsx";
 import LessonVedio from "../lessonDetails/LessonVedio.tsx";
 import { useGetLessonTasks } from "../../api/lesson-tasks/useLessonTasks.ts";
 import { useGetRatingSummary } from "../../api/review/useReview.ts";
+import { getCoursePurchaseUrl } from "../../utils/coursePurchase.ts";
 import type {
     Course,
     CourseDetailModule,
@@ -615,7 +616,9 @@ function Index() {
                     },
                 })
             }
-            onNavigateToPurchase={(courseId) => navigate(`/buy-course/${courseId}`)}
+            onNavigateToPurchase={(courseId) =>
+                navigate(getCoursePurchaseUrl(course ?? { id: courseId, buyCourseUrl: null }))
+            }
             renderVideoPlayer={({ lesson, lessonId }) => {
                 if (lesson?.type === "PRACTICE") return null;
 
