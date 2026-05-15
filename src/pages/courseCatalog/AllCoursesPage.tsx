@@ -69,7 +69,7 @@ export default function AllCoursesPage() {
     }, [allCourses, searchQuery, activeCategory, sortBy]);
 
     const handleCourseClick = (course: any) => {
-        navigate(`/roadmap/${course.id}`);
+        navigate(`/buy-course/${course.id}`);
     };
 
     return (

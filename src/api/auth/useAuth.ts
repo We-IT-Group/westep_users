@@ -21,6 +21,10 @@ import {getItem} from "../../utils/utils.ts";
 import {useToast} from "../../hooks/useToast.tsx";
 import type { User } from "../../types/types.ts";
 import { getCurrentDeviceName, getOrCreateDeviceId } from "../../utils/device.ts";
+import {
+    clearPostAuthRedirect,
+    getPostAuthRedirect,
+} from "../../utils/postAuthRedirect.ts";
 
 export const useUser = () =>
     useQuery({
@@ -42,7 +46,13 @@ export const useLogin = () => {
         onSuccess: async () => {
             const user = await getCurrentUser();
             qc.setQueryData(["currentUser"], user);
-            navigate("/");
+            const redirectPath = getPostAuthRedirect();
+            if (redirectPath) {
+                clearPostAuthRedirect();
+                navigate(redirectPath);
+            } else {
+                navigate("/");
+            }
             sessionStorage.removeItem("form");
         },
         onError: (error) => {
@@ -163,10 +173,19 @@ export const useDeviceLimitFlow = () => {
 
 export const useRegister = () => {
     const navigate = useNavigate();
+    const qc = useQueryClient();
     return useMutation({
         mutationFn: register,
         onSuccess: async () => {
-            navigate("/success");
+            const user = await getCurrentUser();
+            qc.setQueryData(["currentUser"], user);
+            const redirectPath = getPostAuthRedirect();
+            if (redirectPath) {
+                clearPostAuthRedirect();
+                navigate(redirectPath);
+            } else {
+                navigate("/");
+            }
             sessionStorage.removeItem("form");
         },
         onError: (error) => {

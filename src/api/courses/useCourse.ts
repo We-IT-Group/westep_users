@@ -15,13 +15,19 @@ export const useGetCourses = () =>
         retry: false,
     });
 
-export const useGetCourseById = (id: string | undefined) =>
+export const useGetCourseById = ({
+    id,
+    ref,
+}: {
+    id: string | undefined;
+    ref?: string | null;
+}) =>
     useQuery({
-        queryKey: ["role", id],
+        queryKey: ["course-detail", id, ref || null],
         queryFn: async () => {
             const token = getItem<string>('accessToken');
             if (!token) throw new Error("No token");
-            return await getCourseById(id);
+            return await getCourseById({ id, ref });
         },
         enabled: !!id,
         retry: false,

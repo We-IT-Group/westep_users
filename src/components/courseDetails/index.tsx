@@ -172,7 +172,7 @@ function Index() {
     const currentModuleId = splatSegments[0];
     const currentLessonId = splatSegments[1];
 
-    const { data: course, isPending: isCoursePending } = useGetCourseById(params.courseId) as {
+    const { data: course, isPending: isCoursePending } = useGetCourseById({ id: params.courseId }) as {
         data: Course | undefined;
         isPending: boolean;
     };
@@ -615,7 +615,7 @@ function Index() {
                     },
                 })
             }
-            onNavigateToPurchase={(courseId) => navigate(`/roadmap/${courseId}`)}
+            onNavigateToPurchase={(courseId) => navigate(`/buy-course/${courseId}`)}
             renderVideoPlayer={({ lesson, lessonId }) => {
                 if (lesson?.type === "PRACTICE") return null;
 

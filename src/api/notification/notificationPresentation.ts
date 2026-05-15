@@ -142,7 +142,7 @@ export function buildNotificationLink(notification: NotificationItem) {
                 ? `/courses/${courseId}/${studentCourseId}/${moduleId}/${lessonId}/questions`
                 : null;
         case "MODULE_COMPLETED":
-            return courseId ? `/roadmap/${courseId}` : null;
+            return courseId ? `/buy-course/${courseId}` : null;
         case "COURSE_PURCHASED":
             if (courseId && studentCourseId) {
                 return `/courses/${courseId}/${studentCourseId}`;

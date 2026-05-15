@@ -389,7 +389,7 @@ export function Dashboard() {
     }, [activeCourseProgress, learningStats, studentCourses, user]);
 
     function handleRecommendedCourse(course: RecommendedCourseCard) {
-        navigate(`/roadmap/${course.id}`);
+        navigate(`/buy-course/${course.id}`);
     }
 
     return (

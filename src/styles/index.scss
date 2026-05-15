@@ -100,11 +100,38 @@ svg {
   max-width: 100%;
 }
 
+.lesson-video-player {
+  display: block;
+  line-height: 0;
+  background: #000;
+  overflow: hidden;
+}
+
+.lesson-video-player video,
+.lesson-video-player iframe,
+.lesson-video-player [data-media],
+.lesson-video-player [data-part="poster"] {
+  display: block;
+  width: 100%;
+  background: #000;
+}
+
 .lesson-video-player .vds-time-slider,
 .lesson-video-player [data-part="time-slider"] {
   display: flex !important;
   opacity: 1 !important;
   pointer-events: auto !important;
+}
+
+@media (max-width: 640px) {
+  .lesson-video-player .vds-time-slider,
+  .lesson-video-player [data-part="time-slider"] {
+    display: none !important;
+  }
+
+  .lesson-video-player [data-part="controls"] {
+    padding-bottom: 0 !important;
+  }
 }
 
 //.debug-container {

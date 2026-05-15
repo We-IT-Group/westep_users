@@ -45,7 +45,7 @@ export function TestHistory() {
   const courseDetailQueries = useQueries({
     queries: typedStudentCourses.map((course) => ({
       queryKey: ['test-history-course-detail', course.courseId],
-      queryFn: () => getCourseById(course.courseId),
+      queryFn: () => getCourseById({ id: course.courseId }),
       enabled: !!course.courseId,
       retry: false,
     })),

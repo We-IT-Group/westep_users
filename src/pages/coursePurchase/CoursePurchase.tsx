@@ -15,7 +15,7 @@ export default function CoursePurchase() {
     const navigate = useNavigate();
 
     const { data: user, isLoading: isUserLoading } = useUser();
-    const { data: courseData, isLoading: isCourseLoading } = useGetCourseById(courseId);
+    const { data: courseData, isLoading: isCourseLoading } = useGetCourseById({ id: courseId });
     
     // Purchase mutation
     const { mutate: setStudentCourse, isPending: isPurchasePending } = useSetStudentCourseByIdForPayment();

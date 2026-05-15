@@ -38,7 +38,7 @@ function CourseCard({course}: CourseCard) {
                     </div>
                     {
                         course.price > 0 ?
-                            <Link to={`/roadmap/${course.id}`}>
+                            <Link to={`/buy-course/${course.id}`}>
                                 <button
                                     className={'w-full h-[40px] mt-3 bg-blue-50 text-blue-400 border border-blue-400 rounded-full p-1 text-center'}>
                                     Sotib Olish

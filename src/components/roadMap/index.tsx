@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import {
     BookOpen,
     CheckCircle2,
@@ -269,14 +269,17 @@ function LessonRow({
 
 function RoadMap() {
     const params = useParams();
+    const [searchParams] = useSearchParams();
+    const courseId = params.id || searchParams.get("courseId") || undefined;
+    const ref = searchParams.get("ref");
     const { data: user } = useUser();
     const { data: studentCourses = [] } = useGetStudentCourseById(user?.id);
-    const { data: course, isPending } = useGetCourseById(params.id) as {
+    const { data: course, isPending } = useGetCourseById({ id: courseId, ref }) as {
         data: Course | undefined;
         isPending: boolean;
     };
     const matchedStudentCourse = (studentCourses as StudentCourse[]).find(
-        (item) => item.courseId === params.id,
+        (item) => item.courseId === courseId,
     );
     const { data: purchasedModules = [] } = useGetStudentCourseModulesById(matchedStudentCourse?.id);
     const { mutate: purchaseWithPayment, isPending: isPaymentPending } =
@@ -408,13 +411,13 @@ function RoadMap() {
     const isSubmitting = isPaymentPending || isEnrollPending;
 
     function handlePurchase() {
-        if (!user?.id || !params.id || !selectedModules.length) {
+        if (!user?.id || !courseId || !selectedModules.length) {
             return;
         }
 
         const payload = {
             studentId: user.id,
-            courseId: params.id,
+            courseId,
             moduleList: selectedModules,
         };
 

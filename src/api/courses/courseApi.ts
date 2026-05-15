@@ -45,8 +45,16 @@ export const setStudentCourse = async (body: { studentId: string, courseId: stri
     }
 };
 
-export const getCourseById = async (id: string | undefined) => {
-    const {data} = await apiClient.get("/course/discover/" + id);
+export const getCourseById = async ({
+    id,
+    ref,
+}: {
+    id: string | undefined;
+    ref?: string | null;
+}) => {
+    const {data} = await apiClient.get("/course/discover/" + id, {
+        params: ref ? { ref } : undefined,
+    });
     return data;
 };
 

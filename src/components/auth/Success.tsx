@@ -1,6 +1,7 @@
 import {SuccessIcon} from "../../assets/icon";
 import {useNavigate} from "react-router-dom";
 import CommonButton from "../../ui/CommonButton.tsx";
+import {clearPostAuthRedirect, getPostAuthRedirect} from "../../utils/postAuthRedirect.ts";
 
 function Success() {
     const navigate = useNavigate();
@@ -16,7 +17,13 @@ function Success() {
                 <div className="mt-8 w-full">
                     <CommonButton
                         onClick={() => {
-                            navigate("/login");
+                            const redirectPath = getPostAuthRedirect();
+                            if (redirectPath) {
+                                clearPostAuthRedirect();
+                                navigate(redirectPath);
+                            } else {
+                                navigate("/login");
+                            }
                         }}
                         type="button"
                         children={"Davom etish"}

@@ -41,7 +41,8 @@ const HomeworkHistoryPage = lazy(() => import("../pages/homework/HomeworkHistory
 const authProtectedRoutes = [
     { path: "/", element: <MainPage />, title: "Home" },
     { path: "/courses/:courseId/:id/*", element: <CoursePage />, title: "Lessons" },
-    { path: "/roadmap/:id", element: <RoadMapCoursePage />, title: "RoadMapCourse" },
+    { path: "/buy-course", element: <RoadMapCoursePage />, title: "CoursePurchaseEntry" },
+    { path: "/buy-course/:id", element: <RoadMapCoursePage />, title: "CoursePurchaseEntry" },
     { path: "/profile", element: <Profile />, title: "Profile" },
     { path: "/test/:testId", element: <TestMode />, title: "Test Mode" },
     { path: "/test-history", element: <TestHistory />, title: "Test History" },

@@ -1,17 +1,32 @@
-
 import {useCheckPhoneNumber} from "../../../api/auth/useAuth.ts";
 import {useFormik} from "formik";
 import * as Yup from "yup";
+import {useEffect} from "react";
+import {useLocation} from "react-router-dom";
 import PhoneNumberInput from "../../../ui/PhoneNumberInput.tsx";
 import CommonButton from "../../../ui/CommonButton.tsx";
 import AuthText from "../../../ui/AuthText.tsx";
 import AuthBrand from "../AuthBrand.tsx";
+import {clearPostAuthRedirect, setPostAuthRedirect} from "../../../utils/postAuthRedirect.ts";
 
 
 export default function LoginForm() {
-
+    const location = useLocation();
     const {mutateAsync, isPending} = useCheckPhoneNumber();
 
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const nextPath = params.get("next");
+
+        if (nextPath) {
+            setPostAuthRedirect(nextPath);
+            return;
+        }
+
+        if (location.pathname === "/login") {
+            clearPostAuthRedirect();
+        }
+    }, [location.pathname, location.search]);
 
     const formik = useFormik({
         initialValues: {
