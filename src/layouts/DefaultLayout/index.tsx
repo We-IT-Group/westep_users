@@ -9,18 +9,29 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({children}) => {
     const location = useLocation();
 
     function checking() {
-        switch (location.pathname) {
-            case "/":
-                return true;
-            case "/profile":
-                return true;
-            default:
-                return false;
+        const { pathname } = location;
+        const isLessonPlayerPage = /^\/courses\/[^/]+\/[^/]+/.test(pathname);
+
+        if (isLessonPlayerPage) {
+            return false;
         }
+
+        return (
+            pathname === "/" ||
+            pathname === "/courses" ||
+            pathname === "/my-courses" ||
+            pathname === "/profile" ||
+            pathname.startsWith("/notifications") ||
+            pathname.startsWith("/buy-course") ||
+            pathname.startsWith("/course-purchase") ||
+            pathname === "/test-history" ||
+            pathname === "/quiz-history" ||
+            pathname === "/homework-history"
+        );
     }
 
     return (
-        <div className='min-h-dvh p-3 lg:p-0'>
+        <div className='min-h-dvh px-3 pb-24 pt-3 lg:px-0 lg:pb-0 lg:pt-0'>
             <div>
                 <Header/>
                 <div className='max-w-[1600px] mx-auto pt-[76px]'>

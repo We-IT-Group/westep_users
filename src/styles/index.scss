@@ -102,7 +102,8 @@ svg {
 
 .lesson-video-player {
   display: block;
-  line-height: 0;
+  width: 100%;
+  height: 100%;
   background: #000;
   overflow: hidden;
 }
@@ -113,25 +114,96 @@ svg {
 .lesson-video-player [data-part="poster"] {
   display: block;
   width: 100%;
+  height: 100%;
   background: #000;
 }
 
-.lesson-video-player .vds-time-slider,
-.lesson-video-player [data-part="time-slider"] {
-  display: flex !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
+.lesson-video-player .vds-video-layout .vds-load-container .vds-play-button {
+  display: none !important;
 }
 
-@media (max-width: 640px) {
-  .lesson-video-player .vds-time-slider,
-  .lesson-video-player [data-part="time-slider"] {
-    display: none !important;
-  }
+.lesson-video-player .vds-controls[data-visible] {
+  background-image:
+    linear-gradient(to top, rgba(7, 12, 24, 0.54), rgba(7, 12, 24, 0.18) 42%, transparent 100%) !important;
+}
 
-  .lesson-video-player [data-part="controls"] {
-    padding-bottom: 0 !important;
-  }
+.lesson-video-player .vds-controls-group {
+  gap: 10px;
+  padding-inline: 12px;
+}
+
+.lesson-video-player .vds-button {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+    0 12px 34px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+.lesson-video-player .vds-button .vds-icon {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.28));
+}
+
+.lesson-video-player .vds-button:hover,
+.lesson-video-player .vds-button[data-focus],
+.lesson-video-player .vds-button:focus-visible,
+.lesson-video-player .vds-button[aria-expanded='true'] {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.12));
+  border-color: rgba(255, 255, 255, 0.38);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    0 16px 36px rgba(0, 0, 0, 0.28);
+}
+
+.lesson-video-player .vds-volume-slider,
+.lesson-video-player .vds-time-slider {
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.2));
+}
+
+.lesson-video-player .vds-time-group {
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+}
+
+.lesson-video-player .vds-volume-popup {
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(16, 24, 40, 0.72) !important;
+  backdrop-filter: blur(20px) saturate(170%);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.28);
+}
+
+.lesson-video-player .vds-video-layout[data-sm] .vds-volume-popup {
+  top: auto;
+  bottom: calc(100% + 12px);
+}
+
+.lesson-video-player [data-media-player]:not([data-started]) .vds-video-layout[data-sm] .vds-controls-group:has(.vds-fullscreen-button),
+.lesson-video-player [data-media-player]:not([data-started]) .vds-video-layout[data-sm] .vds-controls-group:nth-child(5) {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.lesson-video-player .vds-video-layout[data-lg] .vds-volume-slider {
+  margin-bottom: 0;
+}
+
+.lesson-video-player .vds-video-layout[data-lg] .vds-volume[data-active] .vds-volume-slider,
+.lesson-video-player .vds-video-layout[data-lg] .vds-volume:has([data-active]) .vds-volume-slider {
+  margin-left: 0;
+  margin-bottom: 12px;
 }
 
 //.debug-container {

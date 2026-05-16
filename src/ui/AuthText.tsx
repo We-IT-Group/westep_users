@@ -2,8 +2,8 @@
 function AuthText({title,body}: {title?: string; body?: string}) {
     return (
         <>
-            <h1 className="text-4xl text-gray-900 font-semibold text-center mb-3">{title}</h1>
-            <p className="text-lg text-gray-900  text-center mb-8">{body}</p>
+            <h1 className="mb-3 text-center text-4xl font-semibold text-slate-900 dark:text-white">{title}</h1>
+            <p className="mb-8 text-center text-lg text-slate-600 dark:text-slate-300">{body}</p>
         </>
     );
 }

@@ -233,17 +233,17 @@ export function Profile() {
     }
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] px-4 py-8 transition-colors duration-300 dark:bg-slate-950 sm:px-8 sm:pt-16 sm:pb-16">
+        <div className="min-h-screen bg-[#F8FAFC] px-1 py-6 transition-colors duration-300 dark:bg-slate-950 sm:px-4 sm:py-8 md:px-6 md:pt-12 md:pb-16">
             <main className="mx-auto max-w-[1200px] space-y-10 sm:space-y-16">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="group relative overflow-hidden rounded-[32px] border border-slate-100 bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900 sm:rounded-[48px] sm:p-12"
+                    className="group relative overflow-hidden rounded-[28px] border border-slate-100 bg-white p-5 shadow-xl dark:border-slate-800 dark:bg-slate-900 sm:rounded-[40px] sm:p-8 lg:rounded-[48px] lg:p-12"
                 >
                     <div className="absolute right-0 top-0 -mr-32 -mt-32 h-64 w-64 rounded-full bg-blue-600/5 transition-transform duration-1000 group-hover:scale-125" />
 
-                    <div className="relative z-10 flex flex-col items-center gap-8 md:flex-row md:items-start sm:gap-12">
+                    <div className="relative z-10 flex flex-col items-center gap-8 md:flex-row md:items-start sm:gap-10 lg:gap-12">
                         <div className="group/avatar relative">
                             {avatarPreview ? (
                                 <img
@@ -272,10 +272,10 @@ export function Profile() {
                             </label>
                         </div>
 
-                        <div className="w-full flex-1 space-y-8 text-center md:text-left">
+                        <div className="w-full flex-1 space-y-6 text-center md:text-left sm:space-y-8">
                             <div className="space-y-4">
                                 <div className="flex flex-col justify-center gap-2 md:flex-row md:items-center md:justify-start md:gap-4">
-                                    <h1 className="text-3xl font-black uppercase italic tracking-tighter text-slate-900 dark:text-white sm:text-5xl">
+                                    <h1 className="text-[28px] font-black uppercase italic tracking-tighter text-slate-900 dark:text-white sm:text-4xl lg:text-5xl">
                                         {displayUser.name}
                                     </h1>
                                     <span className="mx-auto inline-block rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-blue-600 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-400 md:mx-0 sm:text-xs">
@@ -283,7 +283,7 @@ export function Profile() {
                                     </span>
                                 </div>
 
-                                <div className="flex flex-wrap items-center justify-center gap-4 text-sm font-semibold italic text-slate-500 md:justify-start sm:gap-8">
+                                <div className="flex flex-col items-center justify-center gap-3 text-sm font-semibold italic text-slate-500 md:items-start md:justify-start lg:flex-row lg:flex-wrap lg:items-center lg:gap-8">
                                     <div className="flex items-center gap-2">
                                         <Mail className="h-4 w-4 text-blue-600" />
                                         <span>{displayUser.email}</span>
@@ -295,7 +295,7 @@ export function Profile() {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+                            <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:gap-6">
                                 {[
                                     {
                                         icon: Clock,
@@ -338,15 +338,15 @@ export function Profile() {
                                 ))}
                             </div>
 
-                            <div className="flex flex-wrap justify-center gap-4 md:justify-start">
+                            <div className="grid grid-cols-1 gap-3 min-[520px]:grid-cols-2 xl:flex xl:flex-wrap xl:justify-start xl:gap-4">
                                 <button
                                     onClick={() => setEdit((prev) => !prev)}
-                                    className="rounded-2xl bg-slate-900 px-6 py-3 text-xs font-extrabold uppercase tracking-[0.2em] text-white transition-all hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-500"
+                                    className="w-full rounded-2xl bg-slate-900 px-6 py-3 text-xs font-extrabold uppercase tracking-[0.2em] text-white transition-all hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-500 xl:w-auto"
                                     type="button"
                                 >
                                     {edit ? "Bekor qilish" : "Profilni tahrirlash"}
                                 </button>
-                                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-6 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                                <div className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-6 py-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 xl:w-auto xl:text-left">
                                     {completedLessonsCount} ta jami dars
                                 </div>
                                 <button
@@ -356,7 +356,7 @@ export function Profile() {
                                         })
                                     }
                                     disabled={isLogoutPending}
-                                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-6 py-3 text-xs font-extrabold uppercase tracking-[0.2em] text-red-600 transition-all hover:bg-red-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white"
+                                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-6 py-3 text-xs font-extrabold uppercase tracking-[0.2em] text-red-600 transition-all hover:bg-red-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white xl:w-auto"
                                     type="button"
                                 >
                                     <LogOut className="h-4 w-4" />
@@ -373,7 +373,7 @@ export function Profile() {
                             initial={{ opacity: 0, y: 16 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -16 }}
-                            className="rounded-[32px] border border-slate-100 bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900 sm:rounded-[40px] sm:p-10"
+                            className="rounded-[28px] border border-slate-100 bg-white p-5 shadow-xl dark:border-slate-800 dark:bg-slate-900 sm:rounded-[40px] sm:p-8 lg:p-10"
                         >
                             <UpdateProfileUser user={user} setEdit={setEdit} />
                         </motion.div>
@@ -381,7 +381,7 @@ export function Profile() {
                 </AnimatePresence>
 
                 <section className="space-y-8 sm:space-y-10">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-5 dark:border-slate-800">
+                    <div className="flex flex-col gap-3 border-b border-slate-100 pb-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
                         <h2 className="text-xl font-black uppercase italic tracking-tight text-slate-900 dark:text-white sm:text-2xl">
                             Mening kurslarim
                         </h2>
@@ -419,7 +419,7 @@ export function Profile() {
                                         <div className="flex-1 space-y-4">
                                             <div className="flex h-full flex-col justify-between gap-4">
                                                 <div className="space-y-2">
-                                                    <div className="flex items-center justify-between">
+                                                    <div className="flex flex-wrap items-center justify-between gap-2">
                                                         {course.progress >= 100 ? (
                                                             <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[8px] font-black uppercase tracking-[0.18em] text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-900/20 dark:text-emerald-400 sm:text-[9px]">
                                                                 <CheckCircle2 className="h-3.5 w-3.5" />
@@ -475,7 +475,7 @@ export function Profile() {
                 </section>
 
                 <section className="space-y-8 sm:space-y-10">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-5 dark:border-slate-800">
+                    <div className="flex flex-col gap-3 border-b border-slate-100 pb-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
                         <h2 className="text-xl font-black uppercase italic tracking-tight text-slate-900 dark:text-white sm:text-2xl">
                             Testlar natijalari
                         </h2>
@@ -488,10 +488,10 @@ export function Profile() {
                         </Link>
                     </div>
 
-                    <div className="group relative overflow-hidden rounded-[32px] border border-slate-100 bg-white p-8 shadow-xl dark:border-slate-800 dark:bg-slate-900 sm:rounded-[48px] sm:p-12">
+                    <div className="group relative overflow-hidden rounded-[28px] border border-slate-100 bg-white p-5 shadow-xl dark:border-slate-800 dark:bg-slate-900 sm:rounded-[40px] sm:p-8 lg:rounded-[48px] lg:p-12">
                         <div className="absolute left-0 top-0 h-64 w-64 -ml-32 -mt-32 rounded-full bg-blue-600/5 transition-transform duration-1000 group-hover:scale-125" />
 
-                        <div className="relative z-10 flex flex-col items-center justify-between gap-8 md:flex-row">
+                        <div className="relative z-10 flex flex-col items-center justify-between gap-6 md:flex-row md:gap-8">
                             <div className="relative z-10 flex flex-col items-center gap-6 text-center sm:flex-row sm:gap-10 sm:text-left">
                                 <div className="flex h-16 w-16 items-center justify-center rounded-[24px] bg-blue-50 text-blue-600 dark:bg-blue-900/30 sm:h-20 sm:w-20 sm:rounded-[32px]">
                                     <History className="h-8 w-8 sm:h-10 sm:w-10" />
@@ -523,7 +523,7 @@ export function Profile() {
                 <DeviceSessionsSection />
 
                 <section className="space-y-8 sm:space-y-10">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-5 dark:border-slate-800">
+                    <div className="flex flex-col gap-3 border-b border-slate-100 pb-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
                         <h2 className="text-xl font-black uppercase italic tracking-tight text-slate-900 dark:text-white sm:text-2xl">
                             Sertifikatlar
                         </h2>
@@ -533,7 +533,7 @@ export function Profile() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.2 }}
-                        className="group relative overflow-hidden rounded-[32px] bg-slate-900 p-6 text-white shadow-2xl sm:rounded-[48px] sm:p-12"
+                        className="group relative overflow-hidden rounded-[28px] bg-slate-900 p-5 text-white shadow-2xl sm:rounded-[40px] sm:p-8 lg:rounded-[48px] lg:p-12"
                     >
                         <div className="absolute right-0 top-0 -mr-40 -mt-40 h-80 w-80 rounded-full bg-blue-600/10 transition-transform duration-1000 group-hover:scale-125" />
                         <div className="absolute bottom-0 left-0 -mb-32 -ml-32 h-64 w-64 rounded-full bg-emerald-600/10 transition-transform duration-1000 group-hover:scale-125" />
@@ -568,7 +568,7 @@ export function Profile() {
                         </div>
                     </motion.div>
 
-                    <div className="space-y-4 rounded-[32px] border-4 border-dashed border-slate-100 p-10 text-center dark:border-slate-800 sm:rounded-[48px] sm:p-20">
+                    <div className="space-y-4 rounded-[28px] border-4 border-dashed border-slate-100 p-8 text-center dark:border-slate-800 sm:rounded-[40px] sm:p-14 lg:rounded-[48px] lg:p-20">
                         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[20px] bg-slate-50 text-slate-200 dark:bg-slate-900 dark:text-slate-700 sm:h-16 sm:w-16 sm:rounded-[24px]">
                             <Award className="h-6 w-6 sm:h-8 sm:w-8" />
                         </div>

@@ -34,7 +34,7 @@ const InputField = <T extends Record<string, any>>({
             {label && (
                 <label
                     htmlFor={name as string}
-                    className="block text-base font-medium text-gray-200 mb-2"
+                    className="mb-2 block text-base font-medium text-slate-700 dark:text-slate-300"
                 >
                     {label}
                 </label>
@@ -49,14 +49,14 @@ const InputField = <T extends Record<string, any>>({
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     placeholder={placeholder}
-                    className={`w-full h-[48px] md:h-[54px] rounded-full border border-gray-400 bg-transparent text-[16px] md:text-[18px] px-4 md:px-8 py-3 text-lg text-gray-900 placeholder-gray-500 focus:outline-none  focus:border-brand-500`}
+                    className="h-[48px] w-full rounded-full border border-gray-300 bg-white/70 px-4 py-3 text-[16px] text-lg text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none md:h-[54px] md:px-8 md:text-[18px] dark:border-slate-600 dark:bg-white/5 dark:text-white dark:placeholder:text-slate-500"
                     {...rest}
                 />
 
 
 
                 {type === "password" && (
-                    <span className="absolute top-1/2 right-5 -translate-y-1/2 text-gray-500 cursor-pointer">
+                    <span className="absolute right-5 top-1/2 -translate-y-1/2 cursor-pointer text-slate-500 dark:text-slate-400">
             {changeType === "text" ? (
                 <img
                     onClick={() => setChangeType("password")}
@@ -79,7 +79,7 @@ const InputField = <T extends Record<string, any>>({
             </div>
 
             {formik.errors[name] && formik.touched[name] ? (
-                <p className="text-sm text-red-500 mt-2 ml-3">
+                <p className="ml-3 mt-2 text-sm text-red-500">
                     {formik.errors[name] as string}
                 </p>
             ) : null}

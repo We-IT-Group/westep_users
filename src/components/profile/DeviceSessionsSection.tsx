@@ -34,7 +34,7 @@ export default function DeviceSessionsSection() {
 
     return (
         <section className="space-y-8 sm:space-y-10">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-5 dark:border-slate-800">
+            <div className="flex flex-col gap-3 border-b border-slate-100 pb-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h2 className="text-xl font-black uppercase italic tracking-tight text-slate-900 dark:text-white sm:text-2xl">
                         Qurilmalar
@@ -43,7 +43,7 @@ export default function DeviceSessionsSection() {
                         Faol sessiyalarni ko'ring va kerak bo'lsa o'chiring.
                     </p>
                 </div>
-                <div className="rounded-full bg-blue-50 px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
+                <div className="w-fit rounded-full bg-blue-50 px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
                     {devices.length} ta faol qurilma
                 </div>
             </div>
@@ -115,7 +115,7 @@ export default function DeviceSessionsSection() {
                                         })
                                     }
                                     disabled={isDeleting}
-                                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-5 py-3 text-xs font-black uppercase tracking-[0.18em] text-red-600 transition-colors hover:bg-red-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white"
+                                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-5 py-3 text-xs font-black uppercase tracking-[0.18em] text-red-600 transition-colors hover:bg-red-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white sm:w-auto"
                                 >
                                     {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                                     O'chirish

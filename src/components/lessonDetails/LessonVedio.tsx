@@ -1,103 +1,36 @@
 import {
     MediaPlayer, MediaPlayerInstance, MediaProvider, Poster
 } from '@vidstack/react';
-import {DefaultVideoLayout} from '@vidstack/react/player/layouts/default';
-import {
-    FullScreen,
-    Mute,
-    Play,
-    RotateLeft,
-    RotateRight,
-    Setting,
-    VolumeHigh,
-    VolumeLow,
-    Pause, ExitFullScreen, Replay
-} from "../../assets/icon";
-import {SeekButton} from "@vidstack/react";
-
-import type {DefaultLayoutIcons} from '@vidstack/react/player/layouts/default';
-import {useCallback, useEffect, useRef} from "react";
+import {defaultLayoutIcons, DefaultLayoutIcons, DefaultVideoLayout} from '@vidstack/react/player/layouts/default';
+import {Mute, VolumeHigh, VolumeLow} from "../../assets/icon";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {useUpdateLessonProgress} from "../../api/lessonProgress/useLessonProgress.ts";
 import {useParams} from "react-router-dom";
 
-const None = () => null;
 const PROGRESS_INTERVAL_MS = 10000;
 
-const customIcons: Partial<DefaultLayoutIcons> = {
-    AirPlayButton: {
-        Default: () => <Play width={28} height={28}/>,
-        Connecting: None,
-        Connected: None,
-    },
-    GoogleCastButton: {
-        Default: None,
-        Connecting: None,
-        Connected: None,
-    },
-    PlayButton: {
-        Play: () => <Play width={28} height={28}/>,
-        Pause: () => <Pause width={28} height={28}/>,
-        Replay: () => <Replay width={28} height={28}/>,
-    },
+type SupportedOrientationLock = "any" | "natural" | "landscape" | "portrait" | "portrait-primary" | "portrait-secondary" | "landscape-primary" | "landscape-secondary";
+
+type ScreenOrientationWithLock = ScreenOrientation & {
+    lock?: (orientation: SupportedOrientationLock) => Promise<void>;
+    unlock?: () => void;
+};
+
+type VideoElementWithWebkitFullscreen = HTMLVideoElement & {
+    webkitEnterFullscreen?: () => void;
+    webkitExitFullscreen?: () => void;
+    webkitDisplayingFullscreen?: boolean;
+    webkitSupportsFullscreen?: boolean;
+    webkitSetPresentationMode?: (mode: "inline" | "fullscreen" | "picture-in-picture") => void;
+    webkitPresentationMode?: "inline" | "fullscreen" | "picture-in-picture";
+};
+
+const videoLayoutIcons: DefaultLayoutIcons = {
+    ...defaultLayoutIcons,
     MuteButton: {
-        Mute: () => <Mute width={28} height={28}/>,
-        VolumeLow: () => <VolumeLow width={28} height={28}/>,
-        VolumeHigh: () => <VolumeHigh width={28} height={28}/>,
-    },
-    CaptionButton: {
-        On: None,
-        Off: None,
-    },
-    PIPButton: {
-        Enter: None,
-        Exit: None,
-    },
-    FullscreenButton: {
-        Enter: () => <FullScreen width={28} height={28}/>,
-        Exit: () => <ExitFullScreen width={28} height={28}/>,
-    },
-    SeekButton: {
-        Backward: () => <RotateLeft width={28} height={28}/>,
-        Forward: () => <RotateRight width={28} height={28}/>,
-    },
-    DownloadButton: {
-        Default: None,
-    },
-    Menu: {
-        Accessibility: None,
-        ArrowLeft: None,
-        ArrowRight: None,
-        Audio: None,
-        AudioBoostUp: None,
-        AudioBoostDown: None,
-        Chapters: None,
-        Captions: None,
-        Playback: None,
-        Settings: () => <Setting width={28} height={28}/>,
-        SpeedUp: () => <RotateLeft width={28} height={28}/>,
-        SpeedDown: () => <RotateRight width={28} height={28}/>,
-        QualityUp: None,
-        QualityDown: None,
-        FontSizeUp: None,
-        FontSizeDown: None,
-        OpacityUp: None,
-        OpacityDown: None,
-        RadioCheck: None,
-    },
-    KeyboardDisplay: {
-        Play: None,
-        Pause: None,
-        Mute: None,
-        VolumeUp: None,
-        VolumeDown: None,
-        EnterFullscreen: None,
-        ExitFullscreen: None,
-        EnterPiP: None,
-        ExitPiP: None,
-        CaptionsOn: None,
-        CaptionsOff: None,
-        SeekForward: () => <RotateRight width={32} height={32}/>,
-        SeekBackward: () => <RotateLeft width={32} height={32}/>,
+        Mute: () => <Mute width={24} height={24} />,
+        VolumeLow: () => <VolumeLow width={24} height={24} />,
+        VolumeHigh: () => <VolumeHigh width={24} height={24} />,
     },
 };
 
@@ -112,8 +45,12 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
     const params = useParams();
     const splatSegments = (params["*"] || "").split("/").filter(Boolean);
     const currentLessonId = splatSegments[1];
+    const isSafariBrowser =
+        typeof navigator !== "undefined" &&
+        /^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent);
 
     const playerRef = useRef<MediaPlayerInstance>(null);
+    const nativeVideoRef = useRef<HTMLVideoElement | null>(null);
     const segmentStartSecondRef = useRef<number | null>(null);
     const lastObservedSecondRef = useRef<number | null>(null);
     const lastSavedSecondRef = useRef<number | null>(null);
@@ -125,6 +62,7 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
     const hasPlaybackInteractionRef = useRef(false);
     const isSeekingRef = useRef(false);
     const hasEndedRef = useRef(false);
+    const [isFullscreenActive, setIsFullscreenActive] = useState(false);
 
     const getYoutubeThumbnail = (srcLink: string) => {
         let videoId = "";
@@ -142,6 +80,46 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
     };
 
     const thumbnail = getYoutubeThumbnail(videoUrl);
+    const isYoutubeSource = (() => {
+        try {
+            const url = new URL(videoUrl);
+            return (
+                url.hostname.includes("youtube.com") ||
+                url.hostname.includes("youtu.be") ||
+                url.hostname.includes("youtube-nocookie.com")
+            );
+        } catch {
+            return /youtube|youtu\.be/i.test(videoUrl);
+        }
+    })();
+    const useSafariNativeVideo = isSafariBrowser && !isYoutubeSource;
+
+    const getPlaybackCurrentTime = useCallback(() => {
+        if (nativeVideoRef.current) {
+            return nativeVideoRef.current.currentTime;
+        }
+
+        return playerRef.current?.currentTime ?? lastObservedSecondRef.current ?? 0;
+    }, []);
+
+    const setPlaybackCurrentTime = useCallback((time: number) => {
+        if (nativeVideoRef.current) {
+            nativeVideoRef.current.currentTime = time;
+            return;
+        }
+
+        if (playerRef.current) {
+            playerRef.current.currentTime = time;
+        }
+    }, []);
+
+    const isPlaybackPaused = useCallback(() => {
+        if (nativeVideoRef.current) {
+            return nativeVideoRef.current.paused;
+        }
+
+        return playerRef.current?.paused ?? true;
+    }, []);
 
     const clearRestoreTimeouts = useCallback(() => {
         restoreTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
@@ -151,9 +129,9 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
     const getRoundedCurrentSecond = useCallback(() => {
         return Math.max(
             0,
-            Math.round(playerRef.current?.currentTime ?? lastObservedSecondRef.current ?? 0),
+            Math.round(getPlaybackCurrentTime()),
         );
-    }, []);
+    }, [getPlaybackCurrentTime]);
 
     const resetTrackingPoint = useCallback((second: number) => {
         const normalizedSecond = Math.max(0, Math.round(second));
@@ -308,22 +286,124 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
         if (normalizedStartTime <= 0) return;
 
         isRestoringPositionRef.current = true;
-        playerRef.current.currentTime = normalizedStartTime;
+        setPlaybackCurrentTime(normalizedStartTime);
 
         clearRestoreTimeouts();
         restoreTimeoutsRef.current = [120, 400, 900].map((delay) =>
             window.setTimeout(() => {
-                if (!playerRef.current) return;
+                if (!playerRef.current && !nativeVideoRef.current) return;
                 if (hasPlaybackInteractionRef.current) return;
                 isRestoringPositionRef.current = true;
-                playerRef.current.currentTime = normalizedStartTime;
+                setPlaybackCurrentTime(normalizedStartTime);
             }, delay),
         );
-    }, [clearRestoreTimeouts, resetTrackingPoint, startTime, videoUrl]);
+    }, [clearRestoreTimeouts, resetTrackingPoint, setPlaybackCurrentTime, startTime, videoUrl]);
 
     useEffect(() => {
         setEnded(false);
     }, [setEnded, videoUrl]);
+
+    const getVideoElement = useCallback(() => {
+        if (nativeVideoRef.current) {
+            return nativeVideoRef.current as VideoElementWithWebkitFullscreen;
+        }
+
+        return playerRef.current?.el?.querySelector("video") as VideoElementWithWebkitFullscreen | null;
+    }, []);
+
+    const syncFullscreenState = useCallback(() => {
+        const playerElement = playerRef.current?.el;
+        const videoElement = getVideoElement();
+        const standardFullscreen =
+            document.fullscreenElement === playerElement ||
+            Boolean(playerElement && document.fullscreenElement && playerElement.contains(document.fullscreenElement));
+        const providerFullscreen =
+            Boolean(videoElement?.webkitDisplayingFullscreen) ||
+            videoElement?.webkitPresentationMode === "fullscreen";
+
+        setIsFullscreenActive(standardFullscreen || providerFullscreen);
+    }, [getVideoElement]);
+
+    useEffect(() => {
+        const orientation = screen.orientation as ScreenOrientationWithLock;
+        const canLockOrientation =
+            typeof window !== "undefined" &&
+            "orientation" in screen &&
+            typeof orientation.lock === "function";
+
+        if (!canLockOrientation) {
+            return;
+        }
+
+        const handleFullscreenChange = () => {
+            syncFullscreenState();
+            const videoElement = getVideoElement();
+            const isFullscreen =
+                document.fullscreenElement === playerRef.current?.el ||
+                playerRef.current?.el?.contains(document.fullscreenElement) ||
+                Boolean(videoElement?.webkitDisplayingFullscreen) ||
+                videoElement?.webkitPresentationMode === "fullscreen";
+
+            if (isFullscreen) {
+                void orientation.lock?.("landscape").catch(() => undefined);
+                return;
+            }
+
+            if (typeof orientation.unlock === "function") {
+                orientation.unlock();
+            }
+        };
+
+        const videoElement = getVideoElement();
+        document.addEventListener("fullscreenchange", handleFullscreenChange);
+        videoElement?.addEventListener("webkitbeginfullscreen", handleFullscreenChange);
+        videoElement?.addEventListener("webkitendfullscreen", handleFullscreenChange);
+        videoElement?.addEventListener("webkitpresentationmodechanged", handleFullscreenChange);
+
+        return () => {
+            document.removeEventListener("fullscreenchange", handleFullscreenChange);
+            videoElement?.removeEventListener("webkitbeginfullscreen", handleFullscreenChange);
+            videoElement?.removeEventListener("webkitendfullscreen", handleFullscreenChange);
+            videoElement?.removeEventListener("webkitpresentationmodechanged", handleFullscreenChange);
+            if (typeof orientation.unlock === "function") {
+                orientation.unlock();
+            }
+        };
+    }, [getVideoElement, syncFullscreenState]);
+
+    useEffect(() => {
+        const handleFullscreenStateChange = () => {
+            syncFullscreenState();
+        };
+
+        const videoElement = getVideoElement();
+        syncFullscreenState();
+
+        document.addEventListener("fullscreenchange", handleFullscreenStateChange);
+        videoElement?.addEventListener("webkitbeginfullscreen", handleFullscreenStateChange);
+        videoElement?.addEventListener("webkitendfullscreen", handleFullscreenStateChange);
+        videoElement?.addEventListener("webkitpresentationmodechanged", handleFullscreenStateChange);
+
+        return () => {
+            document.removeEventListener("fullscreenchange", handleFullscreenStateChange);
+            videoElement?.removeEventListener("webkitbeginfullscreen", handleFullscreenStateChange);
+            videoElement?.removeEventListener("webkitendfullscreen", handleFullscreenStateChange);
+            videoElement?.removeEventListener("webkitpresentationmodechanged", handleFullscreenStateChange);
+        };
+    }, [getVideoElement, syncFullscreenState, videoUrl]);
+
+    const handleFullscreenToggle = useCallback(() => {
+        if (isFullscreenActive) {
+            void playerRef.current?.exitFullscreen("provider").catch(() => {
+                void playerRef.current?.exitFullscreen().catch(() => undefined);
+            });
+            return;
+        }
+
+        void playerRef.current?.enterFullscreen("provider").catch(() => {
+            void playerRef.current?.enterFullscreen().catch(() => undefined);
+        });
+    }, [isFullscreenActive]);
 
     const handleTimeUpdate = useCallback(() => {
         const roundedCurrentTime = getRoundedCurrentSecond();
@@ -402,10 +482,10 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
         resetTrackingPoint(currentSecond);
         void saveCurrentPosition(currentSecond);
 
-        if (!playerRef.current?.paused && !hasEndedRef.current) {
+        if (!isPlaybackPaused() && !hasEndedRef.current) {
             startProgressTimer();
         }
-    }, [clearRestoreTimeouts, getRoundedCurrentSecond, resetTrackingPoint, saveCurrentPosition, startProgressTimer]);
+    }, [clearRestoreTimeouts, getRoundedCurrentSecond, isPlaybackPaused, resetTrackingPoint, saveCurrentPosition, startProgressTimer]);
 
     const handleEnded = useCallback(() => {
         if (isRestoringPositionRef.current) return;
@@ -457,6 +537,26 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
         };
     }, [flushTrackedSegment, getRoundedCurrentSecond, saveCurrentPosition, stopProgressTimer]);
 
+    if (useSafariNativeVideo) {
+        return (
+            <video
+                key={videoUrl}
+                ref={nativeVideoRef}
+                src={videoUrl}
+                poster={thumbnail || undefined}
+                playsInline
+                controls
+                preload="metadata"
+                className="lesson-video-player"
+                onTimeUpdate={handleTimeUpdate}
+                onPlay={handlePlay}
+                onPause={handlePause}
+                onSeeking={handleSeeking}
+                onSeeked={handleSeeked}
+                onEnded={handleEnded}
+            />
+        );
+    }
 
     return (
         <MediaPlayer ref={playerRef} key={videoUrl}
@@ -464,6 +564,7 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
                      src={videoUrl}
                      poster={thumbnail}
                      playsInline
+                     fullscreenOrientation="landscape"
                      className="vds-player lesson-video-player"
                      onTimeUpdate={handleTimeUpdate}
                      onPlay={handlePlay}
@@ -474,21 +575,30 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
                      >
             <MediaProvider>
                 <Poster className="vds-poster"/>
-                <SeekButton className="vds-button" seconds={10}>
-                    10
-                </SeekButton>
             </MediaProvider>
             <DefaultVideoLayout
-                icons={customIcons as DefaultLayoutIcons}
+                icons={videoLayoutIcons}
                 slots={{
                     smallLayout: {
-                        seekBackwardButton: <SeekButton seconds={-5}/>,
-                        seekForwardButton: <SeekButton seconds={5}/>
+                        fullscreenButton: (
+                            <button
+                                type="button"
+                                className="vds-button vds-fullscreen-button"
+                                aria-label={isFullscreenActive ? "Exit Fullscreen" : "Enter Fullscreen"}
+                                onClick={(event) => {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    handleFullscreenToggle();
+                                }}
+                            >
+                                {isFullscreenActive ? (
+                                    <defaultLayoutIcons.FullscreenButton.Exit className="vds-icon" width={24} height={24}/>
+                                ) : (
+                                    <defaultLayoutIcons.FullscreenButton.Enter className="vds-icon" width={24} height={24}/>
+                                )}
+                            </button>
+                        ),
                     },
-                    largeLayout: {
-                        seekBackwardButton: <SeekButton seconds={-5}/>,
-                        seekForwardButton: <SeekButton seconds={5}/>
-                    }
                 }}
             />
         </MediaPlayer>

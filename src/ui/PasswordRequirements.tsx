@@ -36,7 +36,7 @@ export default function PasswordRequirements({ password = "" }: PasswordRequirem
                     key={req.id}
                     className={clsx(
                         "flex items-center gap-2 transition-all duration-300",
-                        req.met ? "text-green-500 transform translate-x-1" : "text-gray-400"
+                        req.met ? "translate-x-1 text-green-500 dark:text-emerald-400" : "text-gray-400 dark:text-slate-500"
                     )}
                 >
                     <div className={clsx(

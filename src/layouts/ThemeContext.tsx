@@ -8,7 +8,7 @@ interface ThemeContextType {
 }
 
 export const ThemeContext = createContext<ThemeContextType>({
-    theme: "light",
+    theme: "dark",
     toggleTheme: () => {
     },
 });
@@ -19,11 +19,12 @@ interface Props {
 
 export function ThemeProvider({children}: Props) {
     const [theme, setTheme] = useState<Theme>(
-        (localStorage.getItem("theme") as Theme) || "light"
+        (localStorage.getItem("theme") as Theme) || "dark"
     );
 
     useEffect(() => {
         document.documentElement.setAttribute("data-theme", theme);
+        document.documentElement.classList.toggle("dark", theme === "dark");
         localStorage.setItem("theme", theme);
     }, [theme]);
 

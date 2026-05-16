@@ -51,6 +51,7 @@
     background: transparent;
     border: none;
     outline: none;
+    color: inherit;
 }
 
 .PhoneInputCountryIcon {
@@ -163,6 +164,22 @@ input[type="number"]::-webkit-inner-spin-button {
     outline: 0;
     text-align: center;
     position: relative;
+}
+
+.dark .PhoneInput {
+    color: #ffffff;
+    border-color: rgb(71 85 105);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.dark .PhoneInputInput::placeholder {
+    color: rgb(100 116 139);
+}
+
+.dark .otp-input {
+    color: #ffffff;
+    border-color: rgb(71 85 105);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 

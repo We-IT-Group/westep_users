@@ -39,11 +39,11 @@ export function Header() {
     }, [user]);
 
     return (
-        <header className="fixed top-0 left-0 w-full z-50 h-[76px] shrink-0 border-b border-slate-100 bg-white/80 backdrop-blur-xl transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900/80">
-            <div className="mx-auto flex h-full max-w-[1920px] items-center justify-between gap-4 px-4 sm:px-8">
-                <div className="flex items-center gap-4 lg:gap-16">
+        <header className="fixed top-0 left-0 z-50 h-[72px] w-full shrink-0 border-b border-slate-100 bg-white/80 backdrop-blur-xl transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900/80 sm:h-[76px]">
+            <div className="mx-auto flex h-full max-w-[1920px] items-center justify-between gap-3 px-3 sm:px-6 lg:px-8">
+                <div className="flex min-w-0 items-center gap-3 lg:gap-16">
                     <Link to="/" className="group flex shrink-0 items-center">
-                        <WestepLogo className="h-11 w-auto object-contain sm:h-12" />
+                        <WestepLogo className="h-9 w-auto object-contain sm:h-12" />
                     </Link>
 
                     <nav className="hidden items-center gap-1.5 rounded-2xl border border-slate-100 bg-slate-50 p-1 dark:border-white/10 dark:bg-slate-900/50 lg:flex transition-colors">
@@ -70,17 +70,17 @@ export function Header() {
                     </nav>
                 </div>
 
-                <div className="flex items-center gap-2 sm:gap-5">
-                    <div className="relative flex items-center gap-1">
+                <div className="flex shrink-0 items-center gap-1.5 sm:gap-4">
+                    <div className="relative flex items-center gap-0.5 sm:gap-1">
                         <button
                             onClick={() => setIsDarkMode(!isDarkMode)}
-                            className="flex h-10 w-10 items-center justify-center rounded-2xl border border-transparent text-slate-500 transition-all hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 sm:h-11 sm:w-11"
+                            className="flex h-9 w-9 items-center justify-center rounded-xl border border-transparent text-slate-500 transition-all hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800 sm:h-11 sm:w-11 sm:rounded-2xl"
                             type="button"
                         >
                             {isDarkMode ? (
-                                <Sun className="w-5 h-5" />
+                                <Sun className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
                             ) : (
-                                <Moon className="w-5 h-5" />
+                                <Moon className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
                             )}
                         </button>
 
@@ -89,7 +89,7 @@ export function Header() {
 
                     <Link
                         to="/profile"
-                        className="group ml-1 flex items-center gap-3 transition-all sm:ml-2 sm:border-l sm:border-slate-100 sm:pl-5 dark:sm:border-slate-700"
+                        className="group ml-1 flex items-center gap-2 transition-all sm:ml-2 sm:gap-3 sm:border-l sm:border-slate-100 sm:pl-5 dark:sm:border-slate-700"
                     >
                         <div className="hidden text-right md:block">
                             <p className={`mb-1 text-[13px] font-black uppercase leading-none tracking-tight transition-colors ${location.pathname === "/profile"
@@ -104,7 +104,7 @@ export function Header() {
                                 </span>
                             </div>
                         </div>
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-slate-900 text-[10px] font-black uppercase text-white shadow-lg transition-colors group-hover:bg-blue-600 dark:bg-blue-600 dark:group-hover:bg-blue-500 sm:h-11 sm:w-11 sm:rounded-[16px] sm:text-xs">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-slate-900 text-[9px] font-black uppercase text-white shadow-lg transition-colors group-hover:bg-blue-600 dark:bg-blue-600 dark:group-hover:bg-blue-500 sm:h-11 sm:w-11 sm:rounded-[16px] sm:text-xs">
                             {userProfile.initials}
                         </div>
                     </Link>

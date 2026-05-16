@@ -23,7 +23,7 @@ const PhoneNumberInput = <T extends Record<string, any>>({
             {label && (
                 <label
                     htmlFor={name as string}
-                    className="text-sm text-gray-400 font-semibold"
+                    className="text-sm font-semibold text-slate-500 dark:text-slate-400"
                 >
                     {label}
                 </label>
@@ -43,11 +43,11 @@ const PhoneNumberInput = <T extends Record<string, any>>({
       <FlagUz width={24} height={24}/>
     </span>
                 )}
-                className={`${className} mb-3 w-full rounded-full  bg-transparent px-4 md:px-8 py-3 text-lg text-gray-900`}
+                className={`${className} auth-phone-input mb-3 w-full rounded-full bg-white/70 px-4 py-3 text-lg text-slate-900 dark:bg-white/5 dark:text-white md:px-8`}
             />
 
             {formik.errors[name] && formik.touched[name] ? (
-                <p className="text-sm text-red-500 mt-2 ml-2">
+                <p className="ml-2 mt-2 text-sm text-red-500">
                     {formik.errors[name] as string}
                 </p>
             ) : null}

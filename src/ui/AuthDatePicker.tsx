@@ -25,6 +25,9 @@ export default function AuthDatePicker({
                                            placeholder,
                                            value,
                                        }: PropsType) {
+    const inputClassName =
+        "h-[48px] w-full rounded-full border border-gray-300 bg-white/70 px-4 py-3 text-[16px] text-lg text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none md:h-[54px] md:px-8 md:text-[18px] dark:border-slate-600 dark:bg-white/5 dark:text-white dark:placeholder:text-slate-500";
+
     useEffect(() => {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
@@ -37,6 +40,7 @@ export default function AuthDatePicker({
             altFormat: "d.m.Y",
             defaultDate: value || defaultDate,
             onChange,
+            altInputClass: inputClassName,
             disableMobile: true,
             allowInput: !isMobile, // Mobilda faqat kalendar ochilsin
             clickOpens: true,
@@ -57,11 +61,11 @@ export default function AuthDatePicker({
                 <input
                     id={id}
                     placeholder={placeholder}
-                    className={`w-full h-[48px] md:h-[54px] rounded-full border border-gray-400 bg-transparent text-[16px] md:text-[18px] px-4 md:px-8 py-3 text-lg text-gray-900 placeholder-gray-500 focus:outline-none  focus:border-brand-500`}
+                    className={inputClassName}
                 />
 
                 <span
-                    className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-6 top-1/2 dark:text-gray-400">
+                    className="pointer-events-none absolute right-6 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">
           <img src={dateIcon} alt={label}/>
         </span>
             </div>

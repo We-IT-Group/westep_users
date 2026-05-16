@@ -87,8 +87,8 @@ export default function PasswordForm() {
                             />
                         </div>
                     </form>
-                    <p className={'text-center text-gray-900 mt-2'}><Link
-                        className={"text-gray-800"} to="/forgot-password">Parolni unutdingizmi?</Link></p>
+                    <p className="mt-2 text-center text-slate-600 dark:text-slate-300"><Link
+                        className="text-slate-800 dark:text-slate-100" to="/forgot-password">Parolni unutdingizmi?</Link></p>
                 </div>
             </section>
             {deviceLimitDetails ? (

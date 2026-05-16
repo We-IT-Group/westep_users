@@ -14,6 +14,7 @@ import {
     Video,
     HelpCircle,
     History,
+    X,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type {
@@ -196,9 +197,9 @@ function LessonHeader({
     isNextDisabled: boolean;
 }) {
     return (
-        <div className="flex flex-col justify-between gap-6 border-b border-slate-100 pb-6 dark:border-slate-800 sm:pb-10 md:flex-row md:items-start">
+        <div className="flex flex-col justify-between gap-4 border-b border-slate-100 pb-5 dark:border-slate-800 sm:gap-6 sm:pb-8 md:flex-row md:items-start">
             <div className="space-y-3 sm:space-y-4">
-                <div className="flex flex-wrap items-center gap-4">
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                     <span className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
                         Dars {lessonNumber}
                     </span>
@@ -217,7 +218,7 @@ function LessonHeader({
                         </span>
                     </button>
                 </div>
-                <h2 className="text-2xl font-black uppercase italic leading-tight tracking-tight text-slate-900 dark:text-white sm:text-4xl sm:leading-[1.1]">
+                <h2 className="text-xl font-black uppercase italic leading-tight tracking-tight text-slate-900 dark:text-white sm:text-3xl sm:leading-[1.1] lg:text-4xl">
                     {title}
                 </h2>
             </div>
@@ -228,7 +229,7 @@ function LessonHeader({
                     disabled={isPrevDisabled}
                     whileHover={{ scale: !isPrevDisabled ? 1.02 : 1 }}
                     whileTap={{ scale: !isPrevDisabled ? 0.98 : 1 }}
-                    className="rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-xs font-black text-slate-700 transition-all hover:border-blue-200 hover:text-blue-600 disabled:opacity-30 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 sm:rounded-2xl sm:text-sm"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-xs font-black text-slate-700 transition-all hover:border-blue-200 hover:text-blue-600 disabled:opacity-30 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 sm:w-auto sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm"
                     type="button"
                 >
                     Oldingi
@@ -238,7 +239,7 @@ function LessonHeader({
                     disabled={isNextDisabled}
                     whileHover={{ scale: !isNextDisabled ? 1.02 : 1 }}
                     whileTap={{ scale: !isNextDisabled ? 0.98 : 1 }}
-                    className="rounded-xl border border-blue-500 bg-blue-600 px-8 py-3.5 text-xs font-black text-white transition-all hover:bg-blue-700 disabled:opacity-30 sm:rounded-2xl sm:text-sm"
+                    className="w-full rounded-xl border border-blue-500 bg-blue-600 px-6 py-3 text-xs font-black text-white transition-all hover:bg-blue-700 disabled:opacity-30 sm:w-auto sm:rounded-2xl sm:px-8 sm:py-3.5 sm:text-sm"
                     type="button"
                 >
                     Keyingi dars
@@ -573,6 +574,8 @@ function CurriculumSidebar({
     onToggleModule,
     onSelectLesson,
     onNavigateToPurchase,
+    mode = "static",
+    onClose,
 }: {
     courseId: string;
     courseModules: CoursePlayerData["modules"];
@@ -582,16 +585,39 @@ function CurriculumSidebar({
     onToggleModule: (id: string) => void;
     onSelectLesson: (lesson: CoursePlayerLesson) => void;
     onNavigateToPurchase?: (courseId: string) => void;
+    mode?: "static" | "overlay";
+    onClose?: () => void;
 }) {
+    const isOverlay = mode === "overlay";
+
     return (
-        <aside className="flex w-full shrink-0 flex-col border-t border-slate-100 bg-white dark:border-slate-800 dark:bg-slate-950 lg:w-[420px] lg:border-l lg:border-t-0">
-            <div className="shrink-0 border-b border-slate-100 bg-slate-50/30 p-6 dark:border-slate-800 dark:bg-slate-900/30 sm:p-8">
-                <h3 className="mb-4 flex items-center justify-between text-[10px] font-black uppercase tracking-[2px] text-slate-400 dark:text-slate-500 sm:text-[11px]">
-                    Kurs mundarijasi
-                    <span className="rounded-lg border border-slate-100 bg-white px-2 py-0.5 text-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-blue-400">
-                        {progress}%
-                    </span>
-                </h3>
+        <aside
+            className={`flex h-full w-full shrink-0 flex-col bg-white dark:bg-slate-950 ${
+                isOverlay
+                    ? "overflow-hidden"
+                    : "hidden border-t border-slate-100 dark:border-slate-800 lg:flex lg:w-[360px] lg:border-l lg:border-t-0 xl:w-[420px]"
+            }`}
+        >
+            <div className="shrink-0 border-b border-slate-100 bg-slate-50/30 p-4 dark:border-slate-800 dark:bg-slate-900/30 sm:p-6 lg:p-8">
+                <div className="mb-3 flex items-center justify-between gap-3 sm:mb-4">
+                    <div className="flex min-w-0 items-center gap-2">
+                        <h3 className="text-[10px] font-black uppercase tracking-[2px] text-slate-400 dark:text-slate-500 sm:text-[11px]">
+                            Kurs mundarijasi
+                        </h3>
+                        <span className="rounded-lg border border-slate-100 bg-white px-2 py-0.5 text-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-blue-400">
+                            {progress}%
+                        </span>
+                    </div>
+                    {isOverlay ? (
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition-all hover:border-slate-300 hover:text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    ) : null}
+                </div>
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 shadow-inner dark:bg-slate-800 sm:h-2">
                     <div
                         className="h-full rounded-full bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.3)] transition-all duration-1000"
@@ -600,7 +626,7 @@ function CurriculumSidebar({
                 </div>
             </div>
 
-            <div className="max-h-[500px] flex-1 space-y-3 overflow-y-auto p-4 sm:p-5 lg:max-h-none">
+            <div className="max-h-[420px] flex-1 space-y-2.5 overflow-y-auto p-3 sm:max-h-[500px] sm:space-y-3 sm:p-4 lg:max-h-none lg:p-5">
                 {courseModules.map((module) => {
                     const isModuleLocked = module.isPurchased === false;
                     const isExpanded = expandedModules.includes(module.id);
@@ -610,15 +636,16 @@ function CurriculumSidebar({
                             <button
                                 onClick={() => {
                                     if (isModuleLocked) {
+                                        onClose?.();
                                         onNavigateToPurchase?.(courseId);
                                         return;
                                     }
                                     onToggleModule(module.id);
                                 }}
-                                className={`flex w-full items-center justify-between gap-1 rounded-xl border p-4 text-left text-[12px] font-black transition-all sm:rounded-[24px] sm:p-5 sm:text-[13px] ${
+                                className={`flex w-full items-center justify-between gap-2 rounded-xl border p-3.5 text-left text-[11px] font-black transition-all sm:rounded-[24px] sm:p-5 sm:text-[13px] ${
                                     isModuleLocked
                                         ? "cursor-pointer border-transparent bg-slate-50/50 text-slate-400 dark:bg-slate-900/20"
-                                        : isExpanded
+                                          : isExpanded
                                           ? "border-blue-100 bg-blue-600/10 text-blue-600 dark:border-blue-900/50 dark:bg-blue-900/20 dark:text-blue-400"
                                           : "border-transparent bg-white text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
                                 }`}
@@ -648,6 +675,7 @@ function CurriculumSidebar({
                                                 onClick={() => {
                                                     if (isLocked) return;
                                                     onSelectLesson(lesson);
+                                                    onClose?.();
                                                     if (window.innerWidth < 1024) {
                                                         window.scrollTo({
                                                             top: 0,
@@ -655,10 +683,10 @@ function CurriculumSidebar({
                                                         });
                                                     }
                                                 }}
-                                                className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all sm:rounded-[24px] sm:p-4 ${
+                                                className={`flex w-full items-center gap-2.5 rounded-xl border p-2.5 text-left transition-all sm:rounded-[24px] sm:p-4 ${
                                                     isLocked
                                                         ? "cursor-not-allowed border-transparent bg-slate-50/30 text-slate-400 dark:bg-slate-900/10"
-                                                        : isSelected
+                                                          : isSelected
                                                           ? "border-blue-600 bg-blue-600 text-white shadow-xl shadow-blue-100 dark:shadow-none"
                                                           : "border-transparent bg-white text-slate-600 hover:border-slate-100 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-300"
                                                 }`}
@@ -706,9 +734,33 @@ export function CoursePage({
     const [expandedModules, setExpandedModules] = useState<string[]>(
         data.modules[0] ? [data.modules[0].id] : [],
     );
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [selectedLesson, setSelectedLesson] = useState(
         data.initialLessonId ?? allLessons[0]?.id ?? "",
     );
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth >= 1024) {
+                setIsSidebarOpen(false);
+            }
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    useEffect(() => {
+        if (!isSidebarOpen) return;
+
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+
+        return () => {
+            document.body.style.overflow = previousOverflow;
+        };
+    }, [isSidebarOpen]);
+
     useEffect(() => {
         if (data.initialLessonId && data.initialLessonId !== selectedLesson) {
             setSelectedLesson(data.initialLessonId);
@@ -780,18 +832,18 @@ export function CoursePage({
 
             <div className="flex flex-1 flex-col overflow-x-hidden lg:flex-row">
                 <div className="min-w-0 flex-1 bg-[#F8FAFC] dark:bg-slate-900/10">
-                    <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 pb-20 sm:px-8 sm:py-10 sm:pb-32">
+                    <div className="mx-auto max-w-5xl space-y-5 px-4 py-5 pb-20 sm:space-y-6 sm:px-6 sm:py-8 sm:pb-32 lg:px-8 lg:py-10">
                         
                         {isPractice ? (
-                            <div className="bg-gradient-to-br from-amber-50 to-white dark:from-amber-900/10 dark:to-slate-900 border border-amber-100 dark:border-amber-900/30 rounded-[32px] p-8 sm:p-12 shadow-xl shadow-amber-500/5 text-center space-y-6">
-                                <div className="w-20 h-20 bg-amber-500 rounded-3xl mx-auto flex items-center justify-center rotate-3 shadow-lg shadow-amber-500/30">
-                                    <HelpCircle className="w-10 h-10 text-white" />
+                            <div className="space-y-5 rounded-[24px] border border-amber-100 bg-gradient-to-br from-amber-50 to-white p-5 text-center shadow-xl shadow-amber-500/5 dark:border-amber-900/30 dark:from-amber-900/10 dark:to-slate-900 sm:space-y-6 sm:rounded-[32px] sm:p-10 lg:p-12">
+                                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[22px] bg-amber-500 shadow-lg shadow-amber-500/30 sm:h-20 sm:w-20 sm:rounded-3xl">
+                                    <HelpCircle className="h-8 w-8 text-white sm:h-10 sm:w-10" />
                                 </div>
                                 <div className="space-y-2">
-                                    <h2 className="text-2xl sm:text-3xl font-black uppercase italic tracking-tight text-slate-900 dark:text-white">
+                                    <h2 className="text-xl font-black uppercase italic tracking-tight text-slate-900 dark:text-white sm:text-3xl">
                                         Amaliy dars: {currentLesson?.title}
                                     </h2>
-                                    <p className="text-sm font-bold uppercase italic tracking-widest text-slate-400">
+                                    <p className="text-xs font-bold uppercase italic tracking-[0.18em] text-slate-400 sm:text-sm">
                                         Bu darsda video yo'q. Test va vazifalarni resurslar bo'limidan bajaring.
                                     </p>
                                 </div>
@@ -803,7 +855,7 @@ export function CoursePage({
                                                 durationMinutes: lessonQuiz.durationMinutes,
                                             })
                                         }
-                                        className="px-10 py-5 bg-amber-500 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-amber-500/20 hover:bg-amber-600 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                        className="w-full rounded-2xl bg-amber-500 px-6 py-4 text-sm font-black uppercase tracking-[0.18em] text-white shadow-xl shadow-amber-500/20 transition-all hover:scale-[1.02] hover:bg-amber-600 active:scale-[0.98] sm:w-auto sm:px-10 sm:py-5"
                                     >
                                         Testni boshlash
                                     </button>
@@ -824,7 +876,7 @@ export function CoursePage({
                                 />
                             )
                         ) : (
-                            <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[32px] p-8 sm:p-12 text-center space-y-3">
+                            <div className="space-y-3 rounded-[24px] border border-slate-100 bg-white p-6 text-center dark:border-slate-800 dark:bg-slate-900 sm:rounded-[32px] sm:p-10 lg:p-12">
                                 <Video className="mx-auto h-12 w-12 text-slate-300" />
                                 <h2 className="text-xl font-black uppercase italic text-slate-900 dark:text-white">
                                     Video topilmadi
@@ -850,8 +902,33 @@ export function CoursePage({
                             }
                         />
 
-                        <div ref={contentTabsRef} className="space-y-6 sm:space-y-10">
-                            <div className="scrollbar-hide -mx-4 flex items-center gap-6 overflow-x-auto border-b border-slate-100 px-4 dark:border-slate-800 sm:mx-0 sm:gap-12 sm:px-0">
+                        <div className="lg:hidden">
+                            <button
+                                type="button"
+                                onClick={() => setIsSidebarOpen(true)}
+                                className="flex w-full items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-left shadow-sm transition-all hover:border-blue-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 sm:px-5"
+                            >
+                                <div className="flex min-w-0 items-center gap-3">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
+                                        <ClipboardList className="h-5 w-5" />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
+                                            Modullar
+                                        </div>
+                                        <div className="truncate text-sm font-black text-slate-900 dark:text-white">
+                                            Kurs mundarijasini ochish
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="shrink-0 rounded-xl border border-slate-100 bg-slate-50 px-3 py-1.5 text-xs font-black text-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-blue-400">
+                                    {data.progress}%
+                                </div>
+                            </button>
+                        </div>
+
+                        <div ref={contentTabsRef} className="space-y-5 sm:space-y-8 lg:space-y-10">
+                            <div className="scrollbar-hide -mx-4 flex items-center gap-5 overflow-x-auto border-b border-slate-100 px-4 dark:border-slate-800 sm:mx-0 sm:gap-8 sm:px-0 lg:gap-12">
                                 {availableTabs.map((tab) => (
                                     <button
                                         key={tab}
@@ -896,7 +973,39 @@ export function CoursePage({
                     </div>
                 </div>
 
+                {isSidebarOpen ? (
+                    <div className="fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-[2px] lg:hidden">
+                        <button
+                            type="button"
+                            aria-label="Modullar panelini yopish"
+                            onClick={() => setIsSidebarOpen(false)}
+                            className="absolute inset-0"
+                        />
+
+                        <div className="absolute inset-x-0 bottom-0 top-[14vh] overflow-hidden rounded-t-[28px] bg-white shadow-2xl dark:bg-slate-950 md:inset-y-0 md:right-0 md:left-auto md:top-0 md:w-[420px] md:max-w-[88vw] md:rounded-none md:border-l md:border-slate-800">
+                            <div className="mx-auto mt-2 h-1.5 w-14 rounded-full bg-slate-200 dark:bg-slate-700 md:hidden" />
+                            <CurriculumSidebar
+                                mode="overlay"
+                                courseId={data.courseId}
+                                courseModules={data.modules}
+                                expandedModules={expandedModules}
+                                selectedLesson={selectedLesson}
+                                progress={data.progress}
+                                onToggleModule={(id) =>
+                                    setExpandedModules((prev) =>
+                                        prev.includes(id) ? [] : [id],
+                                    )
+                                }
+                                onSelectLesson={handleSelectLesson}
+                                onNavigateToPurchase={onNavigateToPurchase}
+                                onClose={() => setIsSidebarOpen(false)}
+                            />
+                        </div>
+                    </div>
+                ) : null}
+
                 <CurriculumSidebar
+                    mode="static"
                     courseId={data.courseId}
                     courseModules={data.modules}
                     expandedModules={expandedModules}

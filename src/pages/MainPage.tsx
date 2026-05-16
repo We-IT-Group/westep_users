@@ -394,15 +394,15 @@ export function Dashboard() {
     }
 
     return (
-        <div className="min-h-[calc(100dvh-76px)] bg-[#F8FAFC] transition-colors duration-300 dark:bg-slate-950">
-            <main className="mx-auto flex-1 w-full max-w-[1440px] space-y-10 px-4 pt-8 pb-6 sm:px-6 sm:pt-10 sm:pb-8 sm:space-y-16">
+        <div className="min-h-[calc(100dvh-72px)] bg-[#F8FAFC] transition-colors duration-300 dark:bg-slate-950 sm:min-h-[calc(100dvh-76px)]">
+            <main className="mx-auto flex-1 w-full max-w-[1440px] space-y-10 px-1 pt-6 pb-10 sm:px-4 sm:pt-8 sm:pb-14 md:px-6 md:pt-10 sm:space-y-16">
                 <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-12">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="relative flex min-h-[350px] items-stretch overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:min-h-[400px] sm:rounded-[32px] lg:col-span-8"
+                        className="relative flex min-h-[320px] items-stretch overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:min-h-[380px] sm:rounded-[32px] lg:col-span-8"
                     >
-                        <div className="relative z-10 flex flex-1 flex-col justify-between p-6 sm:p-10 lg:w-[60%] lg:flex-none">
+                        <div className="relative z-10 flex flex-1 flex-col justify-between p-5 sm:p-8 lg:w-[60%] lg:flex-none lg:p-10">
                             <div className="space-y-4 sm:space-y-6">
                                 <div className="flex flex-wrap items-center gap-3">
                                     <div className="flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-blue-600 dark:border-blue-800 dark:bg-blue-600/20 dark:text-blue-400 sm:px-3 sm:text-[10px]">
@@ -415,11 +415,11 @@ export function Dashboard() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <h1 className="text-3xl font-black uppercase italic leading-tight tracking-tighter text-slate-900 dark:text-white sm:text-4xl lg:text-5xl">
+                                    <h1 className="text-[28px] font-black uppercase italic leading-tight tracking-tighter text-slate-900 dark:text-white sm:text-4xl lg:text-5xl">
                                         {continueLearning?.title ||
                                             `${user?.firstname || "Talaba"}, o'qishni boshlash vaqti`}
                                     </h1>
-                                    <div className="flex items-center gap-2 border-l-2 border-blue-600 py-1 pl-4 text-sm font-bold italic text-slate-500 dark:text-slate-400 sm:text-base">
+                                    <div className="flex items-start gap-2 border-l-2 border-blue-600 py-1 pl-4 text-sm font-bold italic text-slate-500 dark:text-slate-400 sm:items-center sm:text-base">
                                         <span>Keyingi dars:</span>
                                         <span className="line-clamp-1 text-slate-900 dark:text-slate-200">
                                             {continueLearning?.currentLesson ||
@@ -434,7 +434,7 @@ export function Dashboard() {
                                 </div>
                             </div>
 
-                            <div className="flex flex-col justify-between gap-6 pt-6 sm:flex-row sm:items-end sm:gap-8">
+                            <div className="flex flex-col justify-between gap-4 pt-6 sm:flex-row sm:items-end sm:gap-6">
                                 {continueLearning ? (
                                     <Link
                                         to={continueLearningHref}
@@ -443,7 +443,7 @@ export function Dashboard() {
                                         <motion.button
                                             whileHover={{ scale: 1.02 }}
                                             whileTap={{ scale: 0.98 }}
-                                            className="group flex w-full items-center justify-center gap-4 rounded-[18px] bg-slate-900 px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-2xl dark:bg-blue-600 sm:w-auto sm:rounded-[20px] sm:px-10 sm:py-5 sm:text-xs"
+                                            className="group flex w-full items-center justify-center gap-4 rounded-[18px] bg-slate-900 px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-2xl dark:bg-blue-600 sm:w-auto sm:rounded-[20px] sm:px-10 sm:py-5 sm:text-xs"
                                             type="button"
                                         >
                                             Darsni boshlash
@@ -459,7 +459,7 @@ export function Dashboard() {
                                 )}
 
                                 <motion.div
-                                    className="group/progress cursor-pointer rounded-[24px] border border-slate-100 bg-slate-50 p-3 pr-5 transition-all hover:bg-white hover:shadow-lg dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-800 sm:rounded-[28px] sm:p-4 sm:pr-8"
+                                    className="group/progress cursor-pointer rounded-[20px] border border-slate-100 bg-slate-50 p-3 pr-4 transition-all hover:bg-white hover:shadow-lg dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-800 sm:rounded-[28px] sm:p-4 sm:pr-8"
                                     whileHover="hover"
                                 >
                                     <div className="flex items-center gap-4 sm:gap-6">
@@ -532,7 +532,7 @@ export function Dashboard() {
                         </div>
                     </motion.div>
 
-                    <div className="grid grid-cols-2 gap-6 lg:col-span-4 lg:grid-cols-1 lg:grid-rows-2">
+                    <div className="grid grid-cols-1 gap-4 min-[460px]:grid-cols-2 lg:col-span-4 lg:grid-cols-1 lg:grid-rows-2 lg:gap-6">
                         <div className="group relative flex flex-col justify-between overflow-hidden rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm transition-all duration-500 hover:shadow-2xl dark:border-slate-800 dark:bg-slate-900 sm:rounded-[40px] sm:p-9">
                             <div className="absolute right-0 top-0 -mr-16 -mt-16 h-32 w-32 rounded-full bg-orange-500/5 blur-3xl transition-transform duration-1000 group-hover:scale-150 dark:bg-orange-500/10" />
                             <div className="relative z-10 flex items-start justify-between">
@@ -627,14 +627,14 @@ export function Dashboard() {
                         </Link>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-6 sm:gap-10 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-5 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
                         {recentLessons.map((lesson) => (
                             <Link
                                 key={lesson.id}
                                 to={`/courses/${lesson.courseId}/${lesson.studentCourseId}`}
                                 className="group"
                             >
-                                <div className="flex h-full flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl dark:border-slate-800 dark:bg-slate-900 sm:rounded-[36px]">
+                                <div className="flex h-full flex-col overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl dark:border-slate-800 dark:bg-slate-900 sm:rounded-[36px]">
                                     <div className="relative aspect-[16/10] overflow-hidden">
                                         {lesson.image ? (
                                             <img
@@ -654,9 +654,9 @@ export function Dashboard() {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex flex-1 flex-col justify-between space-y-4 p-6 sm:space-y-6 sm:p-8">
+                                    <div className="flex flex-1 flex-col justify-between space-y-4 p-5 sm:space-y-6 sm:p-8">
                                         <div className="space-y-4 sm:space-y-5">
-                                            <div className="flex items-center gap-3 text-xs font-black uppercase tracking-widest text-slate-400 sm:text-sm">
+                                            <div className="flex flex-wrap items-center gap-3 text-xs font-black uppercase tracking-widest text-slate-400 sm:text-sm">
                                                 <div className="flex items-center gap-2 rounded-full border border-slate-100 bg-slate-50 px-3 py-1.5 dark:border-slate-800 dark:bg-slate-800/50">
                                                     <Clock className="h-4 w-4 text-blue-600 sm:h-5 sm:w-5" />
                                                     <span className="text-slate-900 dark:text-white">{lesson.duration}</span>
@@ -700,7 +700,7 @@ export function Dashboard() {
                     </div>
                 </section>
 
-                <section className="space-y-12 pb-24 sm:space-y-16">
+                <section className="space-y-12 pb-16 sm:space-y-16">
                     <div className="flex flex-col justify-between gap-6 border-b border-slate-200 pb-10 dark:border-slate-800 sm:flex-row sm:items-center">
                         <div className="space-y-3">
                             <div className="mb-1 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-blue-600 dark:border-blue-800/50 dark:bg-blue-600/10 dark:text-blue-400">
@@ -722,10 +722,10 @@ export function Dashboard() {
                         </Link>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-8 sm:gap-12 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-6 sm:gap-10 md:grid-cols-2 lg:grid-cols-3">
                         {recommendedCourses.map((course) => (
                             <div key={course.id} className="group">
-                                <div className="relative flex h-full flex-col overflow-hidden rounded-[32px] border border-slate-100 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.05)] transition-all duration-700 hover:-translate-y-3 hover:shadow-[0_40px_80px_rgba(0,0,0,0.12)] dark:border-slate-800/50 dark:bg-[#0F172A] dark:hover:shadow-blue-500/10 sm:rounded-[40px]">
+                                <div className="relative flex h-full flex-col overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.05)] transition-all duration-700 hover:-translate-y-3 hover:shadow-[0_40px_80px_rgba(0,0,0,0.12)] dark:border-slate-800/50 dark:bg-[#0F172A] dark:hover:shadow-blue-500/10 sm:rounded-[40px]">
                                     <div className="relative aspect-[16/10] overflow-hidden">
                                         {course.image ? (
                                             <img
@@ -742,9 +742,9 @@ export function Dashboard() {
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-1 flex-col justify-between space-y-6 p-6 sm:p-8">
+                                    <div className="flex flex-1 flex-col justify-between space-y-6 p-5 sm:p-8">
                                         <div className="space-y-3">
-                                            <div className="flex items-center justify-between">
+                                            <div className="flex flex-wrap items-center justify-between gap-3">
                                                 <div className="flex items-center gap-2 rounded-full border border-slate-100 bg-slate-50 px-3 py-1.5 dark:border-slate-700 dark:bg-slate-800/50">
                                                     <div className="flex items-center gap-1">
                                                         {[...Array(5)].map((_, i) => (

@@ -80,7 +80,6 @@ export default function Register() {
         formik.values.birthday && !isOlderThan20(formik.values.birthday)
     );
 
-    console.log(formik.values);
     return (
         <>
             <AuthBrand />
@@ -114,7 +113,7 @@ export default function Register() {
                                                 formik.setFieldTouched('birthday', true, false);
                                             }}/>
                             {formik.errors.birthday && formik.touched.birthday ? (
-                                <p className="text-start flex text-red-600 m-0 ps-4">
+                                <p className="m-0 flex text-start text-red-600 ps-4">
                                     {formik.errors.birthday}
                                 </p>
                             ) : null}
@@ -123,10 +122,10 @@ export default function Register() {
                                 <div className="mb-2 flex flex-col gap-4">
                                     {/* FEMALE */}
                                     <label
-                                        className={`w-full rounded-[26px] overflow-hidden border ${formik.values.gender === "FEMALE" ? "border-blue-500" : "border-gray-400"}`}
+                                        className={`w-full overflow-hidden rounded-[26px] border transition-colors ${formik.values.gender === "FEMALE" ? "border-blue-500 dark:border-blue-400" : "border-gray-300 dark:border-slate-600"}`}
                                     >
                                         <div
-                                            className={`flex h-[48px] md:h-[54px] justify-between items-center gap-3 px-4 md:px-8 py-3 rounded-full   ${formik.values.gender === "FEMALE" ? "border-blue-500 border-b" : "border-gray-400"} `}
+                                            className={`flex h-[48px] items-center justify-between gap-3 rounded-full px-4 py-3 text-slate-900 transition-colors dark:text-white md:h-[54px] md:px-8 ${formik.values.gender === "FEMALE" ? "border-b border-blue-500 bg-blue-50/80 dark:border-blue-400 dark:bg-blue-500/10" : "bg-white/50 dark:bg-white/5"} `}
                                         >
                                             <p className="text-lg">Onam</p>
                                             <input
@@ -156,10 +155,10 @@ export default function Register() {
                                     {/* MALE */}
 
                                     <label
-                                        className={`w-full rounded-[26px] overflow-hidden border ${formik.values.gender === "MALE" ? "border-blue-500" : "border-gray-400"}`}
+                                        className={`w-full overflow-hidden rounded-[26px] border transition-colors ${formik.values.gender === "MALE" ? "border-blue-500 dark:border-blue-400" : "border-gray-300 dark:border-slate-600"}`}
                                     >
                                         <div
-                                            className={`flex h-[48px] md:h-[54px] justify-between items-center gap-3 px-4 md:px-8 py-3 rounded-full   ${formik.values.gender === "MALE" ? "border-blue-500 border-b" : "border-gray-400"} `}
+                                            className={`flex h-[48px] items-center justify-between gap-3 rounded-full px-4 py-3 text-slate-900 transition-colors dark:text-white md:h-[54px] md:px-8 ${formik.values.gender === "MALE" ? "border-b border-blue-500 bg-blue-50/80 dark:border-blue-400 dark:bg-blue-500/10" : "bg-white/50 dark:bg-white/5"} `}
                                         >
                                             <p className="text-lg">Otam</p>
                                             <input
@@ -202,8 +201,8 @@ export default function Register() {
                             />
                         </div>
                     </form>
-                    <p className={'text-center  mt-1'}>Akkountingiz bormi? <Link
-                        className={"text-primary-600"} to="/login">Login</Link></p>
+                    <p className="mt-1 text-center text-slate-600 dark:text-slate-300">Akkountingiz bormi? <Link
+                        className="text-primary-600 dark:text-blue-400" to="/login">Login</Link></p>
                 </div>
             </section>
         </>
