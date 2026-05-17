@@ -1,0 +1,8 @@
+<svg width="320" height="112" viewBox="0 0 320 112" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="320" height="112" rx="24" fill="white"/>
+  <circle cx="64" cy="56" r="29" fill="#7C3AED"/>
+  <circle cx="64" cy="56" r="31" stroke="#96F15C" stroke-width="6"/>
+  <path d="M52 40V58C52 66 57.5 72 64 72C70.5 72 76 66 76 58V40H68V58C68 61.8 66 64 64 64C62 64 60 61.8 60 58V40H52Z" fill="white"/>
+  <text x="104" y="52" fill="#6D28D9" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">uzum</text>
+  <text x="104" y="84" fill="#6D28D9" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">bank</text>
+</svg>

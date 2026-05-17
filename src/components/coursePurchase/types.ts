@@ -20,10 +20,11 @@ export interface CoursePurchaseCourse {
 }
 
 export interface PaymentProvider {
-    id: "payme" | "click" | "uzum" | "alif" | "paynet" | (string & {});
+    id: "payme" | "click" | "uzum" | "xazna" | "humo" | "paynet" | (string & {});
     name: string;
     color: string;
     logo?: string;
+    disabled?: boolean;
 }
 
 export interface CoursePurchaseData {

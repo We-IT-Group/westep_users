@@ -1,0 +1,6 @@
+<svg width="320" height="112" viewBox="0 0 320 112" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="320" height="112" rx="24" fill="white"/>
+  <rect x="30" y="28" width="34" height="34" rx="4" fill="#6BC084"/>
+  <path d="M38 54V40H56V54" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="82" y="72" fill="#111111" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="700">xazna</text>
+</svg>

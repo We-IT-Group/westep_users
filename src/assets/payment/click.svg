@@ -1,0 +1,6 @@
+<svg width="320" height="112" viewBox="0 0 320 112" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="320" height="112" rx="24" fill="white"/>
+  <circle cx="68" cy="56" r="28" fill="#1677FF"/>
+  <path d="M68 40L84 56L68 72L52 56L68 40Z" fill="white"/>
+  <text x="108" y="72" fill="#111111" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="700">click</text>
+</svg>

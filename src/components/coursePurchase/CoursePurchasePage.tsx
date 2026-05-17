@@ -46,7 +46,9 @@ export function CoursePurchasePage({
 }: CoursePurchasePageProps) {
   const purchaseableModules = useMemo(() => courseModules.filter(m => !m.isPurchased), [courseModules]);
   const [selectedModules, setSelectedModules] = useState<string[]>(purchaseableModules.map(m => m.id));
-  const [paymentMethod, setPaymentMethod] = useState<string>(providers[0]?.id || 'payme');
+  const [paymentMethod, setPaymentMethod] = useState<string>(
+    providers.find((provider) => !provider.disabled)?.id || providers[0]?.id || 'payme'
+  );
   const [expandedModule, setExpandedModule] = useState<string | null>(null);
 
   const toggleModule = (id: string, isPurchased: boolean) => {
@@ -185,7 +187,7 @@ export function CoursePurchasePage({
 
               <div className="space-y-5 relative z-10 pt-4">
                 <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">To'lov shakli</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 gap-4 xl:grid-cols-3">
                   {providers.map((p) => (
                     <PaymentMethodCard
                       key={p.id}

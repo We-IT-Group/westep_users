@@ -1,5 +1,13 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
-import {getAllCourses, getAllStudentCoursesById, getContinueLearning, getCourseById, getLearningStats, setStudentCourse} from "./courseApi.ts";
+import {
+    getAllCourses,
+    getAllStudentCoursesById,
+    getContinueLearning,
+    getCourseById,
+    getLearningStats,
+    getStudentCoursePurchaseDetail,
+    setStudentCourse,
+} from "./courseApi.ts";
 import {getItem} from "../../utils/utils.ts";
 import {useNavigate} from "react-router-dom";
 import {useCreatePaymentCheckout} from "../payme/usePayme.ts";
@@ -28,6 +36,24 @@ export const useGetCourseById = ({
             const token = getItem<string>('accessToken');
             if (!token) throw new Error("No token");
             return await getCourseById({ id, ref });
+        },
+        enabled: !!id,
+        retry: false,
+    });
+
+export const useGetStudentCoursePurchaseDetail = ({
+    id,
+    ref,
+}: {
+    id: string | undefined;
+    ref?: string | null;
+}) =>
+    useQuery({
+        queryKey: ["student-course-purchase-detail", id, ref || null],
+        queryFn: async () => {
+            const token = getItem<string>('accessToken');
+            if (!token) throw new Error("No token");
+            return await getStudentCoursePurchaseDetail({ id, ref });
         },
         enabled: !!id,
         retry: false,

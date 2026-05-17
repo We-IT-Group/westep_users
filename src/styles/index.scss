@@ -52,7 +52,20 @@ html, body, #root {
   margin: 0;
   padding: 0;
   width: 100%;
+  min-height: 100%;
   overflow-x: hidden; /* gorizontal scrollbarni oldini oladi */
+  background-color: #f8fafc;
+  transition: background-color 0.3s ease;
+}
+
+html.dark,
+html.dark body,
+html.dark #root {
+  background-color: #020617;
+}
+
+html.dark {
+  color-scheme: dark;
 }
 
 body {

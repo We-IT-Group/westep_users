@@ -9,6 +9,50 @@ import AuthText from "../../../ui/AuthText.tsx";
 import CommonButton from "../../../ui/CommonButton.tsx";
 import AuthBrand from "../AuthBrand.tsx";
 
+function parseBirthdayInput(value: string) {
+    const trimmedValue = value.trim();
+    const match = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(trimmedValue);
+
+    if (!match) {
+        return null;
+    }
+
+    const day = Number(match[1]);
+    const month = Number(match[2]);
+    const year = Number(match[3]);
+
+    if (
+        Number.isNaN(day) ||
+        Number.isNaN(month) ||
+        Number.isNaN(year) ||
+        day < 1 ||
+        month < 1 ||
+        month > 12 ||
+        year < 1900
+    ) {
+        return null;
+    }
+
+    const date = new Date(year, month - 1, day);
+
+    if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month - 1 ||
+        date.getDate() !== day
+    ) {
+        return null;
+    }
+
+    return date;
+}
+
+function toIsoDateString(date: Date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
 
 export default function Register() {
 
@@ -30,7 +74,13 @@ export default function Register() {
         validationSchema: Yup.object().shape({
             firstName: Yup.string().required('Ism kiriting!'),
             lastName: Yup.string().required('Familiyani kiriting!'),
-            birthday: Yup.string().required("Tu'gilgan sanani tanlang!"),
+            birthday: Yup.string()
+                .required("Tu'gilgan sanani kiriting!")
+                .test(
+                    "valid-birthday-format",
+                    "Tug'ilgan kunni kun.oy.yil formatida kiriting!",
+                    (value) => !value || parseBirthdayInput(value) !== null,
+                ),
             parentPhone: Yup.string().when("birthday", ([birthday], schema) => {
                 if (!birthday || isOlderThan20(birthday)) {
                     return schema.notRequired();
@@ -49,11 +99,19 @@ export default function Register() {
             })
         }),
         onSubmit: (values) => {
+            const parsedBirthday = parseBirthdayInput(values.birthday);
+
+            if (!parsedBirthday) {
+                formik.setFieldTouched("birthday", true, true);
+                return;
+            }
+
             setIsPending(true);
             setTimeout(() => {
                 navigate('/create-password')
                 sessionStorage.setItem('form', JSON.stringify({
                     ...values,
+                    birthDate: toIsoDateString(parsedBirthday),
                     phoneNumber: phoneNumber,
                     text: 'Parol yaratish'
                 }));
@@ -63,8 +121,13 @@ export default function Register() {
     });
 
     function isOlderThan20(birthDateString: string): boolean {
+        const birthDate = parseBirthdayInput(birthDateString);
+
+        if (!birthDate) {
+            return false;
+        }
+
         const today = new Date();
-        const birthDate = new Date(birthDateString);
 
         let age = today.getFullYear() - birthDate.getFullYear();
         const monthDiff = today.getMonth() - birthDate.getMonth();
@@ -103,20 +166,24 @@ export default function Register() {
                                         type='text'
                                         name={"lastName"}
                             />
-                            <AuthDatePicker id={'birthday'} placeholder={"Tug'ilgan kun"} value={formik.values.birthday}
-                                            onChange={(e: Date[]) => {
-                                                const date = new Date(e[0]);
-                                                const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-                                                    .toISOString()
-                                                    .split("T")[0];
-                                                formik.setFieldValue('birthday', localDate, true);
-                                                formik.setFieldTouched('birthday', true, false);
-                                            }}/>
-                            {formik.errors.birthday && formik.touched.birthday ? (
-                                <p className="m-0 flex text-start text-red-600 ps-4">
-                                    {formik.errors.birthday}
-                                </p>
-                            ) : null}
+                            <AuthDatePicker
+                                id={'birthday'}
+                                placeholder={"Tug'ilgan kun"}
+                                value={formik.values.birthday}
+                                manualOnly
+                                onValueChange={(nextValue) => {
+                                    formik.setFieldValue('birthday', nextValue, true);
+                                }}
+                                onBlur={() => {
+                                    formik.setFieldTouched('birthday', true, true);
+                                }}
+                                error={
+                                    formik.touched.birthday && formik.errors.birthday
+                                        ? formik.errors.birthday
+                                        : undefined
+                                }
+                                helperText="Format: kun.oy.yil masalan 05.09.2006"
+                            />
 
                             {needsParentPhone && (
                                 <div className="mb-2 flex flex-col gap-4">

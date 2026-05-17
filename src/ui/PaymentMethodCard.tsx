@@ -14,31 +14,38 @@ export const PaymentMethodCard: React.FC<PaymentMethodCardProps> = ({
   isSelected,
   onSelect
 }) => {
-  const { id, name, color, logo } = provider;
+  const { id, name, logo, disabled } = provider;
   
   return (
     <button
-      onClick={() => onSelect(id)}
-      className={`group relative flex flex-col items-center gap-3 p-5 rounded-[24px] border-2 transition-all duration-500 overflow-hidden ${
+      onClick={() => !disabled && onSelect(id)}
+      className={`group relative flex min-h-[118px] flex-col items-center justify-center overflow-hidden rounded-[24px] border p-4 transition-all duration-300 ${
         isSelected 
-          ? 'border-blue-600 bg-blue-50/10 dark:bg-blue-900/5' 
-          : 'border-slate-50 dark:border-slate-800/50 hover:border-slate-100 dark:hover:border-slate-700'
+          ? 'border-blue-600 bg-blue-50/60 shadow-[0_16px_40px_-24px_rgba(37,99,235,0.55)] dark:bg-blue-900/10' 
+          : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-slate-700'
       }`}
+      disabled={disabled}
+      type="button"
     >
-      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center bg-gradient-to-br ${color} shadow-xl p-2.5 transition-transform group-hover:scale-110 duration-500`}>
-        {logo ? (
-          <img src={logo} alt={name} className="w-full h-full object-contain brightness-0 invert" />
-        ) : (
-          <span className="text-white font-black uppercase text-xs">{name.slice(0,2)}</span>
-        )}
-      </div>
-      <span className={`text-[11px] font-bold uppercase tracking-wider transition-colors ${isSelected ? 'text-blue-600' : 'text-slate-400'}`}>
-        {name}
-      </span>
+      {logo ? (
+        <img src={logo} alt={name} className="h-14 w-full object-contain" />
+      ) : (
+        <span className="text-base font-black uppercase tracking-[0.12em] text-slate-900 dark:text-white">{name}</span>
+      )}
+      {!logo && disabled && (
+        <span className="mt-2 text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">
+          Tez orada
+        </span>
+      )}
       {isSelected && (
         <motion.div layoutId="payment-active" className="absolute top-2 right-2 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center shadow-lg">
           <Check className="w-3 h-3 text-white stroke-[4px]" />
         </motion.div>
+      )}
+      {disabled && logo && (
+        <span className="absolute bottom-2 right-3 text-[9px] font-bold uppercase tracking-[0.18em] text-slate-400">
+          Tez orada
+        </span>
       )}
     </button>
   );

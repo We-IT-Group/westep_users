@@ -12,15 +12,21 @@ import {
 } from "lucide-react";
 import { useUser } from "../../api/auth/useAuth.ts";
 import {
-    useGetCourseById,
+    useGetStudentCoursePurchaseDetail,
     useGetStudentCourseById,
     useSetStudentCourseById,
     useSetStudentCourseByIdForPayment,
 } from "../../api/courses/useCourse.ts";
 import { useGetStudentCourseModulesById } from "../../api/module/useModule.ts";
 import type { Course, CourseDetailLesson, CourseDetailModule, Module, StudentCourse } from "../../types/types.ts";
+import paymeLogo from "../../assets/payment/payme.svg";
+import clickLogo from "../../assets/payment/click.svg";
+import paynetLogo from "../../assets/payment/paynet.svg";
+import uzumBankLogo from "../../assets/payment/uzum-bank.svg";
+import xaznaLogo from "../../assets/payment/xazna.svg";
+import humoUzcardLogo from "../../assets/payment/humo-uzcard.svg";
 
-type PaymentMethod = "payme" | "click" | "uzum" | "alif" | "paynet";
+type PaymentMethod = "payme" | "click" | "uzum" | "xazna" | "humo" | "paynet";
 
 function formatDuration(totalSeconds?: number) {
     if (!totalSeconds) return "0";
@@ -79,7 +85,6 @@ function Badge({
 function PaymentMethodCard({
     id,
     name,
-    color,
     logo,
     isSelected,
     onSelect,
@@ -87,7 +92,6 @@ function PaymentMethodCard({
 }: {
     id: PaymentMethod;
     name: string;
-    color: string;
     logo?: string;
     isSelected: boolean;
     onSelect: (value: PaymentMethod) => void;
@@ -97,32 +101,22 @@ function PaymentMethodCard({
         <button
             type="button"
             onClick={() => !disabled && onSelect(id)}
-            className={`group relative flex flex-col items-center gap-3 overflow-hidden rounded-[24px] border-2 p-5 text-left transition-all duration-500 ${isSelected
-                ? "border-blue-600 bg-blue-50/10 dark:bg-blue-900/5"
-                : "border-slate-50 hover:border-slate-100 dark:border-slate-800/50 dark:hover:border-slate-700"
-                } ${disabled ? "cursor-not-allowed opacity-50" : "active:scale-[0.98]"}`}
+            className={`group relative flex min-h-[118px] flex-col items-center justify-center overflow-hidden rounded-[24px] border p-4 text-left transition-all duration-300 ${isSelected
+                ? "border-blue-600 bg-blue-50/60 shadow-[0_16px_40px_-24px_rgba(37,99,235,0.55)] dark:bg-blue-900/10"
+                : "border-slate-200 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-slate-700"
+                } ${disabled ? "cursor-not-allowed opacity-60" : "active:scale-[0.98]"}`}
         >
-            <div
-                className={`flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br ${color} p-2.5 shadow-xl transition-transform duration-500 group-hover:scale-110`}
-            >
-                {logo ? (
-                    <img
-                        src={logo}
-                        alt={name}
-                        className="h-full w-full object-contain brightness-0 invert"
-                    />
-                ) : (
-                    <span className="text-xs font-black uppercase text-white">
-                        {name.slice(0, 2)}
-                    </span>
-                )}
-            </div>
-            <div
-                className={`text-[11px] font-bold uppercase tracking-wider transition-colors ${isSelected ? "text-blue-600" : "text-slate-400"
-                    }`}
-            >
-                {name}
-            </div>
+            {logo ? (
+                <img
+                    src={logo}
+                    alt={name}
+                    className="h-14 w-full object-contain"
+                />
+            ) : (
+                <span className="text-base font-black uppercase tracking-[0.12em] text-slate-900 dark:text-white">
+                    {name}
+                </span>
+            )}
             {isSelected && (
                 <motion.div
                     layoutId="payment-active-roadmap"
@@ -132,7 +126,7 @@ function PaymentMethodCard({
                 </motion.div>
             )}
             {disabled && (
-                <div className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                <div className="absolute bottom-2 right-3 text-[9px] font-bold uppercase tracking-[0.18em] text-slate-400">
                     Tez orada
                 </div>
             )}
@@ -274,7 +268,7 @@ function RoadMap() {
     const ref = searchParams.get("ref");
     const { data: user } = useUser();
     const { data: studentCourses = [] } = useGetStudentCourseById(user?.id);
-    const { data: course, isPending } = useGetCourseById({ id: courseId, ref }) as {
+    const { data: course, isPending } = useGetStudentCoursePurchaseDetail({ id: courseId, ref }) as {
         data: Course | undefined;
         isPending: boolean;
     };
@@ -367,42 +361,42 @@ function RoadMap() {
     const providers: Array<{
         id: PaymentMethod;
         name: string;
-        color: string;
         logo?: string;
         disabled?: boolean;
     }> = [
             {
-                id: "payme",
-                name: "Payme",
-                color: "from-[#00BAFF] to-[#0088CC]",
-                logo: "https://cdn.payme.uz/logo/payme_color.svg",
+                id: "humo",
+                name: "Humo / Uzcard",
+                logo: humoUzcardLogo,
+                disabled: true,
             },
             {
-                id: "click",
-                name: "Click",
-                color: "from-[#00A3FF] to-[#0077CC]",
-                logo: "https://click.uz/static/img/logo.png",
+                id: "payme",
+                name: "Payme",
+                logo: paymeLogo,
+            },
+            {
+                id: "xazna",
+                name: "Xazna",
+                logo: xaznaLogo,
                 disabled: true,
             },
             {
                 id: "uzum",
-                name: "Uzum",
-                color: "from-[#7000FF] to-[#5500CC]",
-                logo: "https://uzum.uz/static/img/logo.png",
+                name: "Uzum Bank",
+                logo: uzumBankLogo,
                 disabled: true,
             },
             {
-                id: "alif",
-                name: "Alif Nasiya",
-                color: "from-[#00D166] to-[#00A350]",
-                logo: "https://alif.uz/static/logo.png",
+                id: "click",
+                name: "Click",
+                logo: clickLogo,
                 disabled: true,
             },
             {
                 id: "paynet",
                 name: "Paynet",
-                color: "from-[#FF3D00] to-[#CC3100]",
-                logo: "https://paynet.uz/static/logo.png",
+                logo: paynetLogo,
                 disabled: true,
             },
         ];
@@ -612,7 +606,7 @@ function RoadMap() {
                                     <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
                                         To'lov shakli
                                     </h4>
-                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                                    <div className="grid grid-cols-2 gap-4 xl:grid-cols-3">
                                         {providers.map((provider) => (
                                             <PaymentMethodCard
                                                 key={provider.id}

@@ -30,7 +30,6 @@ export default function NewPassword() {
                 .oneOf([Yup.ref("password")], "Parollar bir xil bo‘lishi kerak!"),
         }),
         onSubmit: (values) => {
-            console.log(values)
             sessionStorage.setItem('form', JSON.stringify({
                 ...form, password: values.password,
             }));
@@ -57,12 +56,12 @@ export default function NewPassword() {
                                 name="password" label="" placeholder={'Yangi parol'} type="password"
                                 key='passwords' formik={formik}
                             />
-                            <PasswordRequirements password={formik.values.password} />
                             <InputField
                                 name="confirmPassword" label="" placeholder={'Parol tasdig’i'} type="password"
                                 key='password' formik={formik}
                             />
                         </div>
+                        <PasswordRequirements password={formik.values.password} />
 
                         <div className="mt-8 w-full">
                             <CommonButton

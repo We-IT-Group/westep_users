@@ -1,0 +1,10 @@
+<svg width="320" height="112" viewBox="0 0 320 112" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="320" height="112" rx="24" fill="white"/>
+  <rect x="82" y="18" width="102" height="58" rx="10" fill="#203645"/>
+  <text x="100" y="54" fill="#EDE7A8" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">HUMO</text>
+  <path d="M170 28C179 30 185 39 186 47C180 42 174 41 170 42V28Z" fill="#E7C767"/>
+  <path d="M178 24C188 28 196 39 198 50C189 44 181 43 176 44L178 24Z" fill="#E7C767"/>
+  <path d="M186 21C198 27 207 40 210 55C198 46 189 45 183 47L186 21Z" fill="#E7C767"/>
+  <text x="88" y="95" fill="#2551A4" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700">UZ</text>
+  <text x="118" y="95" fill="#F06A3C" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="700">CARD</text>
+</svg>

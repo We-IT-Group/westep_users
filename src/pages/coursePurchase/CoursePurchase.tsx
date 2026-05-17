@@ -9,6 +9,12 @@ import type {
 } from "../../components/coursePurchase/types.ts";
 import { Header } from "../../layouts/headers/Header_new.tsx";
 import { Loader2 } from "lucide-react";
+import paymeLogo from "../../assets/payment/payme.svg";
+import clickLogo from "../../assets/payment/click.svg";
+import paynetLogo from "../../assets/payment/paynet.svg";
+import uzumBankLogo from "../../assets/payment/uzum-bank.svg";
+import xaznaLogo from "../../assets/payment/xazna.svg";
+import humoUzcardLogo from "../../assets/payment/humo-uzcard.svg";
 
 export default function CoursePurchase() {
     const { courseId } = useParams();
@@ -74,10 +80,46 @@ export default function CoursePurchase() {
 
     const paymentProviders: PaymentProvider[] = [
         {
-            id: "backend",
-            name: "Avto",
-            color: "from-blue-600 to-slate-900",
-        }
+            id: "humo",
+            name: "Humo / Uzcard",
+            color: "from-slate-900 to-slate-700",
+            logo: humoUzcardLogo,
+            disabled: true,
+        },
+        {
+            id: "payme",
+            name: "Payme",
+            color: "from-cyan-500 to-sky-500",
+            logo: paymeLogo,
+        },
+        {
+            id: "xazna",
+            name: "Xazna",
+            color: "from-emerald-500 to-green-500",
+            logo: xaznaLogo,
+            disabled: true,
+        },
+        {
+            id: "uzum",
+            name: "Uzum Bank",
+            color: "from-violet-600 to-fuchsia-600",
+            logo: uzumBankLogo,
+            disabled: true,
+        },
+        {
+            id: "click",
+            name: "Click",
+            color: "from-blue-600 to-sky-500",
+            logo: clickLogo,
+            disabled: true,
+        },
+        {
+            id: "paynet",
+            name: "Paynet",
+            color: "from-emerald-500 to-lime-500",
+            logo: paynetLogo,
+            disabled: true,
+        },
     ];
 
     const handleSubmitPurchase = (payload: {
