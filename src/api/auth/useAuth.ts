@@ -211,8 +211,7 @@ export const useCheckPhoneNumber = () => {
             onSuccess: (_, body: { phoneNumber: string }) => {
                 navigate("/password", {state: {phoneNumber: body.phoneNumber}});
             },
-            onError: (error, body: { phoneNumber: string }) => {
-                console.log(error);
+            onError: (_, body: { phoneNumber: string }) => {
                 navigate("/register", {state: {phoneNumber: body.phoneNumber}}); // success -> password sahifasiga o‘tish
             },
         });

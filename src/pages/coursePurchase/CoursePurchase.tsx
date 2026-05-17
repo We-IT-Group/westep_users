@@ -1,5 +1,6 @@
-import { useNavigate, useParams } from "react-router-dom";
-import { useGetCourseById, useSetStudentCourseByIdForPayment } from "../../api/courses/useCourse.ts";
+import { useEffect } from "react";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useGetStudentCoursePurchaseDetail, useSetStudentCourseByIdForPayment } from "../../api/courses/useCourse.ts";
 import { useUser } from "../../api/auth/useAuth.ts";
 import { CoursePurchasePage } from "../../components/coursePurchase/CoursePurchasePage.tsx";
 import type { 
@@ -7,6 +8,7 @@ import type {
     CoursePurchaseModule, 
     PaymentProvider 
 } from "../../components/coursePurchase/types.ts";
+import type { CourseDetailLesson, CourseDetailModule } from "../../types/types.ts";
 import { Header } from "../../layouts/headers/Header_new.tsx";
 import { Loader2 } from "lucide-react";
 import paymeLogo from "../../assets/payment/payme.svg";
@@ -17,14 +19,33 @@ import xaznaLogo from "../../assets/payment/xazna.svg";
 import humoUzcardLogo from "../../assets/payment/humo-uzcard.svg";
 
 export default function CoursePurchase() {
-    const { courseId } = useParams();
+    const location = useLocation();
     const navigate = useNavigate();
+    const params = useParams();
+    const [searchParams] = useSearchParams();
+    const courseId = params.courseId || searchParams.get("courseId") || undefined;
+    const ref = searchParams.get("ref");
 
     const { data: user, isLoading: isUserLoading } = useUser();
-    const { data: courseData, isLoading: isCourseLoading } = useGetCourseById({ id: courseId });
+    const { data: courseData, isLoading: isCourseLoading } = useGetStudentCoursePurchaseDetail({ id: courseId, ref });
     
     // Purchase mutation
     const { mutate: setStudentCourse, isPending: isPurchasePending } = useSetStudentCourseByIdForPayment();
+
+    useEffect(() => {
+        if (!courseId || !courseData?.attributionCode || courseData.attributionCode === ref) {
+            return;
+        }
+
+        const nextSearchParams = new URLSearchParams(location.search);
+        nextSearchParams.set("ref", courseData.attributionCode);
+
+        if (!params.courseId) {
+            nextSearchParams.set("courseId", courseId);
+        }
+
+        navigate(`${location.pathname}?${nextSearchParams.toString()}`, { replace: true });
+    }, [courseData?.attributionCode, courseId, location.pathname, location.search, navigate, params.courseId, ref]);
 
     if (isCourseLoading || isUserLoading) {
         return (
@@ -66,12 +87,12 @@ export default function CoursePurchase() {
     };
 
     // Map Backend Modules to CoursePurchaseModule
-    const mappedModules: CoursePurchaseModule[] = (courseData.modules || []).map((mod: any) => ({
+    const mappedModules: CoursePurchaseModule[] = (courseData.modules || []).map((mod: CourseDetailModule) => ({
         id: mod.moduleId,
         title: mod.moduleName,
         price: mod.price,
         isPurchased: mod.purchased ?? mod.isPurchased,
-        lessons: (mod.lessons || []).map((lesson: any) => ({
+        lessons: (mod.lessons || []).map((lesson: CourseDetailLesson) => ({
             id: lesson.lessonId,
             title: lesson.lessonName,
             duration: lesson.duration ? `${lesson.duration} daqiqa` : "Videodars"

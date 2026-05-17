@@ -30,14 +30,18 @@ function getSafeInternalPath(url: string) {
     }
 }
 
-export function getCoursePurchaseUrl(course: Pick<Course, "id" | "buyCourseUrl">, ref?: string | null) {
+export function getCoursePurchaseUrl(
+    course: Pick<Course, "id" | "buyCourseUrl"> & { attributionCode?: string | null },
+    ref?: string | null,
+) {
     const safeBuyCourseUrl = course.buyCourseUrl ? getSafeInternalPath(course.buyCourseUrl) : null;
+    const effectiveRef = ref || course.attributionCode || null;
 
     if (safeBuyCourseUrl) {
-        return appendRefToUrl(safeBuyCourseUrl, ref);
+        return appendRefToUrl(safeBuyCourseUrl, effectiveRef);
     }
 
     const encodedCourseId = encodeURIComponent(course.id);
-    const defaultUrl = `/buy-course/${encodedCourseId}`;
-    return appendRefToUrl(defaultUrl, ref);
+    const defaultUrl = `/buy-course?courseId=${encodedCourseId}`;
+    return appendRefToUrl(defaultUrl, effectiveRef);
 }

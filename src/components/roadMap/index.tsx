@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
     BookOpen,
     CheckCircle2,
@@ -25,6 +25,7 @@ import paynetLogo from "../../assets/payment/paynet.svg";
 import uzumBankLogo from "../../assets/payment/uzum-bank.svg";
 import xaznaLogo from "../../assets/payment/xazna.svg";
 import humoUzcardLogo from "../../assets/payment/humo-uzcard.svg";
+import { getPreferredAttributionRef } from "../../utils/attribution.ts";
 
 type PaymentMethod = "payme" | "click" | "uzum" | "xazna" | "humo" | "paynet";
 
@@ -262,6 +263,8 @@ function LessonRow({
 }
 
 function RoadMap() {
+    const navigate = useNavigate();
+    const location = useLocation();
     const params = useParams();
     const [searchParams] = useSearchParams();
     const courseId = params.id || searchParams.get("courseId") || undefined;
@@ -279,6 +282,22 @@ function RoadMap() {
     const { mutate: purchaseWithPayment, isPending: isPaymentPending } =
         useSetStudentCourseByIdForPayment();
     const { mutate: enrollForFree, isPending: isEnrollPending } = useSetStudentCourseById();
+    const effectiveAttributionRef = getPreferredAttributionRef(ref, course?.attributionCode);
+
+    useEffect(() => {
+        if (!courseId || !course?.attributionCode || course.attributionCode === ref) {
+            return;
+        }
+
+        const nextSearchParams = new URLSearchParams(location.search);
+        nextSearchParams.set("ref", course.attributionCode);
+
+        if (!params.id) {
+            nextSearchParams.set("courseId", courseId);
+        }
+
+        navigate(`${location.pathname}?${nextSearchParams.toString()}`, { replace: true });
+    }, [course?.attributionCode, courseId, location.pathname, location.search, navigate, params.id, ref]);
 
     const purchasedModuleIds = useMemo(() => {
         return new Set((purchasedModules as Module[]).map((item) => item.id));
@@ -501,6 +520,7 @@ function RoadMap() {
                                     </h2>
                                     <p className="mt-1 text-xs font-medium text-slate-400">
                                         Modul, lesson va davomiylik ma'lumotlari backenddan yuklandi
+                                        {effectiveAttributionRef ? ` • Ref: ${effectiveAttributionRef}` : ""}
                                     </p>
                                 </div>
 

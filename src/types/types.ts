@@ -25,6 +25,8 @@ export interface Course extends Common {
     name: string,
     description: string,
     buyCourseUrl?: string | null,
+    attributionCode?: string | null,
+    sourceType?: string | null,
     shortDescription?: string,
     fullDescription?: string,
     isPublished: boolean,
