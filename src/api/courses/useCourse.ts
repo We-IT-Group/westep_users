@@ -11,6 +11,7 @@ import {
 import {getItem} from "../../utils/utils.ts";
 import {useNavigate} from "react-router-dom";
 import {useCreatePaymentCheckout} from "../payme/usePayme.ts";
+import type { Course } from "../../types/types.ts";
 
 export const useGetCourses = () =>
     useQuery({
@@ -48,7 +49,7 @@ export const useGetStudentCoursePurchaseDetail = ({
     id: string | undefined;
     ref?: string | null;
 }) =>
-    useQuery({
+    useQuery<Course>({
         queryKey: ["student-course-purchase-detail", id, ref || null],
         queryFn: async () => {
             const token = getItem<string>('accessToken');

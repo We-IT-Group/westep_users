@@ -6,6 +6,22 @@ type CourseDiscoverResponse = {
     courses?: Course[];
 };
 
+type StudentCoursePurchaseDetailResponse = {
+    course: Course;
+    attributionCode?: string | null;
+    sourceType?: string | null;
+};
+
+function normalizeStudentCoursePurchaseDetail(
+    data: StudentCoursePurchaseDetailResponse,
+): Course {
+    return {
+        ...data.course,
+        attributionCode: data.attributionCode ?? data.course.attributionCode ?? null,
+        sourceType: data.sourceType ?? data.course.sourceType ?? null,
+    };
+}
+
 export const getAllCourses = async () => {
     try {
         const {data} = await apiClient.get<CourseDiscoverResponse>("/course/discover", {
@@ -65,10 +81,10 @@ export const getStudentCoursePurchaseDetail = async ({
     id: string | undefined;
     ref?: string | null;
 }) => {
-    const { data } = await apiClient.get(`/student/courses/${id}`, {
+    const { data } = await apiClient.get<StudentCoursePurchaseDetailResponse>(`/student/courses/${id}`, {
         params: ref ? { ref } : undefined,
     });
-    return data;
+    return normalizeStudentCoursePurchaseDetail(data);
 };
 
 export const getContinueLearning = async () => {

@@ -18,7 +18,7 @@ import {
     useSetStudentCourseByIdForPayment,
 } from "../../api/courses/useCourse.ts";
 import { useGetStudentCourseModulesById } from "../../api/module/useModule.ts";
-import type { Course, CourseDetailLesson, CourseDetailModule, Module, StudentCourse } from "../../types/types.ts";
+import type { CourseDetailLesson, CourseDetailModule, Module, StudentCourse } from "../../types/types.ts";
 import paymeLogo from "../../assets/payment/payme.svg";
 import clickLogo from "../../assets/payment/click.svg";
 import paynetLogo from "../../assets/payment/paynet.svg";
@@ -271,10 +271,7 @@ function RoadMap() {
     const ref = searchParams.get("ref");
     const { data: user } = useUser();
     const { data: studentCourses = [] } = useGetStudentCourseById(user?.id);
-    const { data: course, isPending } = useGetStudentCoursePurchaseDetail({ id: courseId, ref }) as {
-        data: Course | undefined;
-        isPending: boolean;
-    };
+    const { data: course, isPending } = useGetStudentCoursePurchaseDetail({ id: courseId, ref });
     const matchedStudentCourse = (studentCourses as StudentCourse[]).find(
         (item) => item.courseId === courseId,
     );
