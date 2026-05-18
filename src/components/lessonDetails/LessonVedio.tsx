@@ -62,6 +62,7 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
     const hasPlaybackInteractionRef = useRef(false);
     const isSeekingRef = useRef(false);
     const hasEndedRef = useRef(false);
+    const pendingInitialPlayProgressRef = useRef(false);
     const [isFullscreenActive, setIsFullscreenActive] = useState(false);
 
     const getYoutubeThumbnail = (srcLink: string) => {
@@ -276,6 +277,7 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
         isSeekingRef.current = false;
         isRestoringPositionRef.current = false;
         hasEndedRef.current = false;
+        pendingInitialPlayProgressRef.current = false;
 
         resetTrackingPoint(normalizedStartTime);
 
@@ -433,7 +435,12 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
 
         hasPlaybackInteractionRef.current = true;
         lastObservedSecondRef.current = roundedCurrentTime;
-    }, [getRoundedCurrentSecond, resetTrackingPoint]);
+
+        if (pendingInitialPlayProgressRef.current) {
+            pendingInitialPlayProgressRef.current = false;
+            void saveCurrentPosition(roundedCurrentTime);
+        }
+    }, [getRoundedCurrentSecond, resetTrackingPoint, saveCurrentPosition]);
 
     const handlePlay = useCallback(() => {
         if (isRestoringPositionRef.current) return;
@@ -443,6 +450,7 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
         hasPlaybackInteractionRef.current = true;
         const currentSecond = getRoundedCurrentSecond();
         resetTrackingPoint(currentSecond);
+        pendingInitialPlayProgressRef.current = true;
         startProgressTimer();
     }, [clearRestoreTimeouts, getRoundedCurrentSecond, resetTrackingPoint, startProgressTimer]);
 
