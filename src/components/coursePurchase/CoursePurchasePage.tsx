@@ -8,7 +8,6 @@ import { PaymentMethodCard } from "../../ui/PaymentMethodCard";
 import { PurchaseModuleItem } from "../../ui/PurchaseModuleItem";
 
 export const MODULE_PRICE = 598000;
-export const BULK_DISCOUNT = 0.2;
 
 export type CoursePurchasePageProps = {
   courseId?: string;
@@ -18,7 +17,6 @@ export type CoursePurchasePageProps = {
   withHeader?: boolean;
   HeaderComponent?: React.ComponentType;
   modulePrice?: number;
-  bulkDiscount?: number;
   onSubmit?: (payload: {
     courseId: string;
     selectedModules: string[];
@@ -40,7 +38,6 @@ export function CoursePurchasePage({
   withHeader = false,
   HeaderComponent,
   modulePrice = MODULE_PRICE,
-  bulkDiscount = BULK_DISCOUNT,
   onSubmit,
   isSubmitting = false,
 }: CoursePurchasePageProps) {
@@ -71,18 +68,13 @@ export function CoursePurchasePage({
   };
 
   const { totalPrice, originalPrice, hasBulkDiscount } = useMemo(() => {
-    const count = selectedModules.length;
     const base = selectedModules.reduce((sum, moduleId) => {
       const module = purchaseableModules.find(item => item.id === moduleId);
       return sum + (module?.price ?? modulePrice);
     }, 0);
-    const allNewSelected = count === purchaseableModules.length && count > 0;
 
-    if (allNewSelected && purchaseableModules.length > 1) {
-      return { totalPrice: base * (1 - bulkDiscount), originalPrice: base, hasBulkDiscount: true };
-    }
     return { totalPrice: base, originalPrice: base, hasBulkDiscount: false };
-  }, [selectedModules, purchaseableModules, modulePrice, bulkDiscount]);
+  }, [selectedModules, purchaseableModules, modulePrice]);
 
   const handleSubmit = () => {
     if (!selectedModules.length || !onSubmit) return;
@@ -175,12 +167,11 @@ export function CoursePurchasePage({
                     {hasBulkDiscount && (
                       <div className="flex flex-col mb-2">
                         <PriceDisplay price={originalPrice} isStrikethrough className="text-xl text-slate-300 dark:text-slate-700 font-bold leading-none" />
-                        <span className="text-emerald-500 text-[10px] font-bold uppercase tracking-widest mt-1">To'liq xarid -20%</span>
                       </div>
                     )}
                   </div>
                   <p className="text-[11px] font-medium text-slate-400 uppercase tracking-[0.1em] leading-relaxed">
-                    {selectedModules.length} ta yangi modul tanlandi. {hasBulkDiscount ? 'Chegirma hisoblandi.' : purchaseableModules.length > 1 ? "Barcha modullarni oling va 20% tejang." : ''}
+                    {selectedModules.length} ta yangi modul tanlandi.
                   </p>
                 </div>
               </div>

@@ -147,7 +147,12 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
     }, []);
 
     const saveCurrentPosition = useCallback(
-        async (position?: number) => {
+        async (
+            position?: number,
+            options?: {
+                includeWatchedPoint?: boolean;
+            },
+        ) => {
             if (!params.id || !currentLessonId) return;
             if (isFlushingSegmentRef.current) return;
 
@@ -155,6 +160,7 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
                 0,
                 Math.round(position ?? getRoundedCurrentSecond()),
             );
+            const includeWatchedPoint = options?.includeWatchedPoint ?? true;
 
             if (lastSavedSecondRef.current === currentSecond) {
                 resetTrackingPoint(currentSecond);
@@ -168,6 +174,12 @@ const VideoPlayer = ({videoUrl, setEnded, startTime, onProgressChange}: {
                     studentCourseId: params.id,
                     lessonId: currentLessonId,
                     currentSecond,
+                    ...(includeWatchedPoint
+                        ? {
+                              watchedFromSecond: currentSecond,
+                              watchedToSecond: currentSecond,
+                          }
+                        : {}),
                 });
                 lastSavedSecondRef.current = currentSecond;
                 onProgressChange?.(response || null);

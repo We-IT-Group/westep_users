@@ -168,7 +168,6 @@ export default function CoursePurchase() {
             HeaderComponent={Header}
             onSubmit={handleSubmitPurchase}
             modulePrice={courseData.price || 598000}
-            bulkDiscount={0.2}
             isSubmitting={isPurchasePending}
         />
     );

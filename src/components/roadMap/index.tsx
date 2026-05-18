@@ -353,26 +353,12 @@ function RoadMap() {
     const { totalPrice, originalPrice, hasBulkDiscount } = useMemo(() => {
         const base = selectedModuleObjects.reduce((sum, module) => sum + module.price, 0);
 
-        // Bulk discount applies if all available (unpurchased) modules are selected
-        const allAvailableSelected =
-            unpurchasedModules.length > 0 &&
-            selectedModules.length === unpurchasedModules.length &&
-            modules.length > 1;
-
-        if (allAvailableSelected) {
-            return {
-                totalPrice: Math.round(base * 0.8),
-                originalPrice: base,
-                hasBulkDiscount: true,
-            };
-        }
-
         return {
             totalPrice: base,
             originalPrice: base,
             hasBulkDiscount: false,
         };
-    }, [modules, selectedModuleObjects, selectedModules.length]);
+    }, [selectedModuleObjects]);
 
     const providers: Array<{
         id: PaymentMethod;
@@ -599,20 +585,12 @@ function RoadMap() {
                                                     isStrikethrough
                                                     className="text-xl font-bold leading-none text-slate-300 dark:text-slate-700"
                                                 />
-                                                <span className="mt-1 text-[10px] font-bold uppercase tracking-widest text-emerald-500">
-                                                    To'liq xarid -20%
-                                                </span>
                                             </div>
                                         )}
                                     </div>
 
                                     <p className="text-[11px] font-medium uppercase leading-relaxed tracking-[0.1em] text-slate-400">
-                                        {selectedModules.length} ta modul tanlandi.{" "}
-                                        {hasBulkDiscount
-                                            ? "Chegirma hisoblandi."
-                                            : unpurchasedModules.length > 1
-                                                ? "Barcha modullarni oling va 20% tejang."
-                                                : ""}
+                                        {selectedModules.length} ta modul tanlandi.
                                     </p>
                                 </div>
 
