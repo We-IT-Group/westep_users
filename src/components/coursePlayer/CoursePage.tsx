@@ -769,6 +769,11 @@ export function CoursePage({
 
     const currentLessonIndex = allLessons.findIndex((lesson) => lesson.id === selectedLesson);
     const currentLesson = allLessons[currentLessonIndex];
+    const nextLesson = currentLessonIndex < allLessons.length - 1 ? allLessons[currentLessonIndex + 1] : undefined;
+    const nextLessonModule = nextLesson
+        ? data.modules.find((module) => module.lessons.some((lesson) => lesson.id === nextLesson.id))
+        : undefined;
+    const isNextLessonLocked = nextLessonModule?.isPurchased === false;
     const isCurrentLessonCompleted = Boolean(currentLesson?.completed);
     const averageRating = data.reviews.length
         ? data.reviews.reduce((acc, review) => acc + review.rating, 0) / data.reviews.length
@@ -804,6 +809,10 @@ export function CoursePage({
     }
 
     function handleNextLesson() {
+        if (isNextLessonLocked) {
+            return;
+        }
+
         if (currentLessonIndex < allLessons.length - 1) {
             handleSelectLesson(allLessons[currentLessonIndex + 1]);
         }
@@ -898,6 +907,7 @@ export function CoursePage({
                             isPrevDisabled={currentLessonIndex <= 0}
                             isNextDisabled={
                                 currentLessonIndex === allLessons.length - 1 ||
+                                isNextLessonLocked ||
                                 !isCurrentLessonCompleted
                             }
                         />
