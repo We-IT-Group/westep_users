@@ -16,7 +16,8 @@ const BRIDGE_REDIRECT_KEY = "westep.telegram.bridgeRedirect";
 function isAllowedTelegramRedirect(raw: string): boolean {
     try {
         const scheme = new URL(raw).protocol.replace(/:$/, "").toLowerCase();
-        return scheme === "westep" || scheme === "exp" || scheme.startsWith("exp+");
+        if (scheme === "westep") return true;
+        return import.meta.env.DEV && (scheme === "exp" || scheme.startsWith("exp+"));
     } catch {
         return false;
     }

@@ -42,6 +42,7 @@ const MeningKasblarPage = lazy(() => import("../pages/kasblar/MeningKasblarPage.
 const QiziqishTestPage = lazy(() => import("../pages/kasblar/QiziqishTestPage.tsx"));
 const RoadmapPage = lazy(() => import("../pages/kasblar/RoadmapPage.tsx"));
 const TelegramBridgePage = lazy(() => import("../pages/auth/TelegramBridgePage.tsx"));
+const OpenAppPage = lazy(() => import("../pages/auth/OpenAppPage.tsx"));
 
 const authProtectedRoutes = [
     { path: "/", element: <MainPage />, title: "Home" },
@@ -90,6 +91,7 @@ const authProtectedRoutes = [
 const publicRoutes = [
     { path: "/login", element: <Login /> },
     { path: "/auth/telegram/bridge", element: <TelegramBridgePage /> },
+    { path: "/open-app", element: <OpenAppPage /> },
     { path: "/auth/telegram/callback", element: <TelegramCallback /> },
     { path: "/register", element: <Register /> },
     { path: "/password", element: <Password /> },
