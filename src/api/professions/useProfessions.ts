@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getItem } from "../../utils/utils.ts";
 import {
     abandonProfession,
+    completeRoadmapItem,
     getInterestQuiz,
     getMyProfessions,
     getMyRoadmaps,
@@ -120,12 +121,23 @@ export function useMyRoadmaps() {
     });
 }
 
+export function useCompleteRoadmapItem() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: completeRoadmapItem,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["my-roadmaps"] });
+        },
+    });
+}
+
 export function useAbandonProfession() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: abandonProfession,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["my-professions"] });
+            queryClient.invalidateQueries({ queryKey: ["my-roadmaps"] });
         },
     });
 }

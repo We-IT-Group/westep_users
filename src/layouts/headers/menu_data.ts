@@ -38,7 +38,7 @@ const menu_data: DataType[] = [
             {link: "/standard-blog", title: "Standard Blog"},
             {link: "/blog-details", title: "Blog Details"},
             {link: "/subscription", title: "Obuna"},
-            {link: "/my-courses", title: "Mening kurslarim"},
+            {link: "/musobaqa", title: "Musobaqa"},
             {link: "/login", title: "Login"},
             {link: "/register", title: "Register"},
             {link: "/about", title: "About"},

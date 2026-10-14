@@ -5,9 +5,7 @@ import {useState} from "react";
 import InputField from "../../../ui/InputField.tsx";
 import PhoneNumberInput from "../../../ui/PhoneNumberInput.tsx";
 import AuthDatePicker from "../../../ui/AuthDatePicker.tsx";
-import AuthText from "../../../ui/AuthText.tsx";
 import CommonButton from "../../../ui/CommonButton.tsx";
-import AuthBrand from "../AuthBrand.tsx";
 
 function parseBirthdayInput(value: string) {
     const trimmedValue = value.trim();
@@ -144,28 +142,34 @@ export default function Register() {
     );
 
     return (
-        <>
-            <AuthBrand />
-            <section className="flex items-center justify-center w-full">
-                <div className="w-full max-w-lg animate-fadeIn">
+        <section className="w-full">
+            <h2>Ro‘yxat</h2>
+            <p className="sub">1 / 2 qadam · keyin parol qo‘yamiz</p>
                     <form
                         onSubmit={(e) => {
                             e.preventDefault();
                             formik.handleSubmit();
                             return false;
                         }}
-                        className="bg-transparent"
                     >
-                        <AuthText title={'Ro\'yxatdan o\'tish'} body={"Yangi bilimlarga marhamat!"}/>
-                        <div className="grid grid-cols-1 gap-4">
+                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
+                            <div>
+                            <label htmlFor="firstName">Ism</label>
                             <InputField placeholder={'Ism'} formik={formik}
                                         type='text'
                                         name={"firstName"}
                             />
+                            </div>
+                            <div>
+                            <label htmlFor="lastName">Familya</label>
                             <InputField placeholder={'Familiya'} formik={formik}
                                         type='text'
                                         name={"lastName"}
                             />
+                            </div>
+                        </div>
+                        <div className="mt-2">
+                            <label htmlFor="birthday">Tug‘ilgan kun</label>
                             <AuthDatePicker
                                 id={'birthday'}
                                 placeholder={"Tug'ilgan kun"}
@@ -268,10 +272,9 @@ export default function Register() {
                             />
                         </div>
                     </form>
-                    <p className="mt-1 text-center text-slate-600 dark:text-slate-300">Akkountingiz bormi? <Link
-                        className="text-primary-600 dark:text-blue-400" to="/login">Login</Link></p>
-                </div>
-            </section>
-        </>
+                    <p className="mt-4 text-center font-bold text-[#6b7c99]">
+                        Akkountingiz bormi? <Link className="text-[#0a5efa]" to="/login">Kirish</Link>
+                    </p>
+        </section>
     );
 }

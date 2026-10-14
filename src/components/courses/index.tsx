@@ -14,8 +14,8 @@ export default function Courses() {
             : course.percent;
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] pb-16 pt-4 dark:bg-slate-950">
-            <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-10 px-4 sm:px-6 sm:gap-12">
+        <div>
+            <div className="flex w-full flex-col gap-6">
                 <section className="relative overflow-hidden rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-10">
                     <div className="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-blue-500/10 blur-3xl" />
                     <div className="absolute -bottom-20 left-0 h-48 w-48 rounded-full bg-sky-500/10 blur-3xl" />

@@ -1,5 +1,5 @@
-import {Briefcase} from "lucide-react";
-import {Home, Search, Shop, Message, Profile, HomeBg, ShopBg, SearchBg, MessageBg, ProfileBg} from "../../assets/icon";
+import {Briefcase, Trophy} from "lucide-react";
+import {Home, Search, Message, Profile, HomeBg, SearchBg, MessageBg, ProfileBg} from "../../assets/icon";
 import {Link, useLocation} from "react-router-dom";
 
 type MobileNavItem = {
@@ -33,11 +33,11 @@ const icons: MobileNavItem[] = [
         activeIcon: <Briefcase width={22} height={22} className="text-blue-600" />,
     },
     {
-        path: "/my-courses",
-        matches: ["/my-courses", "/test-history", "/quiz-history", "/homework-history"],
-        ariaLabel: "Mening kurslarim",
-        defaultIcon: <Shop width={24} height={24}/>,
-        activeIcon: <ShopBg width={24} height={24} className='text-primary-500'/>
+        path: "/musobaqa",
+        matches: ["/musobaqa", "/leaderboard"],
+        ariaLabel: "Musobaqa",
+        defaultIcon: <Trophy width={22} height={22}/>,
+        activeIcon: <Trophy width={22} height={22} className='text-primary-500'/>
     },
     {
         path: "/notifications",

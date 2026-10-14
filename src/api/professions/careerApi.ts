@@ -74,6 +74,15 @@ export async function getMyRoadmaps() {
     }
 }
 
+export async function completeRoadmapItem(itemId: string) {
+    try {
+        const { data } = await apiClient.post<StudentRoadmapDto>(`/roadmap/items/${itemId}/complete`);
+        return data;
+    } catch (error) {
+        throw toError(error, "Qadamni yakunlab bo'lmadi");
+    }
+}
+
 export async function abandonProfession(id: string) {
     try {
         const { data } = await apiClient.post<StudentProfessionDto>(`/student-professions/${id}/abandon`);

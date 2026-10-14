@@ -5,7 +5,6 @@ import * as Yup from "yup";
 import { Link, useLocation } from "react-router-dom";
 import InputField from "../../../ui/InputField.tsx";
 import CommonButton from "../../../ui/CommonButton.tsx";
-import AuthText from "../../../ui/AuthText.tsx";
 import DeviceLimitModal from "./DeviceLimitModal.tsx";
 
 
@@ -54,40 +53,34 @@ export default function PasswordForm() {
 
     return (
         <>
-            <section className="flex items-center justify-center w-full">
-                <div className="w-full max-w-lg animate-fadeIn">
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            formik.handleSubmit();
-                            return false;
-                        }}
-                        className="bg-transparent"
-                    >
-                        <AuthText title={'Kirish'} />
-                        <div className="grid grid-cols-1 mt-2">
-                            <InputField
-                                placeholder="Parolni kiriting!"
-                                formik={formik}
-                                type="password"
-                                name="password"
-                            />
-                        </div>
-
-                        <div className="mt-8 w-full">
-                            <CommonButton
-                                type="submit"
-                                children={"Kirish"}
-                                variant="primary"
-                                isPending={isLoginPending}
-                                disabled={!(formik.isValid && formik.dirty)}
-
-                            />
-                        </div>
-                    </form>
-                    <p className="mt-2 text-center text-slate-600 dark:text-slate-300"><Link
-                        className="text-slate-800 dark:text-slate-100" to="/forgot-password">Parolni unutdingizmi?</Link></p>
-                </div>
+            <section className="w-full">
+                <h2>Kirish</h2>
+                <p className="sub">Parolingni yoz — keyin darsga o‘tamiz.</p>
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        formik.handleSubmit();
+                        return false;
+                    }}
+                >
+                    <label htmlFor="password">Parol</label>
+                    <InputField
+                        placeholder="Parolni kiriting"
+                        formik={formik}
+                        type="password"
+                        name="password"
+                    />
+                    <CommonButton
+                        type="submit"
+                        children="Kirish"
+                        variant="primary"
+                        isPending={isLoginPending}
+                        disabled={!(formik.isValid && formik.dirty)}
+                    />
+                </form>
+                <p className="mt-4 text-center font-bold text-[#6b7c99]">
+                    <Link className="text-[#0a5efa]" to="/forgot-password">Parolni unutdingizmi?</Link>
+                </p>
             </section>
             {deviceLimitDetails ? (
                 <DeviceLimitModal

@@ -3,6 +3,7 @@ import { useQueries } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import {
     Award,
+    BarChart3,
     BookOpen,
     Camera,
     Calendar,
@@ -339,6 +340,31 @@ export function Profile() {
                             </div>
 
                             <div className="grid grid-cols-1 gap-3 min-[520px]:grid-cols-2 xl:flex xl:flex-wrap xl:justify-start xl:gap-4">
+                                <Link
+                                    to="/statistics"
+                                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-6 py-3 text-xs font-extrabold uppercase tracking-[0.2em] text-white transition-all hover:bg-blue-500 xl:w-auto"
+                                >
+                                    <BarChart3 className="h-4 w-4" />
+                                    Statistika
+                                </Link>
+                                <Link
+                                    to="/rewards"
+                                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-3 text-xs font-extrabold uppercase tracking-[0.2em] text-slate-800 transition-all hover:border-blue-200 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 xl:w-auto"
+                                >
+                                    Mukofotlar
+                                </Link>
+                                <Link
+                                    to="/leaderboard"
+                                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-3 text-xs font-extrabold uppercase tracking-[0.2em] text-slate-800 transition-all hover:border-blue-200 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 xl:w-auto"
+                                >
+                                    Reyting
+                                </Link>
+                                <Link
+                                    to="/shop"
+                                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-3 text-xs font-extrabold uppercase tracking-[0.2em] text-slate-800 transition-all hover:border-blue-200 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 xl:w-auto"
+                                >
+                                    Sovg‘alar
+                                </Link>
                                 <button
                                     onClick={() => setEdit((prev) => !prev)}
                                     className="w-full rounded-2xl bg-slate-900 px-6 py-3 text-xs font-extrabold uppercase tracking-[0.2em] text-white transition-all hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-500 xl:w-auto"
