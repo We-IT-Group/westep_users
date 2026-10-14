@@ -256,14 +256,22 @@ export default function TestMode() {
     await handleStartTest();
   };
 
+  const leaveTest = useCallback(() => {
+    if (testSource === "lesson-task" && window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+    navigate("/");
+  }, [navigate, testSource]);
+
   const handleExitAttempt = useCallback(() => {
     if (isTestActive && !showResult) {
       setShowExitWarning(true);
       return;
     }
 
-    navigate('/');
-  }, [isTestActive, navigate, showResult]);
+    leaveTest();
+  }, [isTestActive, leaveTest, showResult]);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -641,7 +649,7 @@ export default function TestMode() {
                     Test hali yakunlanmagan
                   </h3>
                   <p className="text-sm font-medium leading-6 text-slate-500 dark:text-slate-400">
-                    Chiqishdan oldin testni yakunlashingiz kerak. Natijalar saqlanishi uchun avval testni tugating.
+                    Test saqlanadi. Keyin shu darsdan davom ettirishingiz mumkin.
                   </p>
                 </div>
                 <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -650,17 +658,17 @@ export default function TestMode() {
                     onClick={() => setShowExitWarning(false)}
                     className="rounded-2xl border border-slate-200 px-5 py-3 font-black text-slate-600 transition-all hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                   >
-                    Testga qaytish
+                    Testda qolish
                   </button>
                   <button
                     type="button"
                     onClick={() => {
                       setShowExitWarning(false);
-                      handleFinalSubmit(answers);
+                      leaveTest();
                     }}
                     className="rounded-2xl bg-blue-600 px-5 py-3 font-black text-white transition-all hover:bg-blue-700"
                   >
-                    Testni yakunlash
+                    Darsga qaytish
                   </button>
                 </div>
               </div>

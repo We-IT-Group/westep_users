@@ -1,5 +1,6 @@
 import {NavLink} from 'react-router-dom';
-import {Home, Lesson, ShoppingCart, BookMark} from "../../../assets/icon";
+import {Home, Lesson, ShoppingCart} from "../../../assets/icon";
+import {Trophy} from "lucide-react";
 import {useSidebar} from "../../SidebarContext.tsx";
 import WestepLogo from "../../../ui/WestepLogo.tsx";
 
@@ -7,7 +8,7 @@ import WestepLogo from "../../../ui/WestepLogo.tsx";
 export const links = [
     {path: "/", title: "Asosiy", icon: Home},
     {path: "/courseDetails", title: "Darslar", icon: Lesson},
-    {path: "/my-courses", title: "Mening kurslarim", icon: BookMark},
+    {path: "/musobaqa", title: "Musobaqa", icon: Trophy},
     {path: "/subscription", title: "Obuna", icon: ShoppingCart}
 ]
 

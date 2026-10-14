@@ -20,7 +20,8 @@ export default {
                 '2xl': '1600px',
             },
             fontFamily: {
-                sans: ['Inter', 'sans-serif'],
+                sans: ['Nunito', 'Inter', 'sans-serif'],
+                display: ['Fredoka', 'Nunito', 'sans-serif'],
                 outfit: ['Outfit', 'sans-serif'],
             },
             fontSize: {

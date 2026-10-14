@@ -1,49 +1,23 @@
-import React, {ReactNode} from 'react';
-import Header from "../headers/Header_new.tsx";
-import MobileNavigation from "./MobileNavigation.tsx";
-import {useLocation} from "react-router-dom";
+import React, { ReactNode } from "react";
+import { useLocation } from "react-router-dom";
+import AcademyRail from "../academy/AcademyRail.tsx";
+import AcademyTopbar from "../academy/AcademyTopbar.tsx";
 
+function isLessonWorkspace(pathname: string) {
+    return pathname.startsWith("/courses/") || pathname.startsWith("/test/");
+}
 
-const DefaultLayout: React.FC<{ children: ReactNode }> = ({children}) => {
-
+const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     const location = useLocation();
-
-    function checking() {
-        const { pathname } = location;
-        const isLessonPlayerPage = /^\/courses\/[^/]+\/[^/]+/.test(pathname);
-
-        if (isLessonPlayerPage) {
-            return false;
-        }
-
-        return (
-            pathname === "/" ||
-            pathname === "/courses" ||
-            pathname === "/my-courses" ||
-            pathname === "/profile" ||
-            pathname.startsWith("/notifications") ||
-            pathname.startsWith("/buy-course") ||
-            pathname.startsWith("/course-purchase") ||
-            pathname === "/subscription" ||
-            pathname.startsWith("/kasblar") ||
-            pathname === "/test-history" ||
-            pathname === "/quiz-history" ||
-            pathname === "/homework-history"
-        );
-    }
+    const lesson = isLessonWorkspace(location.pathname);
 
     return (
-        <div className='min-h-dvh bg-[#F8FAFC] px-3 pb-24 pt-3 transition-colors duration-300 dark:bg-slate-950 lg:px-0 lg:pb-0 lg:pt-0'>
-            <div>
-                <Header/>
-                <div className='max-w-[1600px] mx-auto pt-[76px]'>
-                    {children}
-                </div>
-                {
-                    checking() && <MobileNavigation/>
-                }
-            </div>
-
+        <div className="academy-app">
+            <AcademyRail />
+            <main className="academy-stage">
+                {lesson ? null : <AcademyTopbar />}
+                <div className={`academy-scroll${lesson ? " lesson" : ""}`}>{children}</div>
+            </main>
         </div>
     );
 };

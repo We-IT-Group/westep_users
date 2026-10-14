@@ -11,7 +11,6 @@ const HomeOne = lazy(() => import("../components/homes/home"));
 const HomeTwo = lazy(() => import("../components/homes/home-2"));
 const About = lazy(() => import("../components/about"));
 const AllCoursesPage = lazy(() => import("../pages/courseCatalog/AllCoursesPage.tsx"));
-const MyCourses = lazy(() => import("../components/courses"));
 const CoursesTwo = lazy(() => import("../components/courses-2"));
 const CourseDetails = lazy(() => import("../components/course-details"));
 const GridBlog = lazy(() => import("../components/grid-blog"));
@@ -43,6 +42,11 @@ const QiziqishTestPage = lazy(() => import("../pages/kasblar/QiziqishTestPage.ts
 const RoadmapPage = lazy(() => import("../pages/kasblar/RoadmapPage.tsx"));
 const TelegramBridgePage = lazy(() => import("../pages/auth/TelegramBridgePage.tsx"));
 const OpenAppPage = lazy(() => import("../pages/auth/OpenAppPage.tsx"));
+const StatisticsPage = lazy(() => import("../pages/StatisticsPage.tsx"));
+const RewardsPage = lazy(() => import("../pages/RewardsPage.tsx"));
+const ShopPage = lazy(() => import("../pages/ShopPage.tsx"));
+const LeaderboardPage = lazy(() => import("../pages/LeaderboardPage.tsx"));
+const MusobaqaPage = lazy(() => import("../pages/MusobaqaPage.tsx"));
 
 const authProtectedRoutes = [
     { path: "/", element: <MainPage />, title: "Home" },
@@ -50,6 +54,12 @@ const authProtectedRoutes = [
     { path: "/buy-course", element: <CoursePurchase />, title: "CoursePurchaseEntry" },
     { path: "/buy-course/:id", element: <CoursePurchase />, title: "CoursePurchaseEntry" },
     { path: "/profile", element: <Profile />, title: "Profile" },
+    { path: "/statistics", element: <StatisticsPage />, title: "Statistika" },
+    { path: "/rewards", element: <RewardsPage />, title: "Mukofotlar" },
+    { path: "/shop", element: <ShopPage />, title: "Sovg'alar" },
+    { path: "/leaderboard", element: <LeaderboardPage />, title: "Reyting" },
+    { path: "/musobaqa", element: <MusobaqaPage />, title: "Musobaqa" },
+    { path: "/musobaqa/:id", element: <MusobaqaPage />, title: "Musobaqa Tafsiloti" },
     { path: "/test/:testId", element: <TestMode />, title: "Test Mode" },
     { path: "/test-history", element: <TestHistory />, title: "Test History" },
     { path: "/test-result/:sessionId", element: <TestDetail />, title: "Test Result" },
@@ -69,7 +79,7 @@ const authProtectedRoutes = [
     { path: "/home-2", element: <HomeTwo />, title: "Home 2" },
     { path: "/about", element: <About />, title: "About" },
     { path: "/courses", element: <AllCoursesPage />, title: "Courses" },
-    { path: "/my-courses", element: <MyCourses />, title: "My Courses" },
+    { path: "/my-courses", element: <Navigate to="/musobaqa" replace />, title: "Musobaqa" },
     { path: "/courses-2", element: <CoursesTwo />, title: "Courses 2" },
     { path: "/course-details", element: <CourseDetails />, title: "Course Details" },
     { path: "/grid-blog", element: <GridBlog />, title: "Grid Blog" },

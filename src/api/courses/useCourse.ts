@@ -8,6 +8,12 @@ import {
     getStudentCoursePurchaseDetail,
     setStudentCourse,
 } from "./courseApi.ts";
+import {
+    getMyCertificates,
+    getSubjectResults,
+    getWeeklyActivity,
+    type LearningStats,
+} from "./statsApi.ts";
 import {getItem} from "../../utils/utils.ts";
 import {useNavigate} from "react-router-dom";
 import type { Course } from "../../types/types.ts";
@@ -89,7 +95,43 @@ export const useGetLearningStats = () =>
         queryFn: async () => {
             const token = getItem<string>('accessToken');
             if (!token) throw new Error("No token");
-            return await getLearningStats();
+            return (await getLearningStats()) as LearningStats;
         },
+        retry: false,
+    });
+
+export const useGetWeeklyActivity = (weekOffset = 0) =>
+    useQuery({
+        queryKey: ["weekly-activity", weekOffset],
+        queryFn: async () => {
+            const token = getItem<string>("accessToken");
+            if (!token) throw new Error("No token");
+            return await getWeeklyActivity(weekOffset);
+        },
+        staleTime: 5 * 60 * 1000,
+        retry: false,
+    });
+
+export const useGetSubjectResults = () =>
+    useQuery({
+        queryKey: ["subject-results"],
+        queryFn: async () => {
+            const token = getItem<string>("accessToken");
+            if (!token) throw new Error("No token");
+            return await getSubjectResults();
+        },
+        staleTime: 5 * 60 * 1000,
+        retry: false,
+    });
+
+export const useGetMyCertificates = () =>
+    useQuery({
+        queryKey: ["my-certificates"],
+        queryFn: async () => {
+            const token = getItem<string>("accessToken");
+            if (!token) throw new Error("No token");
+            return await getMyCertificates();
+        },
+        staleTime: 5 * 60 * 1000,
         retry: false,
     });

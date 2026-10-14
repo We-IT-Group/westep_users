@@ -144,6 +144,7 @@ export interface RoadmapItemViewDto {
     status: "LOCKED" | "AVAILABLE" | "IN_PROGRESS" | "DONE";
     progressPercent: number;
     required: boolean;
+    track?: "SUBJECT" | "SKILL" | "EXPERIENCE";
 }
 
 export interface RoadmapStageViewDto {

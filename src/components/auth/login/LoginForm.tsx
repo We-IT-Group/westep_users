@@ -5,8 +5,6 @@ import {useEffect} from "react";
 import {useLocation} from "react-router-dom";
 import PhoneNumberInput from "../../../ui/PhoneNumberInput.tsx";
 import CommonButton from "../../../ui/CommonButton.tsx";
-import AuthText from "../../../ui/AuthText.tsx";
-import AuthBrand from "../AuthBrand.tsx";
 import TelegramLoginButton from "../telegram/TelegramLoginButton.tsx";
 import {clearPostAuthRedirect, setPostAuthRedirect} from "../../../utils/postAuthRedirect.ts";
 
@@ -42,43 +40,29 @@ export default function LoginForm() {
     });
 
     return (
-        <>
-            <AuthBrand />
-            <section className="flex items-center justify-center w-full">
-                <div className="w-full max-w-lg animate-fadeIn">
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            formik.handleSubmit();
-                        }}
-                        className="bg-transparent"
-                    >
-                        <AuthText body='Bilimingizni yangi bosqichga olib chiqing!'/>
-
-                        <div className="space-y-6">
-                            <PhoneNumberInput name="phone" formik={formik} className=""/>
-                        </div>
-
-                        <div className="mt-8 w-full">
-                            <CommonButton
-                                type="submit"
-                                children={"Kirish"}
-                                variant="primary"
-                                isPending={isPending}
-                                disabled={!(formik.isValid && formik.dirty)}
-                            />
-                        </div>
-                    </form>
-                    <div className="mt-6 flex items-center gap-3">
-                      <div className="h-px flex-1 bg-slate-200" />
-                      <span className="text-sm text-slate-400">Yoki</span>
-                      <div className="h-px flex-1 bg-slate-200" />
-                    </div>
-                    <div className="mt-6">
-                      <TelegramLoginButton />
-                    </div>
-                </div>
-            </section>
-        </>
+        <section className="w-full">
+            <h2>Kirish</h2>
+            <p className="sub">Telefon raqamingni yoz. Agar yangi bo‘lsang, ro‘yxatdan o‘tamiz.</p>
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    formik.handleSubmit();
+                }}
+            >
+                <label htmlFor="phone">Telefon</label>
+                <PhoneNumberInput name="phone" formik={formik} className="" />
+                <CommonButton
+                    type="submit"
+                    children="Davom etish"
+                    variant="primary"
+                    isPending={isPending}
+                    disabled={!(formik.isValid && formik.dirty)}
+                />
+            </form>
+            <div className="academy-or">yoki</div>
+            <div className="academy-social">
+                <TelegramLoginButton />
+            </div>
+        </section>
     );
 }

@@ -10,13 +10,12 @@ import {
     FolderArchive,
     Lock,
     Play,
-    Star,
     Video,
-    HelpCircle,
     History,
     X,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { InlineLessonQuiz } from "../lessonDetails/quiz/InlineLessonQuiz.tsx";
 import type {
     CoursePlayerData,
     CoursePlayerLesson,
@@ -175,76 +174,72 @@ function VideoPlayer({
     );
 }
 
+function pickDefaultLessonTab(input: {
+    hasVideo: boolean;
+    hasQuiz: boolean;
+    hasHomework: boolean;
+    hasMaterials: boolean;
+}): CoursePlayerTab {
+    if (input.hasVideo) return "video";
+    if (input.hasQuiz) return "quiz";
+    if (input.hasHomework) return "homework";
+    if (input.hasMaterials) return "materials";
+    return "discussion";
+}
+
+function tabLabel(tab: CoursePlayerTab) {
+    switch (tab) {
+        case "video":
+            return "Video";
+        case "quiz":
+            return "Savollar";
+        case "homework":
+            return "Uy vazifasi";
+        case "materials":
+            return "Kitob";
+        case "discussion":
+            return "Muloqot";
+        case "reviews":
+            return "Sharhlar";
+    }
+}
+
 function LessonHeader({
     title,
+    courseTitle,
     lessonNumber,
-    duration,
-    rating,
-    onPrev,
+    onBack,
     onNext,
-    onRatingClick,
-    isPrevDisabled,
     isNextDisabled,
+    nextLabel,
 }: {
     title: string;
+    courseTitle: string;
     lessonNumber: number;
-    duration: string;
-    rating: number;
-    onPrev: () => void;
+    onBack: () => void;
     onNext: () => void;
-    onRatingClick: () => void;
-    isPrevDisabled: boolean;
     isNextDisabled: boolean;
+    nextLabel: string;
 }) {
     return (
-        <div className="flex flex-col justify-between gap-4 border-b border-slate-100 pb-5 dark:border-slate-800 sm:gap-6 sm:pb-8 md:flex-row md:items-start">
-            <div className="space-y-3 sm:space-y-4">
-                <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                    <span className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
-                        Dars {lessonNumber}
-                    </span>
-                    <span className="h-1.5 w-1.5 rounded-full bg-slate-300 dark:bg-slate-700" />
-                    <span className="text-sm font-black tracking-tight text-slate-500 dark:text-slate-400 sm:text-base">
-                        {duration}
-                    </span>
-                    <button
-                        type="button"
-                        onClick={onRatingClick}
-                        className="flex items-center gap-2 rounded-full border border-yellow-100 bg-yellow-50 px-4 py-2 transition-all hover:scale-[1.02] hover:border-yellow-200 hover:bg-yellow-100/80 dark:border-yellow-900/30 dark:bg-yellow-900/20 dark:hover:border-yellow-800 dark:hover:bg-yellow-900/30"
-                    >
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 sm:h-5 sm:w-5" />
-                        <span className="text-sm font-black text-yellow-700 dark:text-yellow-500 sm:text-base">
-                            {rating.toFixed(1)}
-                        </span>
-                    </button>
-                </div>
-                <h2 className="text-xl font-black uppercase italic leading-tight tracking-tight text-slate-900 dark:text-white sm:text-3xl sm:leading-[1.1] lg:text-4xl">
-                    {title}
+        <div className="academy-lesson-chrome">
+            <button type="button" onClick={onBack} className="academy-back">
+                Ortga
+            </button>
+            <div className="titles">
+                <div className="meta">{courseTitle}</div>
+                <h2>
+                    {lessonNumber}-dars · {title}
                 </h2>
             </div>
-
-            <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-                <motion.button
-                    onClick={onPrev}
-                    disabled={isPrevDisabled}
-                    whileHover={{ scale: !isPrevDisabled ? 1.02 : 1 }}
-                    whileTap={{ scale: !isPrevDisabled ? 0.98 : 1 }}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-xs font-black text-slate-700 transition-all hover:border-blue-200 hover:text-blue-600 disabled:opacity-30 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 sm:w-auto sm:rounded-2xl sm:px-6 sm:py-3.5 sm:text-sm"
-                    type="button"
-                >
-                    Oldingi
-                </motion.button>
-                <motion.button
-                    onClick={onNext}
-                    disabled={isNextDisabled}
-                    whileHover={{ scale: !isNextDisabled ? 1.02 : 1 }}
-                    whileTap={{ scale: !isNextDisabled ? 0.98 : 1 }}
-                    className="w-full rounded-xl border border-blue-500 bg-blue-600 px-6 py-3 text-xs font-black text-white transition-all hover:bg-blue-700 disabled:opacity-30 sm:w-auto sm:rounded-2xl sm:px-8 sm:py-3.5 sm:text-sm"
-                    type="button"
-                >
-                    Keyingi dars
-                </motion.button>
-            </div>
+            <button
+                type="button"
+                onClick={onNext}
+                disabled={isNextDisabled}
+                className="academy-next"
+            >
+                {nextLabel}
+            </button>
         </div>
     );
 }
@@ -724,13 +719,13 @@ export function CoursePage({
     HeaderComponent,
     onNavigateToPurchase,
     onLessonChange,
-    onQuizOpen,
     renderVideoPlayer,
 }: CoursePageProps) {
     const { data: currentUser } = useUser();
+    const navigate = useNavigate();
     const contentTabsRef = useRef<HTMLDivElement | null>(null);
     const allLessons = useMemo(() => data.modules.flatMap((module) => module.lessons), [data]);
-    const [activeTab, setActiveTab] = useState<CoursePlayerTab>("discussion");
+    const [activeTab, setActiveTab] = useState<CoursePlayerTab | null>(null);
     const [expandedModules, setExpandedModules] = useState<string[]>(
         data.modules[0] ? [data.modules[0].id] : [],
     );
@@ -775,26 +770,41 @@ export function CoursePage({
         : undefined;
     const isNextLessonLocked = nextLessonModule?.isPurchased === false;
     const isCurrentLessonCompleted = Boolean(currentLesson?.completed);
-    const averageRating = data.reviews.length
-        ? data.reviews.reduce((acc, review) => acc + review.rating, 0) / data.reviews.length
-        : 0;
-    const currentLessonRating = currentLesson?.rating ?? averageRating;
 
     const lessonQuiz = data.materials.find(m => m.type === "quiz");
     const lessonHomework = data.materials.find((material) => material.type === "homework");
-    const hasVideo = !!currentLesson?.videoUrl;
+    const hasVideo = Boolean(currentLesson?.videoUrl);
+    const hasMaterials = data.materials.some(
+        (material) => material.type !== "quiz" && material.type !== "homework",
+    );
     const isPractice = currentLesson?.type === "PRACTICE";
     const canAccessHomework = currentUser?.roleName === "STUDENT";
-    const availableTabs: CoursePlayerTab[] =
-        canAccessHomework && lessonHomework
-            ? ["discussion", "materials", "homework", "reviews"]
-            : ["discussion", "materials", "reviews"];
+    const availableTabs = useMemo<CoursePlayerTab[]>(() => {
+        const tabs: CoursePlayerTab[] = [];
+        if (hasVideo || isPractice) tabs.push("video");
+        if (lessonQuiz) tabs.push("quiz");
+        if (canAccessHomework && lessonHomework) tabs.push("homework");
+        if (hasMaterials) tabs.push("materials");
+        tabs.push("discussion", "reviews");
+        return tabs;
+    }, [canAccessHomework, hasMaterials, hasVideo, isPractice, lessonHomework, lessonQuiz]);
+    const defaultTab = useMemo(
+        () =>
+            pickDefaultLessonTab({
+                hasVideo,
+                hasQuiz: Boolean(lessonQuiz),
+                hasHomework: Boolean(canAccessHomework && lessonHomework),
+                hasMaterials,
+            }),
+        [canAccessHomework, hasMaterials, hasVideo, lessonHomework, lessonQuiz],
+    );
+
+    const visibleTab =
+        activeTab && availableTabs.includes(activeTab) ? activeTab : defaultTab;
 
     useEffect(() => {
-        if (activeTab === "homework" && (!canAccessHomework || !lessonHomework)) {
-            setActiveTab("discussion");
-        }
-    }, [activeTab, canAccessHomework, lessonHomework]);
+        setActiveTab(null);
+    }, [selectedLesson]);
 
     function handleSelectLesson(lesson: CoursePlayerLesson) {
         setSelectedLesson(lesson.id);
@@ -818,59 +828,43 @@ export function CoursePage({
         }
     }
 
-    function handlePrevLesson() {
-        if (currentLessonIndex > 0) {
-            handleSelectLesson(allLessons[currentLessonIndex - 1]);
+    function tabMeta(tab: CoursePlayerTab) {
+        if (tab === "quiz" && typeof lessonQuiz?.questionCount === "number") {
+            return String(lessonQuiz.questionCount);
         }
+        if (tab === "video") return hasVideo ? "" : "yo‘q";
+        if (tab === "materials") return "PDF";
+        return "";
     }
 
-    function handleRatingClick() {
-        setActiveTab("reviews");
-
-        window.requestAnimationFrame(() => {
-            contentTabsRef.current?.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-            });
-        });
-    }
+    const paneDark = visibleTab === "video";
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] font-sans transition-colors duration-300 dark:bg-slate-950">
+        <div className="academy-lesson-wrap">
             {withHeader && HeaderComponent ? <HeaderComponent /> : null}
 
-            <div className="flex flex-1 flex-col overflow-x-hidden lg:flex-row">
-                <div className="min-w-0 flex-1 bg-[#F8FAFC] dark:bg-slate-900/10">
-                    <div className="mx-auto max-w-5xl space-y-5 px-4 py-5 pb-20 sm:space-y-6 sm:px-6 sm:py-8 sm:pb-32 lg:px-8 lg:py-10">
-                        
-                        {isPractice ? (
-                            <div className="space-y-5 rounded-[24px] border border-amber-100 bg-gradient-to-br from-amber-50 to-white p-5 text-center shadow-xl shadow-amber-500/5 dark:border-amber-900/30 dark:from-amber-900/10 dark:to-slate-900 sm:space-y-6 sm:rounded-[32px] sm:p-10 lg:p-12">
-                                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[22px] bg-amber-500 shadow-lg shadow-amber-500/30 sm:h-20 sm:w-20 sm:rounded-3xl">
-                                    <HelpCircle className="h-8 w-8 text-white sm:h-10 sm:w-10" />
-                                </div>
-                                <div className="space-y-2">
-                                    <h2 className="text-xl font-black uppercase italic tracking-tight text-slate-900 dark:text-white sm:text-3xl">
-                                        Amaliy dars: {currentLesson?.title}
-                                    </h2>
-                                    <p className="text-xs font-bold uppercase italic tracking-[0.18em] text-slate-400 sm:text-sm">
-                                        Bu darsda video yo'q. Test va vazifalarni resurslar bo'limidan bajaring.
-                                    </p>
-                                </div>
-                                {lessonQuiz && (
-                                    <button
-                                        onClick={() =>
-                                            onQuizOpen?.(lessonQuiz.id, {
-                                                questionCount: lessonQuiz.questionCount,
-                                                durationMinutes: lessonQuiz.durationMinutes,
-                                            })
-                                        }
-                                        className="w-full rounded-2xl bg-amber-500 px-6 py-4 text-sm font-black uppercase tracking-[0.18em] text-white shadow-xl shadow-amber-500/20 transition-all hover:scale-[1.02] hover:bg-amber-600 active:scale-[0.98] sm:w-auto sm:px-10 sm:py-5"
-                                    >
-                                        Testni boshlash
-                                    </button>
-                                )}
-                            </div>
-                        ) : hasVideo ? (
+            <LessonHeader
+                title={currentLesson?.title || ""}
+                courseTitle={data.title}
+                lessonNumber={currentLessonIndex + 1}
+                onBack={() => navigate("/")}
+                onNext={handleNextLesson}
+                isNextDisabled={
+                    currentLessonIndex === allLessons.length - 1 ||
+                    isNextLessonLocked ||
+                    !isCurrentLessonCompleted
+                }
+                nextLabel={
+                    nextLesson
+                        ? `${currentLessonIndex + 2}-dars`
+                        : "Keyingi"
+                }
+            />
+
+            <div className="academy-lesson">
+                <div ref={contentTabsRef} className={`academy-lesson-pane${paneDark ? " dark" : ""}`}>
+                    {visibleTab === "video" ? (
+                        hasVideo ? (
                             renderVideoPlayer ? (
                                 renderVideoPlayer({
                                     lesson: currentLesson,
@@ -885,151 +879,115 @@ export function CoursePage({
                                 />
                             )
                         ) : (
-                            <div className="space-y-3 rounded-[24px] border border-slate-100 bg-white p-6 text-center dark:border-slate-800 dark:bg-slate-900 sm:rounded-[32px] sm:p-10 lg:p-12">
-                                <Video className="mx-auto h-12 w-12 text-slate-300" />
-                                <h2 className="text-xl font-black uppercase italic text-slate-900 dark:text-white">
-                                    Video topilmadi
-                                </h2>
-                                <p className="text-sm font-bold text-slate-400">
-                                    Bu LESSON turi uchun video backenddan kelmadi.
-                                </p>
+                            <div className="academy-empty-video">
+                                <h3>Bu darsda video yo‘q</h3>
+                                <p>O‘yin va savollar bilan davom etamiz. Ortga yoki boshqa tab doim ochiq.</p>
+                                <div className="academy-empty-actions">
+                                    {lessonQuiz ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => setActiveTab("quiz")}
+                                            className="academy-primary"
+                                        >
+                                            Savollarni ochish
+                                        </button>
+                                    ) : null}
+                                    {canAccessHomework && lessonHomework ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => setActiveTab("homework")}
+                                            className="academy-ghost"
+                                        >
+                                            Uy vazifasi
+                                        </button>
+                                    ) : null}
+                                </div>
                             </div>
-                        )}
-
-                        <LessonHeader
-                            title={currentLesson?.title || ""}
-                            lessonNumber={currentLessonIndex + 1}
-                            duration={currentLesson?.duration || ""}
-                            rating={currentLessonRating}
-                            onPrev={handlePrevLesson}
-                            onNext={handleNextLesson}
-                            onRatingClick={handleRatingClick}
-                            isPrevDisabled={currentLessonIndex <= 0}
-                            isNextDisabled={
-                                currentLessonIndex === allLessons.length - 1 ||
-                                isNextLessonLocked ||
-                                !isCurrentLessonCompleted
+                        )
+                    ) : visibleTab === "quiz" && lessonQuiz ? (
+                        <InlineLessonQuiz
+                            task={{
+                                id: lessonQuiz.taskId || lessonQuiz.id,
+                                title: lessonQuiz.title,
+                            }}
+                            onClose={() =>
+                                setActiveTab(
+                                    hasVideo
+                                        ? "video"
+                                        : canAccessHomework && lessonHomework
+                                          ? "homework"
+                                          : "materials",
+                                )
                             }
                         />
-
-                        <div className="lg:hidden">
-                            <button
-                                type="button"
-                                onClick={() => setIsSidebarOpen(true)}
-                                className="flex w-full items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-left shadow-sm transition-all hover:border-blue-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 sm:px-5"
-                            >
-                                <div className="flex min-w-0 items-center gap-3">
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
-                                        <ClipboardList className="h-5 w-5" />
-                                    </div>
-                                    <div className="min-w-0">
-                                        <div className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400">
-                                            Modullar
-                                        </div>
-                                        <div className="truncate text-sm font-black text-slate-900 dark:text-white">
-                                            Kurs mundarijasini ochish
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="shrink-0 rounded-xl border border-slate-100 bg-slate-50 px-3 py-1.5 text-xs font-black text-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-blue-400">
-                                    {data.progress}%
-                                </div>
-                            </button>
-                        </div>
-
-                        <div ref={contentTabsRef} className="space-y-5 sm:space-y-8 lg:space-y-10">
-                            <div className="scrollbar-hide -mx-4 flex items-center gap-5 overflow-x-auto border-b border-slate-100 px-4 dark:border-slate-800 sm:mx-0 sm:gap-8 sm:px-0 lg:gap-12">
-                                {availableTabs.map((tab) => (
-                                    <button
-                                        key={tab}
-                                        onClick={() => setActiveTab(tab)}
-                                        className={`relative px-1 pb-4 text-xs font-black capitalize tracking-tight whitespace-nowrap transition-all sm:pb-5 sm:text-[15px] ${
-                                            activeTab === tab
-                                                ? "text-blue-600"
-                                                : "text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
-                                        }`}
-                                        type="button"
-                                    >
-                                        {tab === "discussion"
-                                            ? "Muloqot"
-                                            : tab === "materials"
-                                              ? "Resurslar"
-                                              : tab === "homework"
-                                                ? "Homework"
-                                                : "Sharhlar"}
-                                        {activeTab === tab && (
-                                            <motion.div
-                                                layoutId="course-player-tab"
-                                                className="absolute bottom-[-1px] left-0 right-0 h-1 rounded-full bg-blue-600"
-                                            />
-                                        )}
-                                    </button>
-                                ))}
-                            </div>
-
+                    ) : (
+                        <div style={{ padding: 22 }}>
                             <LessonContentTabs
-                                activeTab={activeTab}
+                                activeTab={visibleTab}
                                 lessonId={selectedLesson}
                                 materials={data.materials}
                                 canAccessHomework={canAccessHomework}
-                                onQuizOpen={(material) =>
-                                    onQuizOpen?.(material.id, {
-                                        questionCount: material.questionCount,
-                                        durationMinutes: material.durationMinutes,
-                                    })
-                                }
+                                onQuizOpen={() => setActiveTab("quiz")}
                             />
                         </div>
-                    </div>
+                    )}
                 </div>
 
-                {isSidebarOpen ? (
-                    <div className="fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-[2px] lg:hidden">
+                <div className="academy-tabs">
+                    {availableTabs.map((tab, index) => (
                         <button
+                            key={tab}
                             type="button"
-                            aria-label="Modullar panelini yopish"
-                            onClick={() => setIsSidebarOpen(false)}
-                            className="absolute inset-0"
-                        />
-
-                        <div className="absolute inset-x-0 bottom-0 top-[14vh] overflow-hidden rounded-t-[28px] bg-white shadow-2xl dark:bg-slate-950 md:inset-y-0 md:right-0 md:left-auto md:top-0 md:w-[420px] md:max-w-[88vw] md:rounded-none md:border-l md:border-slate-800">
-                            <div className="mx-auto mt-2 h-1.5 w-14 rounded-full bg-slate-200 dark:bg-slate-700 md:hidden" />
-                            <CurriculumSidebar
-                                mode="overlay"
-                                courseId={data.courseId}
-                                courseModules={data.modules}
-                                expandedModules={expandedModules}
-                                selectedLesson={selectedLesson}
-                                progress={data.progress}
-                                onToggleModule={(id) =>
-                                    setExpandedModules((prev) =>
-                                        prev.includes(id) ? [] : [id],
-                                    )
-                                }
-                                onSelectLesson={handleSelectLesson}
-                                onNavigateToPurchase={onNavigateToPurchase}
-                                onClose={() => setIsSidebarOpen(false)}
-                            />
-                        </div>
-                    </div>
-                ) : null}
-
-                <CurriculumSidebar
-                    mode="static"
-                    courseId={data.courseId}
-                    courseModules={data.modules}
-                    expandedModules={expandedModules}
-                    selectedLesson={selectedLesson}
-                    progress={data.progress}
-                    onToggleModule={(id) =>
-                        setExpandedModules((prev) =>
-                            prev.includes(id) ? [] : [id],
-                        )
-                    }
-                    onSelectLesson={handleSelectLesson}
-                    onNavigateToPurchase={onNavigateToPurchase}
-                />
+                            onClick={() => setActiveTab(tab)}
+                            className={`academy-tab${visibleTab === tab ? " active" : ""}`}
+                        >
+                            <span className="n">{index + 1}</span>
+                            {tabLabel(tab)}
+                            {tabMeta(tab) ? <small>{tabMeta(tab)}</small> : null}
+                        </button>
+                    ))}
+                    <button
+                        type="button"
+                        onClick={() => setIsSidebarOpen(true)}
+                        className="academy-tab"
+                    >
+                        <span className="n">☰</span>
+                        Bo‘limlar
+                        <small>{data.progress}%</small>
+                    </button>
+                </div>
             </div>
+
+            {isSidebarOpen ? (
+                <div className="fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-[2px]">
+                    <button
+                        type="button"
+                        aria-label="Modullar panelini yopish"
+                        onClick={() => setIsSidebarOpen(false)}
+                        className="absolute inset-0"
+                    />
+
+                    <div className="absolute inset-x-0 bottom-0 top-[14vh] overflow-hidden rounded-t-[28px] bg-white shadow-2xl dark:bg-slate-950 md:inset-y-0 md:right-0 md:left-auto md:top-0 md:w-[420px] md:max-w-[88vw] md:rounded-none md:border-l md:border-slate-800">
+                        <div className="mx-auto mt-2 h-1.5 w-14 rounded-full bg-slate-200 dark:bg-slate-700 md:hidden" />
+                        <CurriculumSidebar
+                            mode="overlay"
+                            courseId={data.courseId}
+                            courseModules={data.modules}
+                            expandedModules={expandedModules}
+                            selectedLesson={selectedLesson}
+                            progress={data.progress}
+                            onToggleModule={(id) =>
+                                setExpandedModules((prev) =>
+                                    prev.includes(id) ? [] : [id],
+                                )
+                            }
+                            onSelectLesson={handleSelectLesson}
+                            onNavigateToPurchase={onNavigateToPurchase}
+                            onClose={() => setIsSidebarOpen(false)}
+                        />
+                    </div>
+                </div>
+            ) : null}
         </div>
     );
 }
