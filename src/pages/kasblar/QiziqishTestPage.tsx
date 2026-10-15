@@ -1,235 +1,309 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Compass, CheckCircle2, RotateCcw, ArrowRight, Sparkles, Award } from "lucide-react";
-import { useInterestQuiz, useSubmitInterestQuiz } from "../../api/professions/useProfessions.ts";
+import { ArrowLeft, Compass, RefreshCw } from "lucide-react";
+import { useUser } from "../../api/auth/useAuth.ts";
+import {
+    useInterestQuiz,
+    useInterestQuizTiers,
+    useLatestQuizResult,
+    useSubmitInterestQuiz,
+} from "../../api/professions/useProfessions.ts";
 import type { InterestQuizResultDto } from "../../api/professions/types.ts";
+import { QuestionCard } from "./qiziqish/QuestionCard.tsx";
+import { ResultView } from "./qiziqish/ResultView.tsx";
+import { SectionBreak } from "./qiziqish/SectionBreak.tsx";
+import { TierPicker } from "./qiziqish/TierPicker.tsx";
+import {
+    DIMENSION_META,
+    clearProgress,
+    loadProgress,
+    peekSavedTier,
+    saveProgress,
+    sectionOf,
+} from "./qiziqish/quizProgress.ts";
+
+type Phase = "pick" | "quiz" | "result";
+
+// Tanlov ko'rinib turishi uchun keyingi savolga o'tishdan oldingi qisqa pauza
+const ADVANCE_DELAY_MS = 180;
+
+function Centered({ children }: { children: React.ReactNode }) {
+    return <div className="academy-card p-12 text-center space-y-4 border border-slate-100 dark:border-slate-800">{children}</div>;
+}
 
 export default function QiziqishTestPage() {
     const navigate = useNavigate();
-    const quizQuery = useInterestQuiz(50);
+    const userQuery = useUser();
+    const userKey = userQuery.data?.id ?? "anon";
+    const tiersQuery = useInterestQuizTiers();
+    const latestQuery = useLatestQuizResult();
     const submitMutation = useSubmitInterestQuiz();
-    const [currentIndex, setCurrentIndex] = useState(0);
+
+    const [phase, setPhase] = useState<Phase>("pick");
+    const [tier, setTier] = useState<number | null>(null);
     const [answers, setAnswers] = useState<Record<string, string>>({});
+    const [index, setIndex] = useState(0);
+    const [dismissedBreaks, setDismissedBreaks] = useState<Set<number>>(new Set());
     const [result, setResult] = useState<InterestQuizResultDto | null>(null);
+    const advanceTimer = useRef<number | undefined>(undefined);
 
+    const quizQuery = useInterestQuiz(phase === "quiz" ? tier : null);
     const questions = useMemo(() => quizQuery.data?.questions ?? [], [quizQuery.data]);
-    const current = questions[currentIndex];
-    const progress = questions.length > 0 ? Math.round(((currentIndex + 1) / questions.length) * 100) : 0;
+    const questionIds = useMemo(() => questions.map((q) => q.id), [questions]);
+    const current = questions[index];
+    const tiers = tiersQuery.data?.tiers ?? [];
+    const maxTier = tiers.length ? tiers[tiers.length - 1].tier : 50;
 
-    const handlePick = async (optionId: string) => {
-        if (!current) return;
-        const nextAnswers = { ...answers, [current.id]: optionId };
-        setAnswers(nextAnswers);
-        if (currentIndex + 1 < questions.length) {
-            setCurrentIndex(currentIndex + 1);
-            return;
-        }
-        try {
+    // Savollar kelgach yarim qolgan javoblarni tiklash
+    const restoredFor = useRef<string | null>(null);
+    useEffect(() => {
+        if (!tier || questions.length === 0) return;
+        const signature = `${tier}:${questionIds.join()}`;
+        if (restoredFor.current === signature) return;
+        restoredFor.current = signature;
+        const saved = loadProgress(userKey, questionIds, tier);
+        setAnswers(saved?.answers ?? {});
+        setIndex(saved ? Math.min(saved.index, questions.length - 1) : 0);
+        setDismissedBreaks(new Set(saved ? [saved.index] : []));
+    }, [tier, questions.length, questionIds, userKey]);
+
+    useEffect(() => () => window.clearTimeout(advanceTimer.current), []);
+
+    const submit = useCallback(
+        async (finalAnswers: Record<string, string>) => {
+            if (!tier) return;
             const submitted = await submitMutation.mutateAsync({
-                answers: Object.entries(nextAnswers).map(([questionId, picked]) => ({
-                    questionId,
-                    optionId: picked,
-                })),
-                tier: 50,
+                answers: Object.entries(finalAnswers).map(([questionId, optionId]) => ({ questionId, optionId })),
+                tier,
             });
+            clearProgress(userKey);
             setResult(submitted);
-        } catch {
-            setCurrentIndex(questions.length - 1);
-        }
+            setPhase("result");
+            window.scrollTo({ top: 0 });
+        },
+        [submitMutation, tier, userKey],
+    );
+
+    const handlePick = useCallback(
+        (optionId: string) => {
+            if (!current || !tier || submitMutation.isPending) return;
+            const next = { ...answers, [current.id]: optionId };
+            setAnswers(next);
+            const isLast = index === questions.length - 1;
+            saveProgress(userKey, { tier, answers: next, index: isLast ? index : index + 1, questionIds });
+            window.clearTimeout(advanceTimer.current);
+            advanceTimer.current = window.setTimeout(() => {
+                if (isLast) {
+                    void submit(next).catch(() => undefined);
+                } else {
+                    setIndex(index + 1);
+                }
+            }, ADVANCE_DELAY_MS);
+        },
+        [answers, current, index, questionIds, questions.length, submit, submitMutation.isPending, tier, userKey],
+    );
+
+    const goBack = useCallback(() => {
+        window.clearTimeout(advanceTimer.current);
+        setIndex((i) => Math.max(0, i - 1));
+    }, []);
+
+    const section = current ? sectionOf(questions, index) : null;
+    const showBreak = !!section && section.startsHere && !dismissedBreaks.has(index);
+
+    // Klaviatura: 1–9 javob, ← orqaga
+    useEffect(() => {
+        if (phase !== "quiz" || !current || showBreak) return;
+        const onKey = (e: KeyboardEvent) => {
+            const target = e.target as HTMLElement | null;
+            if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) return;
+            if (e.metaKey || e.ctrlKey || e.altKey) return;
+            const n = Number(e.key);
+            if (Number.isInteger(n) && n >= 1 && n <= current.options.length) {
+                e.preventDefault();
+                handlePick(current.options[n - 1].id);
+            } else if (e.key === "ArrowLeft") {
+                e.preventDefault();
+                goBack();
+            }
+        };
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    }, [phase, current, showBreak, handlePick, goBack]);
+
+    const startTier = (picked: number) => {
+        restoredFor.current = null;
+        submitMutation.reset();
+        setTier(picked);
+        setResult(null);
+        setPhase("quiz");
+        window.scrollTo({ top: 0 });
     };
 
-    return (
-        <div className="space-y-6 pb-12 max-w-3xl mx-auto">
-            {/* Back button */}
-            <button
-                type="button"
-                onClick={() => navigate("/kasblar")}
-                className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-blue-600 transition-colors"
-            >
-                <ArrowLeft size={16} />
-                <span>Kasblar katalogiga qaytish</span>
-            </button>
+    const backLink = (
+        <button
+            type="button"
+            onClick={() => (phase === "pick" ? navigate("/kasblar") : setPhase("pick"))}
+            className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors"
+        >
+            <ArrowLeft size={16} />
+            <span>{phase === "pick" ? "Kasblar katalogiga qaytish" : "Test hajmini tanlashga qaytish"}</span>
+        </button>
+    );
 
-            {quizQuery.isLoading ? (
-                <div className="academy-card p-16 text-center space-y-3">
+    if (phase === "result" && result) {
+        return (
+            <div className="space-y-5 pb-12 max-w-4xl mx-auto">
+                {backLink}
+                <ResultView result={result} maxTier={maxTier} onRetake={() => startTier(tier ?? result.tier ?? 50)} onUpgrade={startTier} />
+            </div>
+        );
+    }
+
+    if (phase === "pick") {
+        return (
+            <div className="space-y-5 pb-12 max-w-4xl mx-auto">
+                {backLink}
+                {tiersQuery.isLoading ? (
+                    <Centered>
+                        <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
+                    </Centered>
+                ) : tiers.length === 0 ? (
+                    <Centered>
+                        <Compass size={32} className="mx-auto text-amber-500" />
+                        <h3 className="font-fredoka text-xl font-semibold text-slate-900 dark:text-white">Test hozircha tayyor emas</h3>
+                        <p className="text-sm text-slate-500">Savollar tez orada qo'shiladi. Keyinroq qaytib ko'r.</p>
+                    </Centered>
+                ) : (
+                    <TierPicker
+                        tiers={tiers}
+                        hasLatest={!!latestQuery.data}
+                        resumeTier={peekSavedTier(userKey)}
+                        onPick={startTier}
+                        onShowLatest={() => {
+                            if (!latestQuery.data) return;
+                            setResult(latestQuery.data);
+                            setTier(latestQuery.data.tier ?? null);
+                            setPhase("result");
+                        }}
+                    />
+                )}
+            </div>
+        );
+    }
+
+    // phase === "quiz"
+    if (quizQuery.isLoading || (questions.length > 0 && restoredFor.current === null)) {
+        return (
+            <div className="space-y-5 pb-12 max-w-3xl mx-auto">
+                {backLink}
+                <Centered>
                     <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
-                    <p className="text-sm font-bold text-slate-500">Qiziqish savollari yuklanmoqda...</p>
+                    <p className="text-sm font-bold text-slate-500">Savollar yuklanmoqda...</p>
+                </Centered>
+            </div>
+        );
+    }
+
+    if (quizQuery.isError || !current || !section) {
+        return (
+            <div className="space-y-5 pb-12 max-w-3xl mx-auto">
+                {backLink}
+                <Centered>
+                    <h3 className="font-fredoka text-xl font-semibold text-slate-900 dark:text-white">Savollarni yuklab bo'lmadi</h3>
+                    <p className="text-sm text-slate-500">{quizQuery.error?.message ?? "Internet aloqasini tekshirib, qayta urinib ko'r."}</p>
+                    <button type="button" onClick={() => void quizQuery.refetch()} className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-black text-white">
+                        Qayta yuklash
+                    </button>
+                </Centered>
+            </div>
+        );
+    }
+
+    const answeredCount = Object.keys(answers).length;
+    const progress = Math.round((answeredCount / questions.length) * 100);
+    const sectionStarts = questions.reduce<number[]>((acc, _q, i) => (sectionOf(questions, i).startsHere ? [...acc, i] : acc), []);
+    const sectionNumber = sectionStarts.filter((s) => s <= index).length;
+
+    return (
+        <div className="space-y-5 pb-12 max-w-3xl mx-auto">
+            {backLink}
+
+            <div className="space-y-2" aria-live="polite">
+                <div className="flex items-center justify-between text-sm font-bold">
+                    <span className="text-slate-700 dark:text-slate-200">{DIMENSION_META[section.dimension].title}</span>
+                    <span className="tabular-nums text-slate-500">
+                        {index + 1} / {questions.length}
+                    </span>
                 </div>
-            ) : quizQuery.isError || questions.length === 0 ? (
-                <div className="academy-card p-12 text-center space-y-4 border border-dashed border-slate-200 dark:border-slate-800">
-                    <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
-                        <Compass size={28} />
+                <div
+                    className="h-2.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden"
+                    role="progressbar"
+                    aria-valuenow={progress}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label="Test jarayoni"
+                >
+                    <div className="h-full rounded-full bg-blue-600 motion-safe:transition-[width] motion-safe:duration-300" style={{ width: `${progress}%` }} />
+                </div>
+            </div>
+
+            {showBreak ? (
+                <SectionBreak
+                    dimension={section.dimension}
+                    sectionNumber={sectionNumber}
+                    sectionCount={sectionStarts.length}
+                    questionCount={section.total}
+                    onContinue={() => setDismissedBreaks((prev) => new Set(prev).add(index))}
+                />
+            ) : (
+                <section className="academy-card p-6 sm:p-8 border border-slate-100 dark:border-slate-800 space-y-6">
+                    <QuestionCard
+                        key={current.id}
+                        question={current}
+                        selectedOptionId={answers[current.id]}
+                        disabled={submitMutation.isPending}
+                        onPick={handlePick}
+                    />
+                    <div className="flex items-center justify-between gap-3 pt-1">
+                        <button
+                            type="button"
+                            onClick={goBack}
+                            disabled={index === 0 || submitMutation.isPending}
+                            className="inline-flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-blue-600 disabled:opacity-40"
+                        >
+                            <ArrowLeft size={16} /> Oldingi savol
+                        </button>
+                        {answers[current.id] && index < questions.length - 1 ? (
+                            <button
+                                type="button"
+                                onClick={() => setIndex(index + 1)}
+                                className="text-sm font-bold text-blue-600 hover:text-blue-500"
+                            >
+                                Keyingisi
+                            </button>
+                        ) : null}
                     </div>
-                    <h3 className="font-fredoka text-xl font-bold text-slate-900 dark:text-white">
-                        Test hozircha tayyorlanmoqda
-                    </h3>
-                    <p className="text-xs text-slate-500 max-w-md mx-auto">
-                        Savollar bazasi yangilanmoqda. Tez orada qiziqish testi ishga tushadi.
+                </section>
+            )}
+
+            {submitMutation.isPending ? (
+                <p className="text-center text-sm font-bold text-slate-500">Natijang hisoblanmoqda...</p>
+            ) : null}
+            {submitMutation.isError ? (
+                <div className="rounded-2xl bg-red-50 dark:bg-red-500/10 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <p className="flex-1 text-sm text-red-700 dark:text-red-300">
+                        Natijani yuborib bo'lmadi: {submitMutation.error.message}. Javoblaring saqlangan.
                     </p>
                     <button
                         type="button"
-                        onClick={() => navigate("/kasblar")}
-                        className="px-6 py-2.5 rounded-xl bg-blue-600 text-white font-black text-xs"
+                        onClick={() => void submit(answers).catch(() => undefined)}
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-red-600 px-4 py-2 text-sm font-black text-white"
                     >
-                        Kasblarni ko‘rish
+                        <RefreshCw size={14} /> Qayta yuborish
                     </button>
                 </div>
-            ) : result ? (
-                /* Results View */
-                <div className="space-y-6">
-                    <div className="academy-card p-6 sm:p-8 space-y-6 border border-slate-100 dark:border-slate-800 text-center">
-                        <div className="w-16 h-16 rounded-3xl bg-amber-100 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center mx-auto shadow-sm">
-                            <Award size={32} />
-                        </div>
-                        <div className="space-y-2">
-                            <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
-                                ✓ Test muvaffaqiyatli topshirildi
-                            </span>
-                            <h1 className="font-fredoka text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
-                                Shaxsiy Qobiliyat Natijalaringiz
-                            </h1>
-                            <p className="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto">
-                                Holland (RIASEC) metodikasi tahliliga ko‘ra, sizda quyidagi yo‘nalishlar bo‘yicha eng yuqori moyillik aniqlandi:
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="space-y-3">
-                        {(result.fieldScores ?? []).slice(0, 3).map((field, index) => {
-                            const isTop = index === 0;
-
-                            return (
-                                <div
-                                    key={field.fieldKey}
-                                    className={`academy-card p-5 sm:p-6 space-y-3 border transition-all ${
-                                        isTop
-                                            ? "border-blue-300 dark:border-blue-800 shadow-md bg-blue-50/30 dark:bg-blue-950/20"
-                                            : "border-slate-100 dark:border-slate-800"
-                                    }`}
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black ${
-                                                isTop ? "bg-blue-600 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
-                                            }`}>
-                                                #{index + 1}
-                                            </div>
-                                            <div>
-                                                <h4 className="font-fredoka text-lg font-bold text-slate-900 dark:text-white">
-                                                    {field.fieldLabel}
-                                                </h4>
-                                                {isTop ? (
-                                                    <span className="text-[10px] font-black uppercase text-blue-600 tracking-wider">
-                                                        Eng mos yo‘nalish
-                                                    </span>
-                                                ) : null}
-                                            </div>
-                                        </div>
-
-                                        <div className="text-right">
-                                            <b className="font-fredoka text-xl font-bold text-blue-600">
-                                                {field.score}%
-                                            </b>
-                                            <span className="text-[10px] text-slate-400 font-bold block">moslik</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Progress Bar */}
-                                    <div className="h-2.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-                                        <div
-                                            className={`h-full rounded-full transition-all duration-700 ${
-                                                isTop ? "bg-blue-600" : "bg-indigo-500"
-                                            }`}
-                                            style={{ width: `${Math.min(100, field.score)}%` }}
-                                        />
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                        <button
-                            type="button"
-                            onClick={() => navigate("/kasblar")}
-                            className="flex-1 py-3.5 px-6 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-sm transition-all shadow-lg shadow-blue-500/25 active:scale-98 flex items-center justify-center gap-2"
-                        >
-                            <span>Mos kasblarni ko‘rish</span>
-                            <ArrowRight size={16} />
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setResult(null);
-                                setAnswers({});
-                                setCurrentIndex(0);
-                            }}
-                            className="py-3.5 px-6 rounded-2xl border border-slate-200 dark:border-slate-700 font-extrabold text-xs text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-1.5"
-                        >
-                            <RotateCcw size={14} />
-                            <span>Testni qaytadan topshirish</span>
-                        </button>
-                    </div>
-                </div>
-            ) : (
-                /* Question Stepper View */
-                <div className="space-y-6">
-                    {/* Progress Header */}
-                    <div className="academy-card p-5 space-y-3 border border-slate-100 dark:border-slate-800">
-                        <div className="flex items-center justify-between text-xs font-bold text-slate-500">
-                            <span className="flex items-center gap-1 text-blue-600 font-extrabold">
-                                <Sparkles size={14} />
-                                <span>Savol {currentIndex + 1} / {questions.length}</span>
-                            </span>
-                            <span>{progress}% bajarildi</span>
-                        </div>
-
-                        <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-                            <div
-                                className="h-full rounded-full bg-blue-600 transition-all duration-300"
-                                style={{ width: `${progress}%` }}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Question Statement */}
-                    <div className="academy-card p-6 sm:p-8 space-y-4 border border-slate-100 dark:border-slate-800">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                            Quyidagi holat sizga qanchalik yoqadi?
-                        </span>
-                        <h2 className="font-fredoka text-xl sm:text-2xl font-bold text-slate-900 dark:text-white leading-snug">
-                            {current.text}
-                        </h2>
-                    </div>
-
-                    {/* Option Choices */}
-                    <div className="space-y-3">
-                        {current.options.map((option) => (
-                            <button
-                                key={option.id}
-                                type="button"
-                                disabled={submitMutation.isPending}
-                                onClick={() => void handlePick(option.id)}
-                                className="academy-card !p-4 sm:!p-5 w-full flex items-center justify-between text-left group hover:border-blue-500 hover:shadow-lg transition-all duration-200 border border-slate-100 dark:border-slate-800 active:scale-99"
-                            >
-                                <div className="flex items-center gap-3.5">
-                                    {option.emoji ? (
-                                        <span className="text-2xl p-2 rounded-xl bg-slate-50 dark:bg-slate-800 shrink-0">
-                                            {option.emoji}
-                                        </span>
-                                    ) : null}
-                                    <span className="font-bold text-sm sm:text-base text-slate-800 dark:text-slate-100 group-hover:text-blue-600 transition-colors">
-                                        {option.text}
-                                    </span>
-                                </div>
-                                <div className="w-6 h-6 rounded-full border-2 border-slate-200 dark:border-slate-700 group-hover:border-blue-600 group-hover:bg-blue-600 flex items-center justify-center shrink-0 transition-colors">
-                                    <CheckCircle2 size={14} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                                </div>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            )}
+            ) : null}
         </div>
     );
 }

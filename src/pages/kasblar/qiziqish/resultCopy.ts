@@ -1,0 +1,86 @@
+export type RiasecKey = "R" | "I" | "A" | "S" | "E" | "C";
+
+/** Har olamning rangi uning loy rasmiga mos — natijada bir xil rang orqali taniladi. */
+export const RIASEC_COPY: Record<RiasecKey, { title: string; color: string; image: string; blurb: string }> = {
+    R: {
+        title: "Usta olami",
+        color: "#16A34A",
+        image: "/quiz/r.webp",
+        blurb: "Qo'ling bilan yasash, tuzatish, harakat qilish senga zavq beradi. Natijasi ko'rinadigan ishlar — sening kuching.",
+    },
+    I: {
+        title: "Kashfiyotchi olami",
+        color: "#4F46E5",
+        image: "/quiz/i.webp",
+        blurb: "\"Nega?\" va \"Qanday ishlaydi?\" degan savollar seni o'ziga tortadi. Tajriba, kuzatish va mantiq — sening yo'ling.",
+    },
+    A: {
+        title: "Ijodkor olami",
+        color: "#DB2777",
+        image: "/quiz/a.webp",
+        blurb: "Chizish, musiqa, hikoya, yangi g'oya — sen dunyoni o'zingcha ko'rsata olasan. Erkin ijod seni ilhomlantiradi.",
+    },
+    S: {
+        title: "Yordamchi olami",
+        color: "#EA580C",
+        image: "/quiz/s.webp",
+        blurb: "Odamlarga yordam berish, o'rgatish, qo'llab-quvvatlash senga yoqadi. Atrofingdagilar sen bilan o'zini yaxshi his qiladi.",
+    },
+    E: {
+        title: "Yetakchi olami",
+        color: "#D97706",
+        image: "/quiz/e.webp",
+        blurb: "Jamoani boshqarish, g'oyani himoya qilish, maqsadga erishish seni ruhlantiradi. Sen tashabbus ko'rsatishni yaxshi ko'rasan.",
+    },
+    C: {
+        title: "Tartib olami",
+        color: "#0D9488",
+        image: "/quiz/c.webp",
+        blurb: "Reja, tartib va aniqlik senga yoqadi. Ishni bosqichma-bosqich, puxta bajarish — sening ustunliging.",
+    },
+};
+
+export function riasecCopy(key: string) {
+    return RIASEC_COPY[key as RiasecKey] ?? null;
+}
+
+/** Profil kaliti bo'yicha bir gaplik amaliy maslahat. */
+export const PROFILE_TIPS: Record<string, string> = {
+    "strength.logic": "Mantiqiy o'yinlar, shaxmat va masalalar bu kuchni yanada o'stiradi.",
+    "strength.creativity": "G'oyalaringni daftarga yozib bor — keyin ulardan loyiha chiqadi.",
+    "strength.communication": "To'garakda yoki sinfda kichik taqdimot qilib ko'r.",
+    "strength.teamwork": "Jamoaviy loyihalarda rol olishdan qo'rqma — bu sening maydoning.",
+    "strength.independence": "O'zing boshlab, o'zing tugatadigan kichik loyiha tanla.",
+    "strength.focus": "Uzoq vazifani bo'laklarga bo'l — diqqating senga yordam beradi.",
+    "learn.visual": "Sxema, rasm va videolar bilan o'rgan; konspektga rang qo'sh.",
+    "learn.auditory": "Mavzuni ovoz chiqarib tushuntirib ko'r yoki audio darslarni tingla.",
+    "learn.kinesthetic": "Qilib ko'rib o'rgan: tajriba, modellar, amaliy topshiriqlar.",
+    "learn.reading": "Kitob va maqolalardan o'qib, qisqa xulosa yozib bor.",
+    "learn.solo": "Tinch joyda yakka o'qish senga ko'proq natija beradi.",
+    "learn.group": "Do'stlar bilan birga o'qish va muhokama qilish senga mos.",
+    "value.help": "Odamlarga foyda keltiradigan kasblar senga ma'no beradi.",
+    "value.creativity": "Har kuni yangi narsa yaratiladigan ish seni zeriktirmaydi.",
+    "value.money": "Mehnatingning natijasini aniq ko'rish sen uchun muhim.",
+    "value.independence": "O'z qarorlaringni o'zing qabul qila oladigan ish senga yoqadi.",
+    "value.recognition": "Mehnating ko'rinib, qadrlanadigan joyda sen gullaysan.",
+    "value.stability": "Aniq, ishonchli va barqaror ish sen uchun qadrli.",
+};
+
+const MOOD_PHRASES: Record<string, [string, string, string]> = {
+    "mood.energy": ["Hozir biroz charchagandeksan", "Energiyang yetarli", "Energiyang a'lo"],
+    "mood.confidence": ["O'zingga ishonchni biroz qo'llab-quvvatlash kerak", "O'zingga ishonching yaxshi", "O'zingga ishonching kuchli"],
+    "mood.calm": ["Oxirgi kunlar biroz tashvishli o'tgan ko'rinadi", "Ko'nglingda xotirjamlik bor", "Ko'ngling juda xotirjam"],
+    "mood.social": ["Do'stlar bilan ko'proq vaqt o'tkazish yoqishi mumkin", "Do'stlaring bilan aloqang yaxshi", "Do'stlaring bilan aloqang ajoyib"],
+};
+
+export function moodPhrase(key: string, score: number) {
+    const phrases = MOOD_PHRASES[key];
+    if (!phrases) return "";
+    return phrases[score >= 70 ? 2 : score >= 40 ? 1 : 0];
+}
+
+export const TIER_INFO: Record<number, { title: string; minutes: number; note: string }> = {
+    50: { title: "Tezkor", minutes: 10, note: "Umumiy yo'nalishni ko'rsatadi." },
+    100: { title: "Standart", minutes: 20, note: "Kasb olamlari va kuchli tomonlaringni aniqroq ko'rsatadi." },
+    200: { title: "To'liq", minutes: 40, note: "Eng batafsil profil: barcha o'lchamlar chuqur o'rganiladi." },
+};
