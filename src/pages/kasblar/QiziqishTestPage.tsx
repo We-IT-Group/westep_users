@@ -74,14 +74,15 @@ export default function QiziqishTestPage() {
             if (!tier) return;
             const submitted = await submitMutation.mutateAsync({
                 answers: Object.entries(finalAnswers).map(([questionId, optionId]) => ({ questionId, optionId })),
-                tier,
+                // server so'ralgan darajani pasaytirgan bo'lishi mumkin (masalan KIDS uchun 50)
+                tier: quizQuery.data?.tier ?? tier,
             });
             clearProgress(userKey);
             setResult(submitted);
             setPhase("result");
             window.scrollTo({ top: 0 });
         },
-        [submitMutation, tier, userKey],
+        [quizQuery.data?.tier, submitMutation, tier, userKey],
     );
 
     const handlePick = useCallback(

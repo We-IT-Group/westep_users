@@ -68,7 +68,9 @@ export function ResultView({ result, onRetake, onUpgrade, maxTier }: Props) {
     const profile = result.profile;
     const recs = (recQuery.data?.recommendations ?? []).slice(0, 3);
     const tier = result.tier ?? null;
-    const nextTier = tier && tier < maxTier ? (tier === 50 ? 100 : 200) : null;
+    // daraja yo'q natijalar (v1 testi, mobil ilova) 50 talik deb hisoblanadi
+    const shownTier = tier ?? 50;
+    const nextTier = shownTier < maxTier ? (shownTier === 50 ? 100 : 200) : null;
 
     const strengths = profile?.strengths ?? [];
     const growth = strengths.length > 3 ? strengths[strengths.length - 1] : null;
@@ -249,7 +251,7 @@ export function ResultView({ result, onRetake, onUpgrade, maxTier }: Props) {
                 <Sparkles className="text-blue-600 shrink-0" />
                 <p className="flex-1 text-sm text-slate-700 dark:text-slate-200">
                     {nextTier
-                        ? `${TIER_INFO[tier ?? 50]?.note ?? ""} Aniqroq natija uchun ${TIER_INFO[nextTier].title.toLowerCase()} testni sinab ko'r.`
+                        ? `${TIER_INFO[shownTier]?.note ?? ""} Aniqroq natija uchun ${TIER_INFO[nextTier].title.toLowerCase()} testni sinab ko'r.`
                         : "Natijang eng batafsil test asosida. Bir necha oydan keyin qayta topshirib, o'zgarishni ko'rishing mumkin."}
                 </p>
                 <div className="flex gap-2">

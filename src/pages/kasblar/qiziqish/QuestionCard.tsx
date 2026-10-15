@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import clsx from "clsx";
 import type { QuizOptionDto, QuizQuestionDto } from "../../../api/professions/types.ts";
 import { ShapeColorArt } from "./ShapeColorArt.tsx";
@@ -101,6 +101,10 @@ interface OptionProps {
 export function QuestionCard({ question, selectedOptionId, disabled, onPick }: Props) {
     const type = question.type ?? "CHOICE";
     const options = question.options;
+    const titleId = useId();
+    const titleRef = useRef<HTMLHeadingElement>(null);
+    // Har savol yangi mount bo'ladi: fokusni savol matniga o'tkazamiz — klaviatura va ekran o'quvchisi uchun
+    useEffect(() => titleRef.current?.focus({ preventScroll: true }), []);
     const grid =
         type === "LIKERT"
             ? "grid grid-cols-2 sm:grid-cols-4 gap-3"
@@ -112,10 +116,15 @@ export function QuestionCard({ question, selectedOptionId, disabled, onPick }: P
 
     return (
         <div className="space-y-5">
-            <h2 className="font-fredoka text-2xl sm:text-[28px] font-semibold leading-tight text-slate-900 dark:text-white">
+            <h2
+                ref={titleRef}
+                id={titleId}
+                tabIndex={-1}
+                className="font-fredoka text-2xl sm:text-[28px] font-semibold leading-tight text-slate-900 dark:text-white focus:outline-none"
+            >
                 {question.text}
             </h2>
-            <div className={grid} role="group" aria-label="Javob variantlari">
+            <div className={grid} role="group" aria-labelledby={titleId}>
                 {options.map((option, i) => {
                     const props: OptionProps = {
                         option,
