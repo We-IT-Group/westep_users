@@ -94,7 +94,7 @@ function UpdateProfileUser({user, setEdit}: Props) {
 
                 <div className="mt-3 flex gap-6 justify-end">
                     <Button
-                        className={'flex items-center justify-center gap-2 bg-blue-600 text-md text-white w-full p-[8px] rounded-full'}
+                        className={'flex items-center justify-center gap-2 bg-primary-500 text-md font-extrabold text-white w-full p-[10px] rounded-2xl'}
                         type="submit"
                         variant="primary"
                         isPending={isPending}

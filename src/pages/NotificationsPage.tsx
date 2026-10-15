@@ -33,48 +33,32 @@ const formatDateTime = (value: string) => {
 const getNotificationVisual = (type: NotificationType) => {
   switch (type) {
     case "TEACHER_REPLIED":
-      return {
-        icon: <MessageCircle className="h-5 w-5" />,
-        iconWrap: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
-      };
+      return { icon: <MessageCircle className="h-5 w-5" />, iconWrap: "bg-primary-50 text-primary-500" };
     case "HOMEWORK_GRADED":
-      return {
-        icon: <CheckCircle2 className="h-5 w-5" />,
-        iconWrap: "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400",
-      };
+      return { icon: <CheckCircle2 className="h-5 w-5" />, iconWrap: "bg-emerald-50 text-emerald-600" };
     case "HOMEWORK_REVISION_REQUESTED":
-      return {
-        icon: <RotateCcw className="h-5 w-5" />,
-        iconWrap: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
-      };
+      return { icon: <RotateCcw className="h-5 w-5" />, iconWrap: "bg-amber-50 text-amber-600" };
     case "MODULE_COMPLETED":
     case "CERTIFICATE_GENERATED":
-      return {
-        icon: <Trophy className="h-5 w-5" />,
-        iconWrap: "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400",
-      };
+      return { icon: <Trophy className="h-5 w-5" />, iconWrap: "bg-amber-50 text-amber-600" };
     case "COURSE_PURCHASED":
-      return {
-        icon: <ShoppingCart className="h-5 w-5" />,
-        iconWrap: "bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400",
-      };
+      return { icon: <ShoppingCart className="h-5 w-5" />, iconWrap: "bg-teal-50 text-teal-600" };
     case "ADMIN_BROADCAST":
-      return {
-        icon: <Megaphone className="h-5 w-5" />,
-        iconWrap: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
-      };
+      return { icon: <Megaphone className="h-5 w-5" />, iconWrap: "bg-rose-50 text-rose-500" };
     case "NEW_LESSON_UNLOCKED":
-      return {
-        icon: <BookOpen className="h-5 w-5" />,
-        iconWrap: "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400",
-      };
+      return { icon: <BookOpen className="h-5 w-5" />, iconWrap: "bg-primary-50 text-primary-500" };
     default:
-      return {
-        icon: <Bell className="h-5 w-5" />,
-        iconWrap: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400",
-      };
+      return { icon: <Bell className="h-5 w-5" />, iconWrap: "bg-[#e8eefb] text-[color:var(--hint)]" };
   }
 };
+
+const tabClass = (active: boolean) =>
+  `rounded-xl px-4 py-2 text-sm font-extrabold transition-colors ${
+    active ? "bg-white text-primary-500 shadow-[0_8px_18px_rgba(12,36,97,0.1)]" : "text-[color:var(--hint)] hover:text-[color:var(--ink)]"
+  }`;
+
+const roleChip =
+  "inline-flex rounded-full bg-primary-50 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wide text-primary-500";
 
 export default function NotificationsPage() {
   const navigate = useNavigate();
@@ -124,67 +108,71 @@ export default function NotificationsPage() {
   const selectedLink = selectedNotification ? buildNotificationLink(selectedNotification) : null;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] px-4 pb-8 pt-6 dark:bg-slate-950 sm:px-6 sm:pt-8">
-      <div className="mx-auto grid max-w-[1500px] grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
-        <section className="min-h-[70vh] rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+    <div className="academy-stats academy-dash">
+      <div className="academy-dash-head">
+        <div className="academy-stats-head">
+          <h2>Bildirishnomalar</h2>
+          <p>Ustoz javoblari, baholar va yangi darslar</p>
+        </div>
+        <div className="flex w-max max-w-full items-center gap-1 rounded-2xl bg-[#e8eefb] p-1">
+          <button type="button" onClick={() => setActiveTab("all")} className={tabClass(activeTab === "all")}>
+            Barchasi
+          </button>
+          <button type="button" onClick={() => setActiveTab("unread")} className={tabClass(activeTab === "unread")}>
+            O'qilmaganlar
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_380px]">
+        <section className="academy-card !p-6 sm:!p-8 min-h-[320px] lg:min-h-[420px]">
           {isError ? (
-            <div className="flex h-full min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-              <AlertCircle className="h-12 w-12 text-red-300 dark:text-red-500/70" />
-              <div className="space-y-2">
-                <h2 className="text-2xl font-black text-slate-900 dark:text-white">Bildirishnomalarni yuklab bo'lmadi</h2>
-                <p className="text-sm font-semibold text-slate-400">Sahifani yangilab qayta urinib ko'ring.</p>
-              </div>
+            <div className="flex min-h-[280px] flex-col items-center justify-center gap-3 text-center">
+              <AlertCircle className="h-12 w-12 text-rose-300" />
+              <h3 className="font-fredoka text-xl font-semibold">Bildirishnomalarni yuklab bo'lmadi</h3>
+              <p className="academy-quiet">Sahifani yangilab qayta urinib ko'ring.</p>
             </div>
           ) : !selectedNotification ? (
-            <div className="flex h-full min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-              <Bell className="h-12 w-12 text-slate-200 dark:text-slate-700" />
-              <div className="space-y-2">
-                <h2 className="text-2xl font-black text-slate-900 dark:text-white">Bildirishnoma tanlanmagan</h2>
-                <p className="text-sm font-semibold text-slate-400">O'ng tomondagi ro'yxatdan xabar tanlang.</p>
-              </div>
+            <div className="flex min-h-[280px] flex-col items-center justify-center gap-3 text-center">
+              <Bell className="h-12 w-12 text-primary-200" />
+              <h3 className="font-fredoka text-xl font-semibold">Bildirishnoma tanlanmagan</h3>
+              <p className="academy-quiet">Ro'yxatdan xabar tanlang.</p>
             </div>
           ) : (
             <>
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-4">
-                  <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full ${getNotificationVisual(selectedNotification.type).iconWrap}`}>
+                  <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${getNotificationVisual(selectedNotification.type).iconWrap}`}>
                     {getNotificationVisual(selectedNotification.type).icon}
                   </div>
-                  <div className="space-y-1">
-                    <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-                      {selectedHeadline}
-                    </h1>
+                  <div className="space-y-1.5">
+                    <h1 className="font-fredoka text-2xl font-semibold leading-tight sm:text-3xl">{selectedHeadline}</h1>
                     {isDiscussionReplyNotification(selectedNotification) && selectedRoleLabel ? (
-                      <div className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
-                        {selectedRoleLabel}
-                      </div>
+                      <div className={roleChip}>{selectedRoleLabel}</div>
                     ) : null}
-                    <p className="text-sm font-semibold text-slate-400">
-                      {formatDateTime(selectedNotification.createdAt)}
-                    </p>
+                    <p className="academy-quiet text-sm">{formatDateTime(selectedNotification.createdAt)}</p>
                   </div>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => navigate("/notifications")}
-                  className="flex h-11 w-11 items-center justify-center rounded-2xl text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+                  aria-label="Yopish"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-[color:var(--hint)] transition-colors hover:bg-[#e8eefb] hover:text-[color:var(--ink)]"
                 >
-                  <X className="h-6 w-6" />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
 
-              <div className="mt-8 space-y-6">
-                <p className="max-w-4xl text-[28px] font-semibold leading-relaxed text-slate-600 dark:text-slate-300">
-                  {selectedMessage}
-                </p>
+              <div className="mt-6 space-y-6">
+                <p className="max-w-3xl text-lg font-semibold leading-relaxed">{selectedMessage}</p>
 
-                <div className="flex flex-wrap gap-3 pt-4">
+                <div className="flex flex-wrap gap-3">
                   {!selectedNotification.isRead && (
                     <button
                       type="button"
                       onClick={() => markAsRead(selectedNotification.id)}
-                      className="rounded-2xl border border-blue-200 bg-blue-50 px-5 py-3 text-sm font-black text-blue-600 transition-colors hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
+                      className="rounded-2xl bg-[#e8eefb] px-5 py-3 text-sm font-extrabold text-primary-500 transition-colors hover:bg-[#d7e3fb]"
                     >
                       O'qildi deb belgilash
                     </button>
@@ -198,7 +186,7 @@ export default function NotificationsPage() {
                       }
                     }}
                     disabled={!selectedLink}
-                    className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-black text-white transition-colors hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-500"
+                    className="academy-cta academy-cta-brand academy-cta-compact"
                   >
                     Bog'liq sahifaga o'tish
                   </button>
@@ -208,59 +196,39 @@ export default function NotificationsPage() {
           )}
         </section>
 
-        <section className="overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-5 dark:border-slate-800 sm:px-6">
-            <div className="flex items-center gap-5">
-              <button
-                type="button"
-                onClick={() => setActiveTab("all")}
-                className={`text-base font-black transition-colors ${activeTab === "all" ? "text-blue-600" : "text-slate-400 hover:text-slate-700 dark:text-slate-500 dark:hover:text-slate-300"}`}
-              >
-                Barchasi
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("unread")}
-                className={`text-base font-black transition-colors ${activeTab === "unread" ? "text-blue-600" : "text-slate-400 hover:text-slate-700 dark:text-slate-500 dark:hover:text-slate-300"}`}
-              >
-                O'qilmaganlar
-              </button>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => markAllRead()}
-                disabled={isMarkingAll || notifications.every((item) => item.isRead)}
-                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 text-slate-400 transition-colors hover:bg-slate-50 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:hover:bg-slate-800"
-              >
-                {isMarkingAll ? <Loader2 className="h-5 w-5 animate-spin" /> : <CheckCheck className="h-5 w-5" />}
-              </button>
-            </div>
-          </div>
-
-          <div className="border-b border-slate-100 p-5 dark:border-slate-800 sm:p-6">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-300" />
+        <section className="academy-card overflow-hidden !p-0">
+          <div className="flex items-center gap-3 border-b border-[#e8eefb] p-4">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--hint)]" />
               <input
                 type="text"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Bildirishnomani qidirish"
-                className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-12 pr-4 text-sm font-semibold text-slate-700 outline-none transition-all placeholder:text-slate-400 focus:border-blue-300 focus:bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="h-11 w-full rounded-2xl border border-[#d7e3fb] bg-[#f4f8ff] pl-10 pr-4 text-sm font-bold outline-none transition-all placeholder:text-[color:var(--hint)] focus:border-primary-500 focus:bg-white"
               />
             </div>
+            <button
+              type="button"
+              onClick={() => markAllRead()}
+              disabled={isMarkingAll || notifications.every((item) => item.isRead)}
+              aria-label="Hammasini o'qilgan deb belgilash"
+              title="Hammasini o'qilgan deb belgilash"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#e8eefb] text-primary-500 transition-colors hover:bg-[#d7e3fb] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isMarkingAll ? <Loader2 className="h-5 w-5 animate-spin" /> : <CheckCheck className="h-5 w-5" />}
+            </button>
           </div>
 
-          <div className="max-h-[calc(100vh-220px)] overflow-y-auto">
+          <div className="max-h-[calc(100dvh-300px)] min-h-[200px] overflow-y-auto">
             {isPending ? (
               <div className="flex items-center justify-center py-20">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
               </div>
             ) : filteredNotifications.length === 0 ? (
-              <div className="flex flex-col items-center justify-center gap-3 px-6 py-20 text-center">
-                <Bell className="h-10 w-10 text-slate-200 dark:text-slate-700" />
-                <p className="text-sm font-bold text-slate-400">Bildirishnomalar topilmadi</p>
+              <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
+                <Bell className="h-10 w-10 text-primary-200" />
+                <p className="academy-quiet">Bildirishnomalar topilmadi</p>
               </div>
             ) : (
               filteredNotifications.map((notification) => {
@@ -274,36 +242,27 @@ export default function NotificationsPage() {
                   <Link
                     key={notification.id}
                     to={`/notifications/${notification.id}`}
-                    className={`flex items-start gap-4 border-b border-slate-100 px-5 py-5 transition-colors dark:border-slate-800 sm:px-6 ${
-                      isActive
-                        ? "bg-blue-50/60 dark:bg-blue-900/10"
-                        : "hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                    className={`flex items-start gap-3 border-b border-[#eef3fd] px-4 py-4 transition-colors last:border-b-0 ${
+                      isActive ? "bg-[#f0f6ff]" : "hover:bg-[#f7faff]"
                     }`}
                   >
-                    <div className="pt-2">
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-full ${visual.iconWrap}`}>
-                        {visual.icon}
-                      </div>
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${visual.iconWrap}`}>
+                      {visual.icon}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <h3 className="line-clamp-1 text-lg font-black text-slate-900 dark:text-white">
-                            {headline}
-                          </h3>
-                          {isDiscussionReplyNotification(notification) && roleLabel ? (
-                            <div className="mt-1 inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
-                              {roleLabel}
-                            </div>
-                          ) : null}
-                        </div>
-                        <span className="shrink-0 text-sm font-semibold text-slate-400">
+                        <h3 className={`line-clamp-1 text-base ${notification.isRead ? "font-bold" : "font-extrabold"}`}>
+                          {headline}
+                        </h3>
+                        <span className="flex shrink-0 items-center gap-2 text-xs font-bold text-[color:var(--hint)]">
                           {formatDateTime(notification.createdAt).split(", ")[1] || ""}
+                          {!notification.isRead ? <span className="h-2.5 w-2.5 rounded-full bg-primary-500" /> : null}
                         </span>
                       </div>
-                      <p className="line-clamp-2 text-sm font-semibold text-slate-500 dark:text-slate-400">
-                        {message}
-                      </p>
+                      {isDiscussionReplyNotification(notification) && roleLabel ? (
+                        <div className={`${roleChip} mt-1 !px-2.5 !py-0.5 !text-[10px]`}>{roleLabel}</div>
+                      ) : null}
+                      <p className="line-clamp-2 text-sm font-semibold text-[color:var(--hint)]">{message}</p>
                     </div>
                   </Link>
                 );

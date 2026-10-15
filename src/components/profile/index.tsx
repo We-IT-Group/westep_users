@@ -88,6 +88,10 @@ function formatLearningTime(stats?: LearningStatsResponse, fallbackMinutes = 0) 
     return `${minutes} daqiqa`;
 }
 
+const secondaryBtn =
+    "inline-flex items-center justify-center gap-2 rounded-2xl bg-[#e8eefb] px-4 py-2.5 text-sm font-extrabold !text-[color:var(--navy)] transition-colors hover:bg-[#d7e3fb]";
+const chipBase = "inline-flex items-center rounded-full px-3 py-1 text-xs font-extrabold";
+
 export function Profile() {
     const navigate = useNavigate();
     const { data: user, isPending: loading } = useUser();
@@ -227,383 +231,295 @@ export function Profile() {
 
     if (loading) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC] dark:bg-slate-950">
-                <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
+            <div className="flex min-h-[60vh] items-center justify-center">
+                <Loader2 className="h-12 w-12 animate-spin text-primary-500" />
             </div>
         );
     }
 
+    const kpis = [
+        { icon: Clock, label: "O'qish vaqti", value: displayUser.totalLearningTime, tone: "" },
+        { icon: BookOpen, label: "Kurslar", value: displayUser.totalCourses, tone: "" },
+        { icon: Award, label: "Yakunlangan kurs", value: displayUser.completedCourses, tone: "ok" },
+        { icon: TrendingUp, label: "Faol kunlar (oy)", value: displayUser.currentStreak, tone: "sun" },
+    ];
+
     return (
-        <div className="min-h-screen bg-[#F8FAFC] px-1 py-6 transition-colors duration-300 dark:bg-slate-950 sm:px-4 sm:py-8 md:px-6 md:pt-12 md:pb-16">
-            <main className="mx-auto max-w-[1200px] space-y-10 sm:space-y-16">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="group relative overflow-hidden rounded-[28px] border border-slate-100 bg-white p-5 shadow-xl dark:border-slate-800 dark:bg-slate-900 sm:rounded-[40px] sm:p-8 lg:rounded-[48px] lg:p-12"
-                >
-                    <div className="absolute right-0 top-0 -mr-32 -mt-32 h-64 w-64 rounded-full bg-blue-600/5 transition-transform duration-1000 group-hover:scale-125" />
+        <div className="academy-stats academy-dash">
+            <div className="academy-dash-head">
+                <div className="academy-stats-head">
+                    <h2>Profil</h2>
+                    <p>Ma'lumotlar, kurslar va qurilmalar</p>
+                </div>
+            </div>
 
-                    <div className="relative z-10 flex flex-col items-center gap-8 md:flex-row md:items-start sm:gap-10 lg:gap-12">
-                        <div className="group/avatar relative">
-                            {avatarPreview ? (
-                                <img
-                                    src={avatarPreview}
-                                    alt={displayUser.name}
-                                    className="h-32 w-32 rounded-[32px] object-cover shadow-2xl ring-4 ring-slate-50 transition-transform duration-500 group-hover/avatar:scale-105 dark:ring-slate-800 sm:h-44 sm:w-44 sm:rounded-[48px]"
-                                />
-                            ) : (
-                                <div className="flex h-32 w-32 items-center justify-center rounded-[32px] bg-slate-100 text-slate-400 ring-4 ring-slate-50 dark:bg-slate-800 dark:text-slate-500 dark:ring-slate-800 sm:h-44 sm:w-44 sm:rounded-[48px]">
-                                    <GraduationCap className="h-14 w-14 sm:h-20 sm:w-20" />
-                                </div>
-                            )}
-                            <div className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-2xl border-4 border-white bg-blue-600 text-white shadow-xl dark:border-slate-900 sm:h-12 sm:w-12">
-                                <Award className="h-5 w-5 sm:h-6 sm:w-6" />
+            <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35 }}
+                className="academy-card !p-5 sm:!p-7"
+            >
+                <div className="flex flex-col items-center gap-6 md:flex-row md:items-start md:gap-8">
+                    <div className="relative shrink-0">
+                        {avatarPreview ? (
+                            <img
+                                src={avatarPreview}
+                                alt={displayUser.name}
+                                className="h-32 w-32 rounded-[28px] object-cover ring-4 ring-[#e8eefb] sm:h-40 sm:w-40"
+                            />
+                        ) : (
+                            <div className="flex h-32 w-32 items-center justify-center rounded-[28px] bg-[#e8eefb] text-primary-300 ring-4 ring-[#e8eefb] sm:h-40 sm:w-40">
+                                <GraduationCap className="h-14 w-14 sm:h-16 sm:w-16" />
                             </div>
-                            <label className="absolute -bottom-2 left-0 inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-slate-700 shadow-lg transition-all hover:border-blue-200 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-blue-800 dark:hover:text-blue-400">
-                                <Camera className="h-3.5 w-3.5" />
-                                {isAvatarUploading ? "Yuklanmoqda..." : "Rasm"}
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    className="hidden"
-                                    onChange={handleAvatarUpload}
-                                    disabled={isAvatarUploading}
-                                />
-                            </label>
-                        </div>
-
-                        <div className="w-full flex-1 space-y-6 text-center md:text-left sm:space-y-8">
-                            <div className="space-y-4">
-                                <div className="flex flex-col justify-center gap-2 md:flex-row md:items-center md:justify-start md:gap-4">
-                                    <h1 className="text-[28px] font-black uppercase italic tracking-tighter text-slate-900 dark:text-white sm:text-4xl lg:text-5xl">
-                                        {displayUser.name}
-                                    </h1>
-                                    <span className="mx-auto inline-block rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-blue-600 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-400 md:mx-0 sm:text-xs">
-                                        {displayUser.roleName}
-                                    </span>
-                                </div>
-
-                                <div className="flex flex-col items-center justify-center gap-3 text-sm font-semibold italic text-slate-500 md:items-start md:justify-start lg:flex-row lg:flex-wrap lg:items-center lg:gap-8">
-                                    <div className="flex items-center gap-2">
-                                        <Mail className="h-4 w-4 text-blue-600" />
-                                        <span>{displayUser.email}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Calendar className="h-4 w-4 text-blue-600" />
-                                        <span>Qo'shilgan sana: {displayUser.joinDate}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:gap-6">
-                                {[
-                                    {
-                                        icon: Clock,
-                                        label: "Vaqt",
-                                        value: displayUser.totalLearningTime,
-                                        color: "from-blue-500 to-blue-600",
-                                    },
-                                    {
-                                        icon: BookOpen,
-                                        label: "Kurslar",
-                                        value: displayUser.totalCourses,
-                                        color: "from-indigo-500 to-indigo-600",
-                                    },
-                                    {
-                                        icon: Award,
-                                        label: "Yutuqlar",
-                                        value: displayUser.completedCourses,
-                                        color: "from-emerald-500 to-emerald-600",
-                                    },
-                                    {
-                                        icon: TrendingUp,
-                                        label: "Streak",
-                                        value: displayUser.currentStreak,
-                                        color: "from-orange-500 to-orange-600",
-                                    },
-                                ].map((stat, index) => (
-                                    <div
-                                        key={index}
-                                        className={`group/stat relative overflow-hidden rounded-[24px] bg-gradient-to-br ${stat.color} p-4 text-white shadow-lg sm:rounded-[32px] sm:p-6`}
-                                    >
-                                        <div className="absolute right-0 top-0 h-16 w-16 translate-x-1/2 -translate-y-1/2 rounded-full bg-white/10 transition-transform group-hover/stat:scale-150" />
-                                        <stat.icon className="mb-3 h-5 w-5 opacity-80 sm:h-6 sm:w-6" />
-                                        <div className="text-xl font-black italic tracking-tighter sm:text-3xl">
-                                            {stat.value}
-                                        </div>
-                                        <div className="mt-1 text-[9px] font-black uppercase tracking-widest opacity-80 sm:text-[10px]">
-                                            {stat.label}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-3 min-[520px]:grid-cols-2 xl:flex xl:flex-wrap xl:justify-start xl:gap-4">
-                                <Link
-                                    to="/statistics"
-                                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-6 py-3 text-xs font-extrabold uppercase tracking-[0.2em] text-white transition-all hover:bg-blue-500 xl:w-auto"
-                                >
-                                    <BarChart3 className="h-4 w-4" />
-                                    Statistika
-                                </Link>
-                                <Link
-                                    to="/rewards"
-                                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-3 text-xs font-extrabold uppercase tracking-[0.2em] text-slate-800 transition-all hover:border-blue-200 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 xl:w-auto"
-                                >
-                                    Mukofotlar
-                                </Link>
-                                <Link
-                                    to="/leaderboard"
-                                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-3 text-xs font-extrabold uppercase tracking-[0.2em] text-slate-800 transition-all hover:border-blue-200 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 xl:w-auto"
-                                >
-                                    Reyting
-                                </Link>
-                                <Link
-                                    to="/shop"
-                                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-3 text-xs font-extrabold uppercase tracking-[0.2em] text-slate-800 transition-all hover:border-blue-200 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 xl:w-auto"
-                                >
-                                    Sovg‘alar
-                                </Link>
-                                <button
-                                    onClick={() => setEdit((prev) => !prev)}
-                                    className="w-full rounded-2xl bg-slate-900 px-6 py-3 text-xs font-extrabold uppercase tracking-[0.2em] text-white transition-all hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-500 xl:w-auto"
-                                    type="button"
-                                >
-                                    {edit ? "Bekor qilish" : "Profilni tahrirlash"}
-                                </button>
-                                <div className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-6 py-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 xl:w-auto xl:text-left">
-                                    {completedLessonsCount} ta jami dars
-                                </div>
-                                <button
-                                    onClick={() =>
-                                        logout(undefined, {
-                                            onSuccess: () => navigate("/login"),
-                                        })
-                                    }
-                                    disabled={isLogoutPending}
-                                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-6 py-3 text-xs font-extrabold uppercase tracking-[0.2em] text-red-600 transition-all hover:bg-red-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white xl:w-auto"
-                                    type="button"
-                                >
-                                    <LogOut className="h-4 w-4" />
-                                    {isLogoutPending ? "Chiqilmoqda..." : "Chiqish"}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </motion.div>
-
-                <AnimatePresence>
-                    {edit && user && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 16 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -16 }}
-                            className="rounded-[28px] border border-slate-100 bg-white p-5 shadow-xl dark:border-slate-800 dark:bg-slate-900 sm:rounded-[40px] sm:p-8 lg:p-10"
-                        >
-                            <UpdateProfileUser user={user} setEdit={setEdit} />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-                <section className="space-y-8 sm:space-y-10">
-                    <div className="flex flex-col gap-3 border-b border-slate-100 pb-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
-                        <h2 className="text-xl font-black uppercase italic tracking-tight text-slate-900 dark:text-white sm:text-2xl">
-                            Mening kurslarim
-                        </h2>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 sm:text-xs">
-                            {activeCourses} ta faol kurs
-                        </span>
+                        )}
+                        <label className="absolute -bottom-3 left-1/2 inline-flex -translate-x-1/2 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-xl bg-white px-3 py-1.5 text-xs font-extrabold text-primary-500 shadow-[0_8px_18px_rgba(12,36,97,0.15)] transition-colors hover:bg-primary-50">
+                            <Camera className="h-3.5 w-3.5 shrink-0" />
+                            {isAvatarUploading ? "Yuklanmoqda..." : "Rasm"}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleAvatarUpload}
+                                disabled={isAvatarUploading}
+                            />
+                        </label>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
-                        {profileCourses.map((course, index) => (
-                            <motion.div
-                                key={course.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.5, delay: index * 0.08 }}
+                    <div className="w-full min-w-0 flex-1 space-y-5 text-center md:text-left">
+                        <div className="space-y-3">
+                            <div className="flex flex-col items-center gap-2 md:flex-row md:gap-3">
+                                <h1 className="font-fredoka text-3xl font-semibold leading-tight sm:text-4xl">
+                                    {displayUser.name}
+                                </h1>
+                                <span className={`${chipBase} bg-primary-50 text-primary-500`}>{displayUser.roleName}</span>
+                            </div>
+
+                            <div className="flex flex-col items-center gap-2 text-sm font-bold text-[color:var(--hint)] md:flex-row md:flex-wrap md:gap-6">
+                                <div className="flex items-center gap-2">
+                                    <Mail className="h-4 w-4 text-primary-500" />
+                                    <span>{displayUser.email}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Calendar className="h-4 w-4 text-primary-500" />
+                                    <span>Qo'shilgan sana: {displayUser.joinDate}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                            {kpis.map((stat) => (
+                                <div key={stat.label} className={`academy-kpi !bg-[#f4f8ff] !shadow-none ${stat.tone}`}>
+                                    <stat.icon className="mb-1 h-4 w-4 text-[color:var(--hint)]" />
+                                    <b className="!text-xl sm:!text-2xl">{stat.value}</b>
+                                    <span>{stat.label}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="flex flex-wrap justify-center gap-2.5 md:justify-start">
+                            <button
+                                onClick={() => setEdit((prev) => !prev)}
+                                className="academy-cta academy-cta-brand academy-cta-compact"
+                                type="button"
                             >
-                                <Link
-                                    to={`/courses/${course.courseId}/${course.id}`}
-                                    className="block h-full"
-                                >
-                                    <div className="group flex h-full flex-col gap-6 rounded-[28px] border border-slate-100 bg-white p-4 shadow-sm transition-all hover:border-blue-500/30 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:rounded-[36px] sm:p-6">
-                                        <div className="relative h-32 w-full shrink-0 overflow-hidden rounded-[20px] sm:w-40 sm:rounded-[24px]">
-                                            {course.image ? (
-                                                <img
-                                                    src={course.image}
-                                                    alt={course.title}
-                                                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                                />
-                                            ) : (
-                                                <div className="h-full w-full bg-gradient-to-br from-blue-100 to-slate-100 dark:from-slate-800 dark:to-slate-900" />
-                                            )}
-                                            <div className="absolute inset-0 bg-blue-600/10 opacity-0 transition-opacity group-hover:opacity-100" />
+                                {edit ? "Bekor qilish" : "Profilni tahrirlash"}
+                            </button>
+                            <Link to="/statistics" className={secondaryBtn}>
+                                <BarChart3 className="h-4 w-4" />
+                                Statistika
+                            </Link>
+                            <Link to="/rewards" className={secondaryBtn}>
+                                Mukofotlar
+                            </Link>
+                            <Link to="/leaderboard" className={secondaryBtn}>
+                                Reyting
+                            </Link>
+                            <Link to="/shop" className={secondaryBtn}>
+                                Sovg‘alar
+                            </Link>
+                            <span className={`${chipBase} bg-[#f4f8ff] py-2.5 text-[color:var(--hint)]`}>
+                                {completedLessonsCount} ta jami dars
+                            </span>
+                            <button
+                                onClick={() =>
+                                    logout(undefined, {
+                                        onSuccess: () => navigate("/login"),
+                                    })
+                                }
+                                disabled={isLogoutPending}
+                                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-rose-50 px-4 py-2.5 text-sm font-extrabold text-rose-600 transition-colors hover:bg-rose-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                                type="button"
+                            >
+                                <LogOut className="h-4 w-4" />
+                                {isLogoutPending ? "Chiqilmoqda..." : "Chiqish"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
+
+            <AnimatePresence>
+                {edit && user && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -12 }}
+                        className="academy-card !p-5 sm:!p-7"
+                    >
+                        <UpdateProfileUser user={user} setEdit={setEdit} />
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            <section className="space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="font-fredoka text-2xl font-semibold">Mening kurslarim</h3>
+                    <span className={`${chipBase} bg-primary-50 text-primary-500`}>{activeCourses} ta faol kurs</span>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                    {profileCourses.map((course, index) => (
+                        <motion.div
+                            key={course.id}
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.35, delay: index * 0.06 }}
+                        >
+                            <Link to={`/courses/${course.courseId}/${course.id}`} className="block h-full">
+                                <div className="academy-card group flex h-full flex-col gap-4 !p-4 transition-transform hover:-translate-y-0.5 sm:flex-row">
+                                    <div className="relative h-32 w-full shrink-0 overflow-hidden rounded-[18px] sm:w-40">
+                                        {course.image ? (
+                                            <img
+                                                src={course.image}
+                                                alt={course.title}
+                                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                            />
+                                        ) : (
+                                            <div className="h-full w-full bg-gradient-to-br from-primary-100 to-[#e8eefb]" />
+                                        )}
+                                    </div>
+
+                                    <div className="flex min-w-0 flex-1 flex-col justify-between gap-4">
+                                        <div className="space-y-2">
+                                            <div className="flex flex-wrap items-center justify-between gap-2">
+                                                {course.progress >= 100 ? (
+                                                    <span className={`${chipBase} gap-1.5 bg-emerald-50 text-emerald-700`}>
+                                                        <CheckCircle2 className="h-3.5 w-3.5" />
+                                                        Yakunlangan
+                                                    </span>
+                                                ) : (
+                                                    <span className={`${chipBase} bg-[#e8eefb] text-[color:var(--hint)]`}>
+                                                        Davom etmoqda
+                                                    </span>
+                                                )}
+                                                <div className="font-fredoka text-xl font-semibold text-primary-500">
+                                                    {course.progress}%
+                                                </div>
+                                            </div>
+                                            <h4 className="line-clamp-1 font-fredoka text-lg font-semibold leading-tight transition-colors group-hover:text-primary-500">
+                                                {course.title}
+                                            </h4>
                                         </div>
 
-                                        <div className="flex-1 space-y-4">
-                                            <div className="flex h-full flex-col justify-between gap-4">
-                                                <div className="space-y-2">
-                                                    <div className="flex flex-wrap items-center justify-between gap-2">
-                                                        {course.progress >= 100 ? (
-                                                            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[8px] font-black uppercase tracking-[0.18em] text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-900/20 dark:text-emerald-400 sm:text-[9px]">
-                                                                <CheckCircle2 className="h-3.5 w-3.5" />
-                                                                Yakunlangan
-                                                            </span>
-                                                        ) : (
-                                                            <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[8px] font-black uppercase tracking-[0.18em] text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 sm:text-[9px]">
-                                                                Davom etmoqda
-                                                            </span>
-                                                        )}
-                                                        <div className="shrink-0 text-lg font-black italic text-blue-600 sm:text-xl">
-                                                            {course.progress}%
-                                                        </div>
-                                                    </div>
-                                                    <h3 className="line-clamp-1 text-base font-black uppercase italic leading-tight tracking-tight text-slate-900 transition-colors group-hover:text-blue-600 dark:text-white sm:text-lg">
-                                                        {course.title}
-                                                    </h3>
-                                                </div>
-
-                                                <div className="space-y-3">
-                                                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-                                                        <div
-                                                            className="h-full rounded-full bg-blue-600 transition-all duration-1000 group-hover:shadow-[0_0_12px_rgba(37,99,235,0.4)]"
-                                                            style={{ width: `${course.progress}%` }}
-                                                        />
-                                                    </div>
-                                                    <div className="flex items-center justify-between text-[9px] font-semibold uppercase tracking-widest text-slate-500 italic sm:text-[10px]">
-                                                        <span>{course.instructor}</span>
-                                                        <span className="text-blue-600">
-                                                            {course.completedLessons}/
-                                                            {course.totalLessons} Darslar
-                                                        </span>
-                                                    </div>
-                                                </div>
+                                        <div className="space-y-2">
+                                            <div className="h-2 w-full overflow-hidden rounded-full bg-[#e8eefb]">
+                                                <div
+                                                    className="h-full rounded-full bg-primary-500 transition-all duration-700"
+                                                    style={{ width: `${course.progress}%` }}
+                                                />
+                                            </div>
+                                            <div className="flex items-center justify-between text-xs font-bold text-[color:var(--hint)]">
+                                                <span>{course.instructor}</span>
+                                                <span className="text-primary-500">
+                                                    {course.completedLessons}/{course.totalLessons} dars
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
-                                </Link>
-                            </motion.div>
-                        ))}
-
-                        {!profileCourses.length && (
-                            <div className="rounded-[28px] border-4 border-dashed border-slate-100 p-10 text-center dark:border-slate-800 sm:rounded-[36px] sm:p-16">
-                                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-[24px] bg-slate-50 text-slate-300 dark:bg-slate-900 dark:text-slate-700">
-                                    <BookOpen className="h-8 w-8" />
                                 </div>
-                                <p className="text-sm font-semibold italic text-slate-500">
-                                    Hozircha sizga biriktirilgan kurslar topilmadi.
-                                </p>
-                            </div>
-                        )}
-                    </div>
-                </section>
-
-                <section className="space-y-8 sm:space-y-10">
-                    <div className="flex flex-col gap-3 border-b border-slate-100 pb-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
-                        <h2 className="text-xl font-black uppercase italic tracking-tight text-slate-900 dark:text-white sm:text-2xl">
-                            Testlar natijalari
-                        </h2>
-                        <Link
-                            to="/test-history"
-                            className="group inline-flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-600 transition-colors hover:text-blue-700 dark:text-slate-300 sm:text-xs"
-                        >
-                            Tarixni ko'rish
-                            <TrendingUp className="h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-0.5" />
-                        </Link>
-                    </div>
-
-                    <div className="group relative overflow-hidden rounded-[28px] border border-slate-100 bg-white p-5 shadow-xl dark:border-slate-800 dark:bg-slate-900 sm:rounded-[40px] sm:p-8 lg:rounded-[48px] lg:p-12">
-                        <div className="absolute left-0 top-0 h-64 w-64 -ml-32 -mt-32 rounded-full bg-blue-600/5 transition-transform duration-1000 group-hover:scale-125" />
-
-                        <div className="relative z-10 flex flex-col items-center justify-between gap-6 md:flex-row md:gap-8">
-                            <div className="relative z-10 flex flex-col items-center gap-6 text-center sm:flex-row sm:gap-10 sm:text-left">
-                                <div className="flex h-16 w-16 items-center justify-center rounded-[24px] bg-blue-50 text-blue-600 dark:bg-blue-900/30 sm:h-20 sm:w-20 sm:rounded-[32px]">
-                                    <History className="h-8 w-8 sm:h-10 sm:w-10" />
-                                </div>
-                                <div className="space-y-2">
-                                    <h3 className="text-xl font-black uppercase italic tracking-tight text-slate-900 dark:text-white sm:text-2xl">
-                                        O'z bilimingizni tekshiring
-                                    </h3>
-                                    <p className="text-sm font-semibold italic text-slate-500">
-                                        Barcha topshirilgan testlar va ularning batafsil tahlili bilan tanishing.
-                                    </p>
-                                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-blue-600 dark:text-blue-400">
-                                        {quizHistory.length} ta topshirilgan test
-                                    </p>
-                                </div>
-                            </div>
-
-                            <Link
-                                to="/test-history"
-                                className="relative z-10 w-full rounded-2xl bg-slate-900 px-10 py-4 text-center text-xs font-black uppercase tracking-[0.2em] !text-white shadow-xl transition-all hover:shadow-blue-500/20 active:scale-95 dark:bg-blue-600 sm:w-auto sm:text-sm"
-                            >
-                                Tarixga o'tish
                             </Link>
-                        </div>
-                    </div>
+                        </motion.div>
+                    ))}
 
-                </section>
-
-                <DeviceSessionsSection />
-
-                <section className="space-y-8 sm:space-y-10">
-                    <div className="flex flex-col gap-3 border-b border-slate-100 pb-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
-                        <h2 className="text-xl font-black uppercase italic tracking-tight text-slate-900 dark:text-white sm:text-2xl">
-                            Sertifikatlar
-                        </h2>
-                    </div>
-
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.2 }}
-                        className="group relative overflow-hidden rounded-[28px] bg-slate-900 p-5 text-white shadow-2xl sm:rounded-[40px] sm:p-8 lg:rounded-[48px] lg:p-12"
-                    >
-                        <div className="absolute right-0 top-0 -mr-40 -mt-40 h-80 w-80 rounded-full bg-blue-600/10 transition-transform duration-1000 group-hover:scale-125" />
-                        <div className="absolute bottom-0 left-0 -mb-32 -ml-32 h-64 w-64 rounded-full bg-emerald-600/10 transition-transform duration-1000 group-hover:scale-125" />
-
-                        <div className="relative flex flex-col items-center justify-between gap-8 sm:flex-row sm:gap-12">
-                            <div className="flex flex-col items-center gap-6 text-center sm:flex-row sm:gap-10 sm:text-left">
-                                <div className="flex h-20 w-20 items-center justify-center rounded-[28px] border border-white/10 bg-white/10 shadow-2xl backdrop-blur-md transition-transform group-hover:rotate-6 sm:h-24 sm:w-24 sm:rounded-[32px]">
-                                    <Award className="h-10 w-10 text-blue-400 sm:h-12 sm:w-12" />
-                                </div>
-                                <div className="space-y-2">
-                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400 sm:text-xs">
-                                        Muvaffaqiyatli yakunlandi
-                                    </p>
-                                    <h3 className="text-2xl font-black uppercase italic tracking-tighter text-white sm:text-4xl">
-                                        Sertifikat tizimi tayyorlanmoqda
-                                    </h3>
-                                    <div className="mt-2 flex flex-wrap items-center justify-center gap-4 text-[10px] font-semibold italic text-slate-500 sm:justify-start sm:text-xs">
-                                        <span>{completedCourses} ta yakunlangan kurs</span>
-                                        <span className="h-1 w-1 rounded-full bg-slate-700" />
-                                        <span>API ulanishi kutilmoqda</span>
-                                    </div>
-                                </div>
+                    {!profileCourses.length && (
+                        <div className="academy-card col-span-full space-y-3 !py-10 text-center">
+                            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-primary-300">
+                                <BookOpen className="h-7 w-7" />
                             </div>
-
-                            <button
-                                className="w-full shrink-0 rounded-2xl bg-blue-600 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-white shadow-xl shadow-blue-500/20 sm:w-auto sm:px-12 sm:py-5 sm:text-sm"
-                                type="button"
-                                disabled
-                            >
-                                Download
-                            </button>
+                            <p className="academy-quiet">Hozircha sizga biriktirilgan kurslar topilmadi.</p>
                         </div>
-                    </motion.div>
+                    )}
+                </div>
+            </section>
 
-                    <div className="space-y-4 rounded-[28px] border-4 border-dashed border-slate-100 p-8 text-center dark:border-slate-800 sm:rounded-[40px] sm:p-14 lg:rounded-[48px] lg:p-20">
-                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[20px] bg-slate-50 text-slate-200 dark:bg-slate-900 dark:text-slate-700 sm:h-16 sm:w-16 sm:rounded-[24px]">
-                            <Award className="h-6 w-6 sm:h-8 sm:w-8" />
+            <section className="space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="font-fredoka text-2xl font-semibold">Testlar natijalari</h3>
+                    <Link
+                        to="/test-history"
+                        className="group inline-flex items-center gap-2 text-sm font-extrabold !text-primary-500"
+                    >
+                        Tarixni ko'rish
+                        <TrendingUp className="h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-0.5" />
+                    </Link>
+                </div>
+
+                <div className="academy-card flex flex-col items-center justify-between gap-5 !p-5 sm:!p-6 md:flex-row">
+                    <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
+                        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary-50 text-primary-500">
+                            <History className="h-8 w-8" />
                         </div>
-                        <p className="text-xs font-semibold italic text-slate-500 sm:text-sm">
-                            Yangi sertifikatlarga erishish uchun ko'proq kurslarni yakunlang.
-                        </p>
+                        <div className="space-y-1">
+                            <h4 className="font-fredoka text-xl font-semibold">O'z bilimingizni tekshiring</h4>
+                            <p className="academy-quiet text-sm">
+                                Barcha topshirilgan testlar va ularning batafsil tahlili bilan tanishing.
+                            </p>
+                            <p className="text-sm font-extrabold text-primary-500">{quizHistory.length} ta topshirilgan test</p>
+                        </div>
                     </div>
-                </section>
-            </main>
+
+                    <Link to="/test-history" className="academy-cta academy-cta-brand academy-cta-compact shrink-0">
+                        Tarixga o'tish
+                    </Link>
+                </div>
+            </section>
+
+            <DeviceSessionsSection />
+
+            <section className="space-y-4">
+                <h3 className="font-fredoka text-2xl font-semibold">Sertifikatlar</h3>
+
+                <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, delay: 0.1 }}
+                    className="flex flex-col items-center justify-between gap-5 rounded-[24px] bg-gradient-to-br from-[#0c2461] to-[#16327a] p-5 text-white shadow-[var(--shadow)] sm:flex-row sm:p-7"
+                >
+                    <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
+                        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/10">
+                            <Award className="h-8 w-8 text-amber-300" />
+                        </div>
+                        <div className="space-y-1">
+                            <h4 className="font-fredoka text-xl font-semibold !text-white">Sertifikat tizimi tayyorlanmoqda</h4>
+                            <p className="text-sm font-bold text-white/70">
+                                {completedCourses} ta yakunlangan kurs · tez orada shu yerda yuklab olasiz
+                            </p>
+                        </div>
+                    </div>
+
+                    <button
+                        className="shrink-0 rounded-2xl bg-white/15 px-6 py-3 text-sm font-extrabold text-white/70"
+                        type="button"
+                        disabled
+                    >
+                        Yuklab olish
+                    </button>
+                </motion.div>
+
+                <p className="academy-quiet text-center text-sm">
+                    Yangi sertifikatlarga erishish uchun ko'proq kurslarni yakunlang.
+                </p>
+            </section>
         </div>
     );
 }

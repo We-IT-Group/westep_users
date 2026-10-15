@@ -33,71 +33,60 @@ export default function DeviceSessionsSection() {
     const { mutate: deleteDevice, isPending: isDeleting } = useDeleteMyDevice();
 
     return (
-        <section className="space-y-8 sm:space-y-10">
-            <div className="flex flex-col gap-3 border-b border-slate-100 pb-5 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+        <section className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                    <h2 className="text-xl font-black uppercase italic tracking-tight text-slate-900 dark:text-white sm:text-2xl">
-                        Qurilmalar
-                    </h2>
-                    <p className="mt-2 text-sm font-semibold text-slate-500 dark:text-slate-400">
-                        Faol sessiyalarni ko'ring va kerak bo'lsa o'chiring.
-                    </p>
+                    <h3 className="font-fredoka text-2xl font-semibold">Qurilmalar</h3>
+                    <p className="academy-quiet text-sm">Faol sessiyalarni ko'ring va kerak bo'lsa o'chiring.</p>
                 </div>
-                <div className="w-fit rounded-full bg-blue-50 px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
+                <span className="inline-flex items-center rounded-full bg-primary-50 px-3 py-1 text-xs font-extrabold text-primary-500">
                     {devices.length} ta faol qurilma
-                </div>
+                </span>
             </div>
 
             {isPending ? (
-                <div className="flex items-center justify-center rounded-[32px] border border-slate-100 bg-white p-10 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                    <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <div className="academy-card flex items-center justify-center !p-10">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
                 </div>
             ) : isError ? (
-                <div className="rounded-[32px] border border-red-200 bg-red-50 p-6 text-sm font-semibold text-red-600 dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-300">
+                <div className="rounded-[24px] bg-rose-50 p-5 text-sm font-bold text-rose-600">
                     {error instanceof Error ? error.message : "Qurilmalarni yuklab bo'lmadi"}
                 </div>
             ) : devices.length === 0 ? (
-                <div className="rounded-[32px] border-4 border-dashed border-slate-100 p-10 text-center dark:border-slate-800">
-                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-[24px] bg-slate-50 text-slate-300 dark:bg-slate-900 dark:text-slate-700">
-                        <Shield className="h-8 w-8" />
+                <div className="academy-card space-y-3 !py-10 text-center">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-primary-300">
+                        <Shield className="h-7 w-7" />
                     </div>
-                    <p className="text-sm font-semibold italic text-slate-500">
-                        Hozircha faol qurilmalar topilmadi.
-                    </p>
+                    <p className="academy-quiet">Hozircha faol qurilmalar topilmadi.</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 gap-4">
                     {devices.map((device) => {
                         const isCurrentDevice = device.deviceId === currentDeviceId;
 
                         return (
                             <div
                                 key={device.sessionId}
-                                className="flex flex-col gap-4 rounded-[28px] border border-slate-100 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:items-start sm:justify-between sm:p-6"
+                                className="academy-card flex flex-col gap-4 !p-4 sm:flex-row sm:items-start sm:justify-between sm:!p-5"
                             >
                                 <div className="flex items-start gap-4">
-                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
+                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary-50 text-primary-500">
                                         <DeviceIcon label={`${device.platform} ${device.browser} ${device.deviceName}`} />
                                     </div>
-                                    <div className="space-y-1.5">
+                                    <div className="space-y-1">
                                         <div className="flex flex-wrap items-center gap-2">
-                                            <h3 className="text-base font-black text-slate-900 dark:text-white">
-                                                {device.deviceName}
-                                            </h3>
+                                            <h4 className="text-base font-extrabold">{device.deviceName}</h4>
                                             {isCurrentDevice ? (
-                                                <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400">
+                                                <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-extrabold text-emerald-700">
                                                     Joriy qurilma
                                                 </span>
                                             ) : null}
                                         </div>
-                                        <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
+                                        <p className="academy-quiet text-sm">
                                             {device.platform} • {device.browser}
                                         </p>
-                                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-                                            So'nggi faollik: {formatLastSeen(device.lastSeenAt)}
-                                        </p>
-                                        <p className="text-xs font-semibold text-slate-400">
-                                            IP: {device.ipAddress}
+                                        <p className="academy-quiet text-xs">
+                                            So'nggi faollik: {formatLastSeen(device.lastSeenAt)} · IP: {device.ipAddress}
                                         </p>
                                     </div>
                                 </div>
@@ -115,7 +104,7 @@ export default function DeviceSessionsSection() {
                                         })
                                     }
                                     disabled={isDeleting}
-                                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-5 py-3 text-xs font-black uppercase tracking-[0.18em] text-red-600 transition-colors hover:bg-red-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white sm:w-auto"
+                                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-rose-50 px-4 py-2.5 text-sm font-extrabold text-rose-600 transition-colors hover:bg-rose-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                                     O'chirish
