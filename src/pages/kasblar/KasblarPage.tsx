@@ -65,7 +65,7 @@ export default function KasblarPage() {
                             <span>Kasb Yo‘li & Kelajak Maqsadi</span>
                         </div>
                         <h1 className="font-fredoka text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-slate-900 leading-tight">
-                            Kelajak Kasbingizni <span className="text-blue-600">Tanlang</span>
+                            Mening kasbiy <span className="text-blue-600">tanlovim!</span>
                         </h1>
                         <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
                             O‘zingizga mos sohani kashf eting, bosqichma-bosqich yo‘l xaritasini oling va kasbga yetaklovchi darslarni boshlang.
