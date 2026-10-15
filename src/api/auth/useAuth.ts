@@ -23,10 +23,7 @@ import {getItem} from "../../utils/utils.ts";
 import {useToast} from "../../hooks/useToast.tsx";
 import type { User } from "../../types/types.ts";
 import { getCurrentDeviceName, getOrCreateDeviceId } from "../../utils/device.ts";
-import {
-    clearPostAuthRedirect,
-    getPostAuthRedirect,
-} from "../../utils/postAuthRedirect.ts";
+import {clearPostAuthRedirect} from "../../utils/postAuthRedirect.ts";
 
 export const useUser = () =>
     useQuery({
@@ -48,13 +45,9 @@ export const useLogin = () => {
         onSuccess: async () => {
             const user = await getCurrentUser();
             qc.setQueryData(["currentUser"], user);
-            const redirectPath = getPostAuthRedirect();
-            if (redirectPath) {
-                clearPostAuthRedirect();
-                navigate(redirectPath);
-            } else {
-                navigate("/");
-            }
+            // Kirgandan keyin har doim faqat bosh sahifa (academy.westep.uz/).
+            clearPostAuthRedirect();
+            navigate("/", {replace: true});
             sessionStorage.removeItem("form");
         },
         onError: (error) => {
@@ -75,13 +68,9 @@ export const useTelegramWidgetLogin = () => {
         onSuccess: async () => {
             const user = await getCurrentUser();
             qc.setQueryData(["currentUser"], user);
-            const redirectPath = getPostAuthRedirect();
-            if (redirectPath) {
-                clearPostAuthRedirect();
-                navigate(redirectPath);
-            } else {
-                navigate("/");
-            }
+            // Kirgandan keyin har doim faqat bosh sahifa (academy.westep.uz/).
+            clearPostAuthRedirect();
+            navigate("/", {replace: true});
             sessionStorage.removeItem("form");
         },
         onError: (error) => {
@@ -102,13 +91,9 @@ export const useTelegramLogin = () => {
         onSuccess: async () => {
             const user = await getCurrentUser();
             qc.setQueryData(["currentUser"], user);
-            const redirectPath = getPostAuthRedirect();
-            if (redirectPath) {
-                clearPostAuthRedirect();
-                navigate(redirectPath);
-            } else {
-                navigate("/");
-            }
+            // Kirgandan keyin har doim faqat bosh sahifa (academy.westep.uz/).
+            clearPostAuthRedirect();
+            navigate("/", {replace: true});
             sessionStorage.removeItem("form");
         },
         onError: (error) => {
@@ -235,8 +220,7 @@ export const useRegister = () => {
         onSuccess: async () => {
             const user = await getCurrentUser();
             qc.setQueryData(["currentUser"], user);
-            // Yangi foydalanuvchi har doim Dashboard'ga tushadi (kurs linkidagi
-            // `next` e'tiborsiz). Kerak bo'lsa MainPage o'zi onboarding'ga yuboradi.
+            // Yangi foydalanuvchi ham har doim faqat bosh sahifaga tushadi.
             clearPostAuthRedirect();
             navigate("/", {replace: true});
             sessionStorage.removeItem("form");

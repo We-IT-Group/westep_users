@@ -1,5 +1,4 @@
-import { useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMemo } from "react";
 import { baseUrlImage } from "../api/apiClient.ts";
 import { useUser } from "../api/auth/useAuth.ts";
 import { getCoursePurchaseUrl } from "../utils/coursePurchase.ts";
@@ -9,7 +8,6 @@ import {
     useGetStudentCourseById,
 } from "../api/courses/useCourse.ts";
 import { useGetStudentCourseProgress } from "../api/studentProgressCourse/useStudentProgressCourse.ts";
-import { useMyProfessions } from "../api/professions/useProfessions.ts";
 import type { Course, Lesson, StudentCourse } from "../types/types.ts";
 import AcademyHome, { type HomeIsland } from "../layouts/academy/AcademyHome.tsx";
 import { isTeenAge } from "../layouts/academy/age.ts";
@@ -64,9 +62,7 @@ function getStudentCoursePercent(course?: StudentCourse | null) {
 }
 
 export function Dashboard() {
-    const navigate = useNavigate();
     const { data: user } = useUser();
-    const professionsQuery = useMyProfessions();
     const { data: studentCourses = [] } = useGetStudentCourseById(user?.id);
     const { data: allCourses = [] } = useGetCourses();
     const { data: continueLearningData } = useGetContinueLearning();
@@ -74,21 +70,6 @@ export function Dashboard() {
     const enrolledCourses = studentCourses as StudentCourse[];
     const activeStudentCourse = enrolledCourses[0];
     const { data: activeCourseProgress } = useGetStudentCourseProgress(activeStudentCourse?.id);
-
-    useEffect(() => {
-        if (!user?.id) return;
-        if (professionsQuery.isLoading) return;
-
-        const hasCompletedOnboarding = localStorage.getItem(`westep_onboarding_completed_${user.id}`);
-        if (hasCompletedOnboarding) return;
-
-        const myProfs = professionsQuery.data ?? [];
-        const isNewStudent = enrolledCourses.length === 0 && myProfs.length === 0;
-
-        if (isNewStudent) {
-            navigate("/onboarding", { replace: true });
-        }
-    }, [user?.id, enrolledCourses.length, professionsQuery.data, professionsQuery.isLoading, navigate]);
 
     const continueLearning = useMemo<ContinueLearningCard | null>(() => {
         const apiData = Array.isArray(continueLearningData)
