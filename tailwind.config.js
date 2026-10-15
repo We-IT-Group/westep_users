@@ -22,6 +22,7 @@ export default {
             fontFamily: {
                 sans: ['Nunito', 'Inter', 'sans-serif'],
                 display: ['Fredoka', 'Nunito', 'sans-serif'],
+                fredoka: ['Fredoka', 'Nunito', 'sans-serif'],
                 outfit: ['Outfit', 'sans-serif'],
             },
             fontSize: {

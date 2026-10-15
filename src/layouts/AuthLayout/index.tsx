@@ -5,7 +5,7 @@ function authCopy(pathname: string) {
     if (pathname.startsWith("/register") || pathname.startsWith("/create-password")) {
         return {
             title: "O‘zing haqingda aytib ber",
-            body: "Yoshga qarab uy, o‘yin va yozuvlar moslashadi. 10 yoshgacha ota-ona raqami kerak.",
+            body: "Ism va familiyangni yoz, qolganini Westy o‘zi tayyorlab qo‘yadi.",
         };
     }
     if (pathname.startsWith("/password") || pathname.startsWith("/forgot-password") || pathname.startsWith("/reset-password")) {
@@ -16,7 +16,7 @@ function authCopy(pathname: string) {
     }
     return {
         title: "Salom! Westepga kiramiz",
-        body: "Bola birinchi kelganda raqam, ism va tug‘ilgan kun bilan o‘z joyini ochadi.",
+        body: "Telefon raqamingni yoz: akkaunting bo‘lsa kirasan, bo‘lmasa yangisini ochamiz.",
     };
 }
 

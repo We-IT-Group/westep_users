@@ -7,7 +7,6 @@ import type {
     CoursePurchaseModule
 } from "../../components/coursePurchase/types.ts";
 import type { CourseDetailLesson, CourseDetailModule } from "../../types/types.ts";
-import { Header } from "../../layouts/headers/Header_new.tsx";
 import { Loader2 } from "lucide-react";
 
 export default function CoursePurchase() {
@@ -25,7 +24,6 @@ export default function CoursePurchase() {
     if (isCourseLoading || isUserLoading) {
         return (
             <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-950">
-                <Header />
                 <div className="flex flex-col h-[calc(100vh-80px)] items-center justify-center">
                     <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
                 </div>
@@ -36,7 +34,6 @@ export default function CoursePurchase() {
     if (!courseData) {
         return (
             <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-950">
-                <Header />
                 <div className="flex flex-col h-[calc(100vh-80px)] items-center justify-center text-center">
                     <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase italic">
                         Kurs topilmadi
@@ -87,8 +84,6 @@ export default function CoursePurchase() {
             courseId={courseId}
             course={mappedCourse}
             modules={mappedModules}
-            withHeader={true}
-            HeaderComponent={Header}
             onSubmit={handleSubmitPurchase}
             isSubmitting={isEnrollPending}
         />

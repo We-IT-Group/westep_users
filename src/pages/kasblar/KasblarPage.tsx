@@ -53,7 +53,7 @@ export default function KasblarPage() {
     return (
         <div className="space-y-6 pb-12">
             {/* Top Hero Banner & Navigation */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 relative overflow-hidden border border-slate-200/80 shadow-sm">
+            <div className="academy-card !p-6 sm:!p-8 relative overflow-hidden border border-slate-100">
                 <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-blue-500/5 blur-3xl pointer-events-none" />
                 <div className="absolute bottom-0 left-1/3 w-80 h-80 rounded-full bg-indigo-500/5 blur-3xl pointer-events-none" />
 
@@ -106,7 +106,7 @@ export default function KasblarPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <Link
                     to="/kasblar/test"
-                    className="bg-white rounded-2xl p-5 flex items-center justify-between group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border border-slate-200/80 hover:border-blue-300"
+                    className="academy-card !p-5 flex items-center justify-between group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border border-slate-200/80 hover:border-blue-300"
                 >
                     <div className="flex items-center gap-3.5">
                         <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
@@ -124,7 +124,7 @@ export default function KasblarPage() {
 
                 <Link
                     to="/kasblar/mening"
-                    className="bg-white rounded-2xl p-5 flex items-center justify-between group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border border-slate-200/80 hover:border-amber-300"
+                    className="academy-card !p-5 flex items-center justify-between group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border border-slate-200/80 hover:border-amber-300"
                 >
                     <div className="flex items-center gap-3.5">
                         <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
@@ -144,7 +144,7 @@ export default function KasblarPage() {
 
                 <Link
                     to="/kasblar/roadmap"
-                    className="bg-white rounded-2xl p-5 flex items-center justify-between group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border border-slate-200/80 hover:border-emerald-300"
+                    className="academy-card !p-5 flex items-center justify-between group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border border-slate-200/80 hover:border-emerald-300"
                 >
                     <div className="flex items-center gap-3.5">
                         <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
@@ -162,7 +162,7 @@ export default function KasblarPage() {
             </div>
 
             {/* Field Filter Chips Bar */}
-            <div className="bg-white rounded-2xl p-3 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 border border-slate-200/80 shadow-sm">
+            <div className="academy-card !p-3 sm:!p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 border border-slate-100">
                 <div className="flex flex-wrap items-center gap-2">
                     {chips.map((chip) => {
                         const active = field === chip.key;

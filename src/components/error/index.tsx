@@ -1,29 +1,14 @@
 import { Link } from "react-router-dom";
-import Breadcrumb from "../common/Breadcrumb";
-import FooterOne from "../../layouts/footers/FooterOne";
-import ScrollToTop from "../common/ScrollToTop";
-import ScrollTop from "../common/ScrollTop";
 
- 
 export default function Error() {
   return (
-    <>
-      <Breadcrumb title="Error" subtitle="Error" />
-      <section className="page_not_found">
-        <div className="container">
-          <div className="row">
-            <div className="col-12 text-center wow fadeIn">
-              <img src="assets/img/404.svg" alt="404" />
-              <h2>Page not found: /error</h2>
-              <p>Please try searching for some other page.</p>
-              <Link to="/" className="bg_btn bt">Back To Home</Link>
-            </div>
-          </div>
-        </div>
-      </section>
-      <FooterOne />
-      <ScrollToTop />
-      <ScrollTop />
-    </>
-  )
+    <div className="academy-card mx-auto my-12 max-w-lg space-y-4 p-10 text-center">
+      <img src="/academy/westy.png" alt="Westy" className="mx-auto h-28 w-28 object-contain" />
+      <h2>Sahifa topilmadi</h2>
+      <p className="academy-quiet">Bunday sahifa yo‘q yoki ko‘chirib yuborilgan.</p>
+      <Link to="/" className="academy-cta academy-cta-brand">
+        Bosh sahifaga qaytish
+      </Link>
+    </div>
+  );
 }

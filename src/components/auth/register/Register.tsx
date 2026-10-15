@@ -58,7 +58,7 @@ export default function Register() {
                         />
                     </div>
                     <div>
-                        <label htmlFor="lastName">Familya</label>
+                        <label htmlFor="lastName">Familiya</label>
                         <InputField
                             placeholder={'Familiya'}
                             formik={formik}
