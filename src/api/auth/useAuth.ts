@@ -235,13 +235,10 @@ export const useRegister = () => {
         onSuccess: async () => {
             const user = await getCurrentUser();
             qc.setQueryData(["currentUser"], user);
-            const redirectPath = getPostAuthRedirect();
-            if (redirectPath) {
-                clearPostAuthRedirect();
-                navigate(redirectPath);
-            } else {
-                navigate("/onboarding");
-            }
+            // Yangi foydalanuvchi har doim Dashboard'ga tushadi (kurs linkidagi
+            // `next` e'tiborsiz). Kerak bo'lsa MainPage o'zi onboarding'ga yuboradi.
+            clearPostAuthRedirect();
+            navigate("/", {replace: true});
             sessionStorage.removeItem("form");
         },
         onError: (error) => {
