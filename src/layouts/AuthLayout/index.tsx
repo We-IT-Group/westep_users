@@ -32,8 +32,8 @@ const AuthLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
                     <img src="/academy/westy.png" alt="Westy" />
                 </div>
                 <div className="copy">
-                    <h1>{copy.title}</h1>
-                    <p>{copy.body}</p>
+                    <h1 className="!text-white drop-shadow-lg">{copy.title}</h1>
+                    <p className="!text-white/95 drop-shadow">{copy.body}</p>
                 </div>
             </div>
             <div className="academy-auth-form">{children}</div>

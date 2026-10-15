@@ -240,7 +240,7 @@ export const useRegister = () => {
                 clearPostAuthRedirect();
                 navigate(redirectPath);
             } else {
-                navigate("/");
+                navigate("/onboarding");
             }
             sessionStorage.removeItem("form");
         },

@@ -43,7 +43,7 @@ function UpdateProfileUser({user, setEdit}: Props) {
                 lastname: user.lastname,
                 gender: user.gender === "FEMALE" ? "FEMALE" : "MALE",
                 phoneNumber: user.phoneNumber,
-                birthDate: user.birthDate,
+                birthDate: user.birthDate || '',
                 roleName: user.roleName || "STUDENT",
             })
         }

@@ -5,6 +5,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 // https://vite.dev/config/
 export default defineConfig({
+    cacheDir: './.vite_cache',
     server: {
         host: "0.0.0.0",
     },
