@@ -72,7 +72,7 @@ export default function AcademyTopbar() {
                             <b>{shortProfessionTitle(profession.title)}</b>
                         </Link>
                     ) : home ? (
-                        <Link to="/kasblar" className="academy-chip job" aria-label="Kasb tanlash">
+                        <Link to="/onboarding" className="academy-chip job" aria-label="Kasb tanlash">
                             <span>💼</span>
                             <b>Kasb tanla</b>
                         </Link>

@@ -47,6 +47,7 @@ const RewardsPage = lazy(() => import("../pages/RewardsPage.tsx"));
 const ShopPage = lazy(() => import("../pages/ShopPage.tsx"));
 const LeaderboardPage = lazy(() => import("../pages/LeaderboardPage.tsx"));
 const MusobaqaPage = lazy(() => import("../pages/MusobaqaPage.tsx"));
+const OnboardingPage = lazy(() => import("../pages/onboarding/OnboardingPage.tsx"));
 
 const authProtectedRoutes = [
     { path: "/", element: <MainPage />, title: "Home" },
@@ -113,4 +114,4 @@ const publicRoutes = [
     { path: "/logout", element: <Logout /> },
 ];
 
-export { authProtectedRoutes, publicRoutes };
+export { authProtectedRoutes, publicRoutes, OnboardingPage };

@@ -5,7 +5,7 @@ import {useEffect} from "react";
 import {useLocation} from "react-router-dom";
 import PhoneNumberInput from "../../../ui/PhoneNumberInput.tsx";
 import CommonButton from "../../../ui/CommonButton.tsx";
-import TelegramLoginButton from "../telegram/TelegramLoginButton.tsx";
+// import TelegramLoginButton from "../telegram/TelegramLoginButton.tsx";
 import {clearPostAuthRedirect, setPostAuthRedirect} from "../../../utils/postAuthRedirect.ts";
 
 
@@ -59,10 +59,11 @@ export default function LoginForm() {
                     disabled={!(formik.isValid && formik.dirty)}
                 />
             </form>
-            <div className="academy-or">yoki</div>
+            {/* Telegram orqali kirish vaqtincha yashirildi */}
+            {/* <div className="academy-or">yoki</div>
             <div className="academy-social">
                 <TelegramLoginButton />
-            </div>
+            </div> */}
         </section>
     );
 }

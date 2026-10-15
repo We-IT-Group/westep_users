@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route, Outlet } from 'react-router-dom';
 
 //routes
-import { authProtectedRoutes, publicRoutes } from './allRoutes';
+import { authProtectedRoutes, publicRoutes, OnboardingPage } from './allRoutes';
 import AuthProtected from "./AuthProtected.tsx";
 import DefaultLayout from "../layouts/DefaultLayout";
 import AuthLayout from "../layouts/AuthLayout";
@@ -12,6 +12,7 @@ const Index = () => {
     return (
         <React.Fragment>
             <Routes>
+                <Route path="/onboarding" element={<OnboardingPage />} />
                 <Route element={
                     <AuthLayout>
                         <Outlet />
