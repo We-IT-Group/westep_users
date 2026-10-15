@@ -73,21 +73,33 @@ export interface ProfessionListParams {
     offset?: number;
 }
 
+export type QuizDimension = "RIASEC" | "STRENGTH" | "LEARNING" | "VALUES" | "MOOD" | "SHAPE_COLOR";
+export type QuizQuestionType = "LIKERT" | "CHOICE" | "IMAGE" | "SHAPE" | "COLOR";
+
 export interface QuizOptionDto {
     id: string;
     text: string;
     emoji?: string | null;
+    imageKey?: string | null;
 }
 
 export interface QuizQuestionDto {
     id: string;
     text: string;
+    dimension?: QuizDimension | null;
+    type?: QuizQuestionType | null;
     options: QuizOptionDto[];
 }
 
 export interface InterestQuizDto {
     ageGroup: string;
+    tier?: number | null;
     questions: QuizQuestionDto[];
+}
+
+export interface InterestQuizTiersDto {
+    ageGroup: string;
+    tiers: Array<{ tier: number; questionCount: number }>;
 }
 
 export interface QuizResultFieldScore {
@@ -96,15 +108,30 @@ export interface QuizResultFieldScore {
     score: number;
 }
 
+export interface QuizProfileDto {
+    strengths: QuizResultFieldScore[];
+    learning: QuizResultFieldScore[];
+    values: QuizResultFieldScore[];
+    mood: QuizResultFieldScore[];
+    shapeColor: QuizResultFieldScore[];
+}
+
 export interface InterestQuizResultDto {
     ageGroup: string;
+    tier?: number | null;
     totalQuestions: number;
+    hollandCode?: string | null;
+    riasecScores?: QuizResultFieldScore[];
     fieldScores: QuizResultFieldScore[];
+    profile?: QuizProfileDto | null;
+    attention?: boolean;
 }
 
 export interface RecommendationItemDto {
     professionId: string;
     slug: string;
+    title?: string | null;
+    tagline?: string | null;
     emoji?: string | null;
     fieldKey: string;
     ageAppropriate: boolean;

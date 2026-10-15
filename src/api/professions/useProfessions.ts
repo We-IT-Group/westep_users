@@ -4,6 +4,8 @@ import {
     abandonProfession,
     completeRoadmapItem,
     getInterestQuiz,
+    getInterestQuizTiers,
+    getLatestInterestQuizResult,
     getMyProfessions,
     getMyRoadmaps,
     getRecommendations,
@@ -56,12 +58,36 @@ export function useProfessionDetail(idOrSlug: string | undefined) {
     });
 }
 
-export function useInterestQuiz() {
+export function useInterestQuiz(tier: number | null) {
     return useQuery({
-        queryKey: ["interest-quiz"],
+        queryKey: ["interest-quiz", tier],
         queryFn: async () => {
             requireToken();
-            return getInterestQuiz();
+            return getInterestQuiz(tier as number);
+        },
+        enabled: tier != null,
+        retry: false,
+        staleTime: Infinity,
+    });
+}
+
+export function useInterestQuizTiers() {
+    return useQuery({
+        queryKey: ["interest-quiz-tiers"],
+        queryFn: async () => {
+            requireToken();
+            return getInterestQuizTiers();
+        },
+        retry: false,
+    });
+}
+
+export function useLatestQuizResult() {
+    return useQuery({
+        queryKey: ["interest-quiz-latest"],
+        queryFn: async () => {
+            requireToken();
+            return getLatestInterestQuizResult();
         },
         retry: false,
     });
@@ -71,7 +97,8 @@ export function useSubmitInterestQuiz() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: submitInterestQuiz,
-        onSuccess: () => {
+        onSuccess: (result) => {
+            queryClient.setQueryData(["interest-quiz-latest"], result);
             queryClient.invalidateQueries({ queryKey: ["profession-recommendations"] });
         },
     });

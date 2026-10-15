@@ -3,6 +3,7 @@ import apiClient from "../apiClient.ts";
 import type {
     InterestQuizDto,
     InterestQuizResultDto,
+    InterestQuizTiersDto,
     RecommendationsDto,
     StudentProfessionDto,
     StudentRoadmapDto,
@@ -13,21 +14,47 @@ function toError(error: unknown, fallback: string) {
     return new Error(err.response?.data?.message || err.message || fallback);
 }
 
-export async function getInterestQuiz() {
+export async function getInterestQuiz(tier: number) {
     try {
-        const { data } = await apiClient.get<InterestQuizDto>("/interest-quiz");
+        const { data } = await apiClient.get<InterestQuizDto>("/interest-quiz", { params: { tier } });
         return data;
     } catch (error) {
         throw toError(error, "Test savollarini yuklab bo'lmadi");
     }
 }
 
-export async function submitInterestQuiz(answers: Array<{ questionId: string; optionId: string }>) {
+export async function getInterestQuizTiers() {
     try {
-        const { data } = await apiClient.post<InterestQuizResultDto>("/interest-quiz/submit", { answers });
+        const { data } = await apiClient.get<InterestQuizTiersDto>("/interest-quiz/tiers");
+        return data;
+    } catch (error) {
+        throw toError(error, "Test darajalarini yuklab bo'lmadi");
+    }
+}
+
+export async function submitInterestQuiz({
+    answers,
+    tier,
+}: {
+    answers: Array<{ questionId: string; optionId: string }>;
+    tier: number;
+}) {
+    try {
+        const { data } = await apiClient.post<InterestQuizResultDto>("/interest-quiz/submit", { answers, tier });
         return data;
     } catch (error) {
         throw toError(error, "Test natijasini yuborib bo'lmadi");
+    }
+}
+
+/** Natija hali yo'q bo'lsa null (404). */
+export async function getLatestInterestQuizResult() {
+    try {
+        const { data } = await apiClient.get<InterestQuizResultDto>("/interest-quiz/result/latest");
+        return data;
+    } catch (error) {
+        if ((error as AxiosError).response?.status === 404) return null;
+        throw toError(error, "Oxirgi natijani yuklab bo'lmadi");
     }
 }
 

@@ -6,7 +6,7 @@ import type { InterestQuizResultDto } from "../../api/professions/types.ts";
 
 export default function QiziqishTestPage() {
     const navigate = useNavigate();
-    const quizQuery = useInterestQuiz();
+    const quizQuery = useInterestQuiz(50);
     const submitMutation = useSubmitInterestQuiz();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -25,12 +25,13 @@ export default function QiziqishTestPage() {
             return;
         }
         try {
-            const submitted = await submitMutation.mutateAsync(
-                Object.entries(nextAnswers).map(([questionId, picked]) => ({
+            const submitted = await submitMutation.mutateAsync({
+                answers: Object.entries(nextAnswers).map(([questionId, picked]) => ({
                     questionId,
                     optionId: picked,
                 })),
-            );
+                tier: 50,
+            });
             setResult(submitted);
         } catch {
             setCurrentIndex(questions.length - 1);
