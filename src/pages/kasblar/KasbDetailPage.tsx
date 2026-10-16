@@ -4,8 +4,12 @@ import { getCoursePurchaseUrl } from "../../utils/coursePurchase.ts";
 import {
     useMyProfessions,
     useProfessionDetail,
+    useRecommendations,
     useSelectProfession,
 } from "../../api/professions/useProfessions.ts";
+import { FitRing } from "./qiziqish/FitRing.tsx";
+import { ProfessionFitDetails } from "./qiziqish/ProfessionFitDetails.tsx";
+import { fitTone } from "./qiziqish/resultCopy.ts";
 
 export default function KasbDetailPage() {
     const { slug } = useParams<{ slug: string }>();
@@ -13,6 +17,8 @@ export default function KasbDetailPage() {
     const detailQuery = useProfessionDetail(slug);
     const myQuery = useMyProfessions();
     const selectMutation = useSelectProfession();
+    const recQuery = useRecommendations();
+    const fitRec = (recQuery.data?.recommendations ?? []).find((r) => r.slug === slug && r.fit != null);
 
     const profession = detailQuery.data;
     const mine = (myQuery.data ?? []).find(
@@ -176,6 +182,30 @@ export default function KasbDetailPage() {
                     ) : null}
                 </div>
             </div>
+
+            {/* Kasbga moslik (qiziqish testi natijasidan) */}
+            {fitRec ? (
+                <div className="academy-card p-6 sm:p-8 border border-slate-100 dark:border-slate-800">
+                    <div className="grid sm:grid-cols-[auto_1fr] gap-6 items-start">
+                        <div className="flex sm:flex-col items-center gap-3">
+                            <FitRing fit={fitRec.fit ?? 0} size={96} />
+                            <span className="text-sm font-bold text-slate-500">{fitTone(fitRec.fit ?? 0).label}</span>
+                        </div>
+                        <div className="space-y-3">
+                            <h2 className="font-fredoka text-xl font-bold text-slate-900 dark:text-white">Bu kasbga mosliging</h2>
+                            <ProfessionFitDetails rec={fitRec} />
+                        </div>
+                    </div>
+                </div>
+            ) : recQuery.data && !recQuery.data.hasQuizResult ? (
+                <Link
+                    to="/kasblar/test"
+                    className="academy-card p-5 flex items-center justify-between gap-4 border border-dashed border-blue-200 hover:border-blue-400 transition-colors"
+                >
+                    <span className="text-sm font-bold text-slate-700">Bu kasbga qanchalik mos ekaningni bilish uchun qiziqish testini topshir</span>
+                    <span className="shrink-0 rounded-xl bg-blue-600 px-4 py-2 text-xs font-black text-white">Testni boshlash</span>
+                </Link>
+            ) : null}
 
             {/* Description Section */}
             <div className="academy-card p-6 sm:p-8 space-y-3 border border-slate-100 dark:border-slate-800">

@@ -127,6 +127,12 @@ export interface InterestQuizResultDto {
     attention?: boolean;
 }
 
+export interface FitPartDto {
+    key: string;
+    label: string;
+    score: number;
+}
+
 export interface RecommendationItemDto {
     professionId: string;
     slug: string;
@@ -136,6 +142,11 @@ export interface RecommendationItemDto {
     fieldKey: string;
     ageAppropriate: boolean;
     score: number;
+    /** Kasbga moslik 0–100 (test yo'q bo'lsa null). */
+    fit?: number | null;
+    fitParts?: { interest: number | null; strengths: number | null; values: number | null } | null;
+    matches?: FitPartDto[];
+    gaps?: FitPartDto[];
 }
 
 export interface RecommendationsDto {

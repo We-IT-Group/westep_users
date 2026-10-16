@@ -79,6 +79,13 @@ export function moodPhrase(key: string, score: number) {
     return phrases[score >= 70 ? 2 : score >= 40 ? 1 : 0];
 }
 
+/** Moslik darajasi — hukm emas, yo'nalish: rang va qisqa so'z. */
+export function fitTone(fit: number) {
+    if (fit >= 70) return { label: "Juda mos", color: "#10B981", soft: "bg-emerald-50 text-emerald-700" };
+    if (fit >= 40) return { label: "Mos", color: "#2563EB", soft: "bg-blue-50 text-blue-700" };
+    return { label: "Kam mos", color: "#94A3B8", soft: "bg-slate-100 text-slate-600" };
+}
+
 export const TIER_INFO: Record<number, { title: string; minutes: number; note: string }> = {
     50: { title: "Tezkor", minutes: 10, note: "Umumiy yo'nalishni ko'rsatadi." },
     100: { title: "Standart", minutes: 20, note: "Kasb olamlari va kuchli tomonlaringni aniqroq ko'rsatadi." },

@@ -13,7 +13,8 @@ import {
     TrendingUp,
     CheckCircle2
 } from "lucide-react";
-import { useProfessionFields, useProfessionsList, useMyProfessions } from "../../api/professions/useProfessions.ts";
+import { useProfessionFields, useProfessionsList, useMyProfessions, useRecommendations } from "../../api/professions/useProfessions.ts";
+import { fitTone } from "./qiziqish/resultCopy.ts";
 
 function useDebouncedValue<T>(value: T, delayMs = 300) {
     const [debounced, setDebounced] = useState(value);
@@ -33,6 +34,15 @@ export default function KasblarPage() {
     const fieldsQuery = useProfessionFields();
     const listQuery = useProfessionsList({ field, q: debouncedQ });
     const myProfessionsQuery = useMyProfessions();
+    const recQuery = useRecommendations();
+    const [byFit, setByFit] = useState(false);
+    // Kasbga moslik (qiziqish testi natijasidan); test topshirilmagan bo'lsa bo'sh
+    const fitBySlug = useMemo(() => {
+        const map: Record<string, number> = {};
+        for (const r of recQuery.data?.recommendations ?? []) if (r.fit != null) map[r.slug] = r.fit;
+        return map;
+    }, [recQuery.data]);
+    const hasFit = Object.keys(fitBySlug).length > 0;
 
     const confirmedCount = (myProfessionsQuery.data ?? []).filter(
         (p) => p.status === "CONFIRMED" || p.status === "UNDER_REVIEW"
@@ -43,7 +53,10 @@ export default function KasblarPage() {
         return [{ key: "all", label: "⚡ Barcha sohalar" }, ...fromApi];
     }, [fieldsQuery.data]);
 
-    const items = listQuery.data?.items ?? [];
+    const listItems = listQuery.data?.items ?? [];
+    const items = byFit && hasFit
+        ? [...listItems].sort((a, b) => (fitBySlug[b.slug] ?? -1) - (fitBySlug[a.slug] ?? -1))
+        : listItems;
 
     const clearFilters = () => {
         setQ("");
@@ -194,8 +207,22 @@ export default function KasblarPage() {
                     ) : null}
                 </div>
 
-                <div className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-xl self-start md:self-auto shrink-0">
-                    Mavjud: <span className="text-blue-600">{items.length} ta kasb</span>
+                <div className="flex items-center gap-2 self-start md:self-auto shrink-0">
+                    {hasFit ? (
+                        <button
+                            type="button"
+                            onClick={() => setByFit((v) => !v)}
+                            aria-pressed={byFit}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                                byFit ? "bg-emerald-600 text-white" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                            }`}
+                        >
+                            Menga moslari
+                        </button>
+                    ) : null}
+                    <div className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-xl">
+                        Mavjud: <span className="text-blue-600">{items.length} ta kasb</span>
+                    </div>
                 </div>
             </div>
 
@@ -256,6 +283,11 @@ export default function KasblarPage() {
                                             </div>
 
                                             <div className="flex flex-col items-end gap-1.5">
+                                                {fitBySlug[p.slug] != null ? (
+                                                    <span className={`text-xs font-black px-2.5 py-1 rounded-full whitespace-nowrap ${fitTone(fitBySlug[p.slug]).soft}`}>
+                                                        Senga {fitBySlug[p.slug]}% mos
+                                                    </span>
+                                                ) : null}
                                                 <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200/60 whitespace-nowrap">
                                                     {p.fieldLabel}
                                                 </span>
@@ -313,7 +345,9 @@ export default function KasblarPage() {
                         <span>Qaysi soha sizga eng mos?</span>
                     </div>
                     <h3 className="font-fredoka text-xl sm:text-2xl font-bold text-white leading-snug">
-                        5 daqiqalik qiziqish testidan o‘ting va o‘zingizga mos kasbni toping!
+                        {hasFit
+                            ? "Mosliging aniqroq chiqishi uchun kattaroq testni topshir"
+                            : "Testni topshir — har bir kasbga qanchalik mos ekaningni bil!"}
                     </h3>
                     <p className="text-xs sm:text-sm text-blue-100/80 leading-relaxed">
                         Holland (RIASEC) metodikasi asosida shaxsiy qobiliyatlaringiz va qiziqishlaringiz tahlil qilinadi.

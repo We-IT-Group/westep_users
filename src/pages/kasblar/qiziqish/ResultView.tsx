@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Heart, RotateCcw, Sparkles } from "lucide-react";
 import type { InterestQuizResultDto, QuizResultFieldScore } from "../../../api/professions/types.ts";
 import { useRecommendations, useSelectProfession } from "../../../api/professions/useProfessions.ts";
-import { PROFILE_TIPS, RIASEC_COPY, TIER_INFO, moodPhrase, riasecCopy, type RiasecKey } from "./resultCopy.ts";
+import { FitRing } from "./FitRing.tsx";
+import { ProfessionFitDetails } from "./ProfessionFitDetails.tsx";
+import { PROFILE_TIPS, RIASEC_COPY, TIER_INFO, fitTone, moodPhrase, riasecCopy, type RiasecKey } from "./resultCopy.ts";
 import { ShapeColorArt } from "./ShapeColorArt.tsx";
 
 interface Props {
@@ -66,7 +68,10 @@ export function ResultView({ result, onRetake, onUpgrade, maxTier }: Props) {
     const code = (result.hollandCode ?? riasec.slice(0, 3).map((s) => s.fieldKey).join("")).split("") as RiasecKey[];
     const top = riasecCopy(code[0] ?? "");
     const profile = result.profile;
-    const recs = (recQuery.data?.recommendations ?? []).slice(0, 3);
+    // Kasbga moslik bo'yicha tartib (umumiy tavsiya balidan emas — bu sahifa testning o'zi haqida)
+    const recs = (recQuery.data?.recommendations ?? [])
+        .filter((r) => r.fit != null)
+        .sort((a, b) => (b.fit ?? 0) - (a.fit ?? 0));
     const tier = result.tier ?? null;
     // daraja yo'q natijalar (v1 testi, mobil ilova) 50 talik deb hisoblanadi
     const shownTier = tier ?? 50;
@@ -113,20 +118,21 @@ export function ResultView({ result, onRetake, onUpgrade, maxTier }: Props) {
             </section>
 
             {recs.length > 0 ? (
-                <Section title="Senga mos kasblar">
-                    <div className="grid sm:grid-cols-3 gap-3">
-                        {recs.map((rec) => (
-                            <div key={rec.professionId} className="rounded-2xl border border-slate-200 dark:border-slate-700 p-4 flex flex-col gap-3">
+                <Section title="Senga mos kasblar" note="Qiziqish, kuchli tomon va qadriyatlaring bo'yicha">
+                    <div className="grid lg:grid-cols-3 gap-3">
+                        {recs.slice(0, 3).map((rec) => (
+                            <div key={rec.professionId} className="rounded-2xl border border-slate-200 dark:border-slate-700 p-4 flex flex-col gap-4">
                                 <div className="flex items-center gap-3">
-                                    <span className="text-3xl" aria-hidden="true">{rec.emoji ?? "💼"}</span>
+                                    <FitRing fit={rec.fit ?? 0} />
                                     <div className="min-w-0">
-                                        <h3 className="font-fredoka text-lg font-semibold text-slate-900 dark:text-white truncate">
+                                        <h3 className="font-fredoka text-lg font-semibold leading-tight text-slate-900 dark:text-white">
+                                            <span aria-hidden="true">{rec.emoji ?? "💼"} </span>
                                             {rec.title ?? rec.slug}
                                         </h3>
-                                        <span className="text-xs font-bold text-blue-600">{rec.score}% mos</span>
+                                        <span className="text-xs font-bold text-slate-500">{fitTone(rec.fit ?? 0).label}</span>
                                     </div>
                                 </div>
-                                {rec.tagline ? <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">{rec.tagline}</p> : null}
+                                <ProfessionFitDetails rec={rec} compact />
                                 <div className="mt-auto flex gap-2">
                                     <button
                                         type="button"
@@ -152,6 +158,28 @@ export function ResultView({ result, onRetake, onUpgrade, maxTier }: Props) {
                             </div>
                         ))}
                     </div>
+                    {recs.length > 3 ? (
+                        <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+                            {recs.slice(3).map((rec) => (
+                                <li key={rec.professionId}>
+                                    <button
+                                        type="button"
+                                        onClick={() => navigate(`/kasblar/${rec.slug}`)}
+                                        className="w-full grid grid-cols-[1fr_120px_44px] items-center gap-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg px-2"
+                                    >
+                                        <span className="truncate text-sm font-bold text-slate-700 dark:text-slate-200">
+                                            <span aria-hidden="true">{rec.emoji ?? "💼"} </span>
+                                            {rec.title ?? rec.slug}
+                                        </span>
+                                        <span className="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                                            <span className="block h-full rounded-full" style={{ width: `${rec.fit}%`, backgroundColor: fitTone(rec.fit ?? 0).color }} />
+                                        </span>
+                                        <span className="text-right text-sm font-bold tabular-nums text-slate-500">{rec.fit}%</span>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : null}
                     {selectMutation.isError ? (
                         <p className="text-sm font-bold text-red-600">{selectMutation.error.message}</p>
                     ) : null}
