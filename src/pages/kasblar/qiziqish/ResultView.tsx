@@ -5,7 +5,7 @@ import type { InterestQuizResultDto, QuizResultFieldScore } from "../../../api/p
 import { useRecommendations, useSelectProfession } from "../../../api/professions/useProfessions.ts";
 import { FitRing } from "./FitRing.tsx";
 import { ProfessionFitDetails } from "./ProfessionFitDetails.tsx";
-import { PROFILE_TIPS, RIASEC_COPY, TIER_INFO, fitTone, moodPhrase, riasecCopy, type RiasecKey } from "./resultCopy.ts";
+import { PROFILE_TIPS, RIASEC_COPY, SUBJECT_EMOJI, TIER_INFO, fitTone, moodPhrase, riasecCopy, type RiasecKey } from "./resultCopy.ts";
 import { ShapeColorArt } from "./ShapeColorArt.tsx";
 
 interface Props {
@@ -80,6 +80,7 @@ export function ResultView({ result, onRetake, onUpgrade, maxTier }: Props) {
     const strengths = profile?.strengths ?? [];
     const growth = strengths.length > 3 ? strengths[strengths.length - 1] : null;
     const shapeColor = (profile?.shapeColor ?? []).slice(0, 2);
+    const subjects = (profile?.subjects ?? []).filter((s) => s.score >= 40).slice(0, 6);
 
     return (
         <div className="space-y-5">
@@ -118,7 +119,7 @@ export function ResultView({ result, onRetake, onUpgrade, maxTier }: Props) {
             </section>
 
             {recs.length > 0 ? (
-                <Section title="Senga mos kasblar" note="Qiziqish, kuchli tomon va qadriyatlaring bo'yicha">
+                <Section title="Senga mos kasblar" note="Qiziqish, sevimli fanlar, kuchli tomon va qadriyatlaring bo'yicha">
                     <div className="grid lg:grid-cols-3 gap-3">
                         {recs.slice(0, 3).map((rec) => (
                             <div key={rec.professionId} className="rounded-2xl border border-slate-200 dark:border-slate-700 p-4 flex flex-col gap-4">
@@ -193,6 +194,22 @@ export function ResultView({ result, onRetake, onUpgrade, maxTier }: Props) {
                             const copy = riasecCopy(s.fieldKey);
                             return <Bar key={s.fieldKey} label={copy?.title ?? s.fieldLabel} score={s.score} color={copy?.color ?? "#2563EB"} />;
                         })}
+                    </div>
+                </Section>
+            ) : null}
+
+            {subjects.length > 0 ? (
+                <Section title="Sevimli fan va sohalaring">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {subjects.map((item) => (
+                            <div key={item.fieldKey} className="flex items-center gap-3 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 p-3">
+                                <span className="text-3xl" aria-hidden="true">{SUBJECT_EMOJI[item.fieldKey] ?? "📚"}</span>
+                                <span className="min-w-0">
+                                    <span className="block text-sm font-bold leading-tight text-slate-800 dark:text-slate-100">{item.fieldLabel}</span>
+                                    <span className="text-xs font-bold tabular-nums text-emerald-700 dark:text-emerald-300">{item.score}%</span>
+                                </span>
+                            </div>
+                        ))}
                     </div>
                 </Section>
             ) : null}

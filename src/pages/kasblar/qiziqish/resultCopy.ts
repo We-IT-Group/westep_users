@@ -44,8 +44,48 @@ export function riasecCopy(key: string) {
     return RIASEC_COPY[key as RiasecKey] ?? null;
 }
 
+/** Fan va soha kalitlari ikonkasi (natija va moslikda). */
+export const SUBJECT_EMOJI: Record<string, string> = {
+    "subject.biology": "🧬",
+    "subject.chemistry": "⚗️",
+    "subject.physics": "🧲",
+    "subject.math": "➗",
+    "subject.languages": "🗣️",
+    "subject.history": "📜",
+    "subject.informatics": "💻",
+    "subject.economics": "📈",
+    "subject.geography": "🌍",
+    "subject.literature": "📖",
+    "field.medicine": "🩺",
+    "field.engineering": "🏗️",
+    "field.it": "👩‍💻",
+    "field.law": "⚖️",
+    "field.business": "💼",
+    "field.education": "👩‍🏫",
+    "field.arts": "🎨",
+    "field.science": "🔬",
+};
+
 /** Profil kaliti bo'yicha bir gaplik amaliy maslahat. */
 export const PROFILE_TIPS: Record<string, string> = {
+    "subject.biology": "Tabiat va odam tanasi haqidagi kitob va videolar bilan qiziqishingni o'stir.",
+    "subject.chemistry": "Uyda xavfsiz kichik tajribalar va kimyo to'garagi yaxshi boshlanish.",
+    "subject.physics": "\"Bu qanday ishlaydi?\" degan savolga javob qidirib, oddiy tajribalar qilib ko'r.",
+    "subject.math": "Har kuni bitta qiziqarli masala yech — mantiq kuchayadi.",
+    "subject.languages": "Kuniga 5 ta yangi so'z va sevimli multfilmni chet tilida ko'rish yordam beradi.",
+    "subject.history": "Tarixiy joylarga sayohat va tarixiy kitoblar qiziqishingni oshiradi.",
+    "subject.informatics": "Scratch yoki oddiy dasturlash darslaridan boshlab ko'r.",
+    "subject.economics": "Cho'ntak pulingni rejalashtirib ko'r — bu iqtisodning birinchi darsi.",
+    "subject.geography": "Xarita bilan o'yna, turli mamlakatlar haqida bilib ol.",
+    "subject.literature": "Ko'p o'qi va o'qiganing haqida qisqa fikr yoz.",
+    "field.medicine": "Birinchi yordam asoslarini o'rgan, biologiya va kimyoga e'tibor ber.",
+    "field.engineering": "Konstruktor, maket va robototexnika to'garagi seni rivojlantiradi.",
+    "field.it": "O'yin yoki sayt yaratish bo'yicha boshlang'ich kursni sinab ko'r.",
+    "field.law": "Munozara klubiga qatnash, qoidalar nega kerakligi haqida o'yla.",
+    "field.business": "Kichik loyiha yoki yarmarkada savdo qilib ko'r.",
+    "field.education": "Kichiklarga biror narsani o'rgatib ko'r — bu katta tajriba.",
+    "field.arts": "Har kuni biroz chiz, kuyla yoki yarat — ijod mashq bilan o'sadi.",
+    "field.science": "Kuzatuv daftari tut: nimani ko'rding, nima deb o'ylading.",
     "strength.logic": "Mantiqiy o'yinlar, shaxmat va masalalar bu kuchni yanada o'stiradi.",
     "strength.creativity": "G'oyalaringni daftarga yozib bor — keyin ulardan loyiha chiqadi.",
     "strength.communication": "To'garakda yoki sinfda kichik taqdimot qilib ko'r.",

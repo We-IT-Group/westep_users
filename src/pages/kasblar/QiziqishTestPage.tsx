@@ -258,7 +258,7 @@ export default function QiziqishTestPage() {
                     onContinue={() => setDismissedBreaks((prev) => new Set(prev).add(index))}
                 />
             ) : (
-                <section className="academy-card p-6 sm:p-8 border border-slate-100 dark:border-slate-800 space-y-6">
+                <section className="academy-card p-4 sm:p-8 border border-slate-100 dark:border-slate-800 space-y-6">
                     <QuestionCard
                         key={current.id}
                         question={current}
@@ -266,20 +266,21 @@ export default function QiziqishTestPage() {
                         disabled={submitMutation.isPending}
                         onPick={handlePick}
                     />
-                    <div className="flex items-center justify-between gap-3 pt-1">
+                    {/* Mobilda pastga yopishgan: barmoq yetadigan joyda */}
+                    <div className="sticky bottom-3 z-10 -mx-1 flex items-center justify-between gap-3 rounded-2xl bg-white/90 p-1 backdrop-blur dark:bg-slate-900/90 sm:static sm:mx-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
                         <button
                             type="button"
                             onClick={goBack}
                             disabled={index === 0 || submitMutation.isPending}
-                            className="inline-flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-blue-600 disabled:opacity-40"
+                            className="inline-flex h-12 items-center gap-1.5 rounded-xl border-2 border-slate-200 px-4 text-sm font-bold text-slate-600 hover:border-blue-400 hover:text-blue-600 disabled:opacity-40 dark:border-slate-700 dark:text-slate-300"
                         >
-                            <ArrowLeft size={16} /> Oldingi savol
+                            <ArrowLeft size={18} /> Oldingi
                         </button>
                         {answers[current.id] && index < questions.length - 1 ? (
                             <button
                                 type="button"
                                 onClick={() => setIndex(index + 1)}
-                                className="text-sm font-bold text-blue-600 hover:text-blue-500"
+                                className="inline-flex h-12 items-center rounded-xl bg-blue-600 px-5 text-sm font-black text-white hover:bg-blue-500"
                             >
                                 Keyingisi
                             </button>

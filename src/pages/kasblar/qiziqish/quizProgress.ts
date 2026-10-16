@@ -69,6 +69,11 @@ export const DIMENSION_META: Record<QuizDimension, { title: string; intro: strin
         intro: "Qaysi ishlar senga zavq berishini bilib olamiz. To'g'ri yoki noto'g'ri javob yo'q.",
         image: "/quiz/i.webp",
     },
+    SUBJECT: {
+        title: "Fanlar va sohalar",
+        intro: "Qaysi darslar va qaysi ishlar senga qiziqligini bilib olamiz. Bu kasbingni aniqlashga eng ko'p yordam beradi.",
+        image: "/quiz/subjects.webp",
+    },
     STRENGTH: {
         title: "Kuchli tomonlaring",
         intro: "Nimalarni yaxshi uddalashing haqida. O'zingni qanday ko'rsang, shunday belgila.",

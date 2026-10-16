@@ -1,13 +1,14 @@
 import type { RecommendationItemDto } from "../../../api/professions/types.ts";
 import { PROFILE_TIPS } from "./resultCopy.ts";
 
-const PARTS: Array<{ key: "interest" | "strengths" | "values"; label: string; color: string }> = [
+const PARTS: Array<{ key: "interest" | "subjects" | "strengths" | "values"; label: string; color: string }> = [
     { key: "interest", label: "Qiziqishlar", color: "#2563EB" },
+    { key: "subjects", label: "Fan va sohalar", color: "#10B981" },
     { key: "strengths", label: "Kuchli tomonlar", color: "#F59E0B" },
     { key: "values", label: "Qadriyatlar", color: "#DB2777" },
 ];
 
-/** Moslik tarkibi: 3 qism, nega mos, nimani o'stirish kerak. Natija va kasb sahifasida bir xil. */
+/** Moslik tarkibi: 4 qism, nega mos, nimani o'stirish kerak. Natija va kasb sahifasida bir xil. */
 export function ProfessionFitDetails({ rec, compact = false }: { rec: RecommendationItemDto; compact?: boolean }) {
     const parts = rec.fitParts;
     const matches = rec.matches ?? [];

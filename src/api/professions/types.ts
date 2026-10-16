@@ -73,7 +73,7 @@ export interface ProfessionListParams {
     offset?: number;
 }
 
-export type QuizDimension = "RIASEC" | "STRENGTH" | "LEARNING" | "VALUES" | "MOOD" | "SHAPE_COLOR";
+export type QuizDimension = "RIASEC" | "SUBJECT" | "STRENGTH" | "LEARNING" | "VALUES" | "MOOD" | "SHAPE_COLOR";
 export type QuizQuestionType = "LIKERT" | "CHOICE" | "IMAGE" | "SHAPE" | "COLOR";
 
 export interface QuizOptionDto {
@@ -109,6 +109,8 @@ export interface QuizResultFieldScore {
 }
 
 export interface QuizProfileDto {
+    /** Yo'q bo'lishi mumkin: fan bo'limisiz eski natijalar. */
+    subjects?: QuizResultFieldScore[];
     strengths: QuizResultFieldScore[];
     learning: QuizResultFieldScore[];
     values: QuizResultFieldScore[];
@@ -144,7 +146,7 @@ export interface RecommendationItemDto {
     score: number;
     /** Kasbga moslik 0–100 (test yo'q bo'lsa null). */
     fit?: number | null;
-    fitParts?: { interest: number | null; strengths: number | null; values: number | null } | null;
+    fitParts?: { interest: number | null; subjects?: number | null; strengths: number | null; values: number | null } | null;
     matches?: FitPartDto[];
     gaps?: FitPartDto[];
 }
