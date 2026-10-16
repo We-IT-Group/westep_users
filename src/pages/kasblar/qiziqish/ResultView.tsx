@@ -71,7 +71,7 @@ export function ResultView({ result, onRetake, onUpgrade, maxTier }: Props) {
     // Kasbga moslik bo'yicha tartib (umumiy tavsiya balidan emas — bu sahifa testning o'zi haqida)
     const recs = (recQuery.data?.recommendations ?? [])
         .filter((r) => r.fit != null)
-        .sort((a, b) => (b.fit ?? 0) - (a.fit ?? 0));
+        .sort((a, b) => Number(b.ageAppropriate) - Number(a.ageAppropriate) || (b.fit ?? 0) - (a.fit ?? 0));
     const tier = result.tier ?? null;
     // daraja yo'q natijalar (v1 testi, mobil ilova) 50 talik deb hisoblanadi
     const shownTier = tier ?? 50;
