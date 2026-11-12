@@ -8,20 +8,11 @@ import {
     type TelegramWidgetAuth,
 } from "../../components/auth/telegram/openTelegramOidc.ts";
 import CommonButton from "../../ui/CommonButton.tsx";
+import {isAllowedTelegramRedirect} from "../../components/auth/telegram/telegramRedirect.ts";
 
 const DEFAULT_TELEGRAM_REDIRECT = "westep://telegram-callback";
 const INVALID_REDIRECT_MESSAGE = "Noto'g'ri qaytish manzili";
 const BRIDGE_REDIRECT_KEY = "westep.telegram.bridgeRedirect";
-
-function isAllowedTelegramRedirect(raw: string): boolean {
-    try {
-        const scheme = new URL(raw).protocol.replace(/:$/, "").toLowerCase();
-        if (scheme === "westep") return true;
-        return import.meta.env.DEV && (scheme === "exp" || scheme.startsWith("exp+"));
-    } catch {
-        return false;
-    }
-}
 
 function appendQueryParam(base: string, key: string, value: string) {
     const separator = base.includes("?") ? "&" : "?";
@@ -47,7 +38,7 @@ export default function TelegramBridgePage() {
     const storedRedirect =
         typeof sessionStorage === "undefined" ? "" : sessionStorage.getItem(BRIDGE_REDIRECT_KEY) ?? "";
     const redirect = searchParams.get("redirect")?.trim() || storedRedirect || DEFAULT_TELEGRAM_REDIRECT;
-    const redirectAllowed = isAllowedTelegramRedirect(redirect);
+    const redirectAllowed = isAllowedTelegramRedirect(redirect, import.meta.env.DEV);
 
     const finish = (url: string) => {
         window.location.href = url;
